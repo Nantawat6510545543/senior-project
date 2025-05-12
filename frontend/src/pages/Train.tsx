@@ -32,58 +32,46 @@ const Train = () => {
   ]);
   
   return (
-    <div>
-      <header className="bg-purple-300 text-white text-2xl font-bold px-6 py-4 rounded-xl mb-6 flex justify-between">
-        <span>SSL-MI-EEG</span>
-        <nav className="space-x-6 text-lg">
-          <a href="#" className="hover:underline">Train</a>
-          <a href="#" className="hover:underline">Predict</a>
-          <a href="#" className="hover:underline">Evaluate</a>
-          <a href="#" className="hover:underline">Compare Model</a>
-        </nav>
-      </header>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="space-y-6">
+        <div>
+          <Label className="text-purple-800 text-lg mb-2 block">Select dataset</Label>
+          <Combobox options={datasets_options} />
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <div>
-            <Label className="text-purple-800 text-lg mb-2 block">Select dataset</Label>
-            <Combobox options={datasets_options} />
-          </div>
+        <div>
+          <Label className="text-purple-800 text-lg mb-2 block">Select Model</Label>
+          <Combobox options={model_options} />
+        </div>
 
-          <div>
-            <Label className="text-purple-800 text-lg mb-2 block">Select Model</Label>
-            <Combobox options={model_options} />
-          </div>
-
-          <div className="space-y-4">
-            <Label className="text-purple-800 text-lg block">Configure Parameters</Label>
-            <div className="flex flex-col gap-2">
-              <div>
-                <Label>Learning Epoch:</Label>
-                <Input type="number" className="bg-purple-200 border-purple-300" />
-              </div>
-              <div>
-                <Label>Set k-fold:</Label>
-                <Input type="number" className="bg-purple-200 border-purple-300" />
-              </div>
+        <div className="space-y-4">
+          <Label className="text-purple-800 text-lg block">Configure Parameters</Label>
+          <div className="flex flex-col gap-2">
+            <div>
+              <Label>Learning Epoch:</Label>
+              <Input type="number" className="bg-purple-200 border-purple-300" />
             </div>
-          </div>
-
-          <div className="flex gap-4 pt-4">
-            <Button className="bg-purple-300 text-purple-900">Train</Button>
-            <Button variant="outline" className="border-purple-300 text-purple-900">Save Model</Button>
+            <div>
+              <Label>Set k-fold:</Label>
+              <Input type="number" className="bg-purple-200 border-purple-300" />
+            </div>
           </div>
         </div>
 
-        <Card className="bg-purple-100 border-purple-300">
-          <CardContent className="p-4">
-            <h2 className="text-purple-800 text-lg font-semibold mb-2">Training Log</h2>
-            <div className="text-sm text-purple-900 whitespace-pre-line font-mono max-h-[400px] overflow-y-auto">
-              {trainingLog.join("\n")}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex gap-4 pt-4">
+          <Button className="bg-purple-300 text-purple-900">Train</Button>
+          <Button variant="outline" className="border-purple-300 text-purple-900">Save Model</Button>
+        </div>
       </div>
+
+      <Card className="bg-purple-100 border-purple-300">
+        <CardContent className="p-4">
+          <h2 className="text-purple-800 text-lg font-semibold mb-2">Training Log</h2>
+          <div className="text-sm text-purple-900 whitespace-pre-line font-mono max-h-[400px] overflow-y-auto">
+            {trainingLog.join("\n")}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

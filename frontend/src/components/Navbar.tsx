@@ -16,14 +16,14 @@ const navItems = [
 
 const Navbar: React.FC = () => {
   return (
-    <nav className="bg-major text-minor border-b px-6 py-4 flex items-center justify-between">
-      <div className="text-xl font-semibold">SSL-MI-EEG</div>
+    <nav className="bg-purple-800 text-white border-b rounded-lg px-6 py-4 flex items-center justify-between">
+      <div className="text-xl font-bold">SSL-MI-EEG</div>
       <NavigationMenu>
         <NavigationMenuList className="flex space-x-4">
           {navItems.map((item) => (
             <NavigationMenuItem key={item.to}>
               <NavLink to={item.to}>
-                <NavigationMenuLink>{item.label}</NavigationMenuLink>
+                <NavigationMenuLink className="text-lg">{item.label}</NavigationMenuLink>
               </NavLink>
             </NavigationMenuItem>
           ))}
