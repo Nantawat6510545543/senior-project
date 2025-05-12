@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Train from "./pages/Train";
 import Predict from "./pages/Predict";
 import Evaluate from "./pages/Evaluate";
@@ -11,6 +11,7 @@ function App() {
       <Navbar />
       <div className="p-4">
         <Routes>
+          <Route path="/" element={<Navigate replace to="/train" />} />
           <Route path="/train" element={<Train />} />
           <Route path="/predict" element={<Predict />} />
           <Route path="/evaluate" element={<Evaluate />} />
