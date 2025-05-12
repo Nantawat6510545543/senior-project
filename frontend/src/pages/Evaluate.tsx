@@ -1,5 +1,3 @@
-import React from "react";
-
 const Evaluate = () => {
   return <div>Evaluate Page</div>;
 };
