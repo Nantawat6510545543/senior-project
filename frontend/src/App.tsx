@@ -1,5 +1,9 @@
-import Navbar from "@/components/Navbar"; // Make sure path is correct
+import Navbar from "@/components/Navbar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Train from "./pages/Train";
+import Predict from "./pages/Predict";
+import Evaluate from "./pages/Evaluate";
+import Compare from "./pages/Compare";
 
 function App() {
   return (
@@ -7,11 +11,10 @@ function App() {
       <Navbar />
       <div className="p-4">
         <Routes>
-          <Route path="/train" element={<div>Train Page</div>} />
-          <Route path="/predict" element={<div>Predict Page</div>} />
-          <Route path="/evaluate" element={<div>Evaluate Page</div>} />
-          <Route path="/compare" element={<div>Compare Page</div>} />
-          <Route path="/" element={<div>Home</div>} />
+          <Route path="/train" element={<Train />} />
+          <Route path="/predict" element={<Predict />} />
+          <Route path="/evaluate" element={<Evaluate />} />
+          <Route path="/compare" element={<Compare />} />
         </Routes>
       </div>
     </Router>
