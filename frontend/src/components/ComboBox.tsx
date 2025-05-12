@@ -18,7 +18,7 @@ export function Combobox({ options }: ComboboxProps) {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="w-[200px] justify-between"
+          className="w-[200px] justify-between bg-purple-200 border border-purple-300 text-purple-800"
           aria-expanded={open}
         >
           {value
@@ -32,15 +32,19 @@ export function Combobox({ options }: ComboboxProps) {
           {options.map((option) => (
             <li
               key={option.value}
-              className="cursor-pointer px-2 py-1 hover:bg-gray-200"
+              className={`cursor-pointer px-2 py-1 ${
+                value === option.value ? "bg-purple-100" : "hover:bg-purple-50"
+              } text-purple-800`}
               onClick={() => {
-                setValue(option.value === value ? "" : option.value)
-                setOpen(false)
+                setValue(option.value === value ? "" : option.value);
+                setOpen(false);
               }}
             >
               <span className="flex items-center">
                 <Check
-                  className={`mr-2 h-4 w-4 ${value === option.value ? "opacity-100" : "opacity-0"}`}
+                  className={`mr-2 h-4 w-4 ${
+                    value === option.value ? "opacity-100" : "opacity-0"
+                  }`}
                 />
                 {option.label}
               </span>
