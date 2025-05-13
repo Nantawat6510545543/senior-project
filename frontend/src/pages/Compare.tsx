@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UploadCloud } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import ApiButton from "@/components/PrimaryButton";
+import { compareModel } from "@/api/api";
 
 const Compare = () => { 
   const compareData = [
@@ -63,9 +65,7 @@ const Compare = () => {
             <p>F1 Score: {model2.f1Score}</p>
           </div>
 
-          <Button className="bg-purple-800 text-white px-6 py-2 rounded-md shadow hover:bg-purple-700">
-            Compare
-          </Button>
+            <ApiButton onClickApi={compareModel} label="Compare" />
         </div>
 
         {/* Chart area */}

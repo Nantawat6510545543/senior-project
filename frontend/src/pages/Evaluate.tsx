@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UploadCloud } from "lucide-react";
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts';
+import { evaluateModel } from "@/api/api";
+import ApiButton from "@/components/PrimaryButton";
 
 const Evaluate = () => {
   const metrics = {
@@ -30,9 +32,7 @@ const Evaluate = () => {
             <p>Recall: {metrics.recall}%</p>
             <p>F1 Score: {metrics.f1}</p>
           </div>
-          <Button className="bg-purple-800 text-white px-6 py-2 rounded-md shadow hover:bg-purple-700">
-            Evaluate
-          </Button>
+          <ApiButton onClickApi={evaluateModel} label="Evaluate" />
         </div>
 
         <Card className="bg-purple-100 border-purple-300 w-full">

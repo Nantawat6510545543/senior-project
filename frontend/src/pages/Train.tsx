@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ApiButton from "@/components/PrimaryButton";
+import { trainModel } from "@/api/api";
 
 const datasets_options = [
   { value: "BCIC2a", label: "BCIC2a Dataset" },
@@ -59,9 +61,7 @@ const Train = () => {
         </div>
 
         <div className="flex gap-4 pt-4">
-          <Button className="bg-purple-800 text-white px-6 py-2 rounded-md shadow hover:bg-purple-700">
-            Train
-          </Button>
+          <ApiButton onClickApi={trainModel} label="Train" />
           <Button variant="outline" className="border-2 border-purple-300 text-purple-900">Save Model</Button>
         </div>
       </div>
