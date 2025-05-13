@@ -40,7 +40,9 @@ const Predict = () => {
             <Combobox options={model_options} />
           </div>
 
-          <Button className="bg-purple-200 text-purple-900 border border-purple-300 shadow-md">Predict</Button>
+          <Button className="bg-purple-800 text-white px-6 py-2 rounded-md shadow hover:bg-purple-700">
+            Predict
+          </Button>
         </div>
 
         <div className="text-purple-900 text-lg space-y-2">

@@ -30,6 +30,9 @@ const Evaluate = () => {
             <p>Recall: {metrics.recall}%</p>
             <p>F1 Score: {metrics.f1}</p>
           </div>
+          <Button className="bg-purple-800 text-white px-6 py-2 rounded-md shadow hover:bg-purple-700">
+            Evaluate
+          </Button>
         </div>
 
         <Card className="bg-purple-100 border-purple-300 w-full">

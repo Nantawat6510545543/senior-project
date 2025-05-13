@@ -7,7 +7,7 @@ import Compare from "./pages/Compare";
 
 function App() {
   return (
-    <div className="min-h-screen bg-purple-100 p-6">
+    <div className="min-h-screen bg-purple-100 p-6 rounded-none">
       <Router>
         <Navbar />
         <div className="p-4">
@@ -23,4 +23,5 @@ function App() {
     </div>
   );
 }
+
 export default App

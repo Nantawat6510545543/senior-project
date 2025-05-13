@@ -62,6 +62,10 @@ const Compare = () => {
             <p>Recall: {model2.recall}</p>
             <p>F1 Score: {model2.f1Score}</p>
           </div>
+
+          <Button className="bg-purple-800 text-white px-6 py-2 rounded-md shadow hover:bg-purple-700">
+            Compare
+          </Button>
         </div>
 
         {/* Chart area */}

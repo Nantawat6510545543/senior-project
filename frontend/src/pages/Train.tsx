@@ -59,7 +59,9 @@ const Train = () => {
         </div>
 
         <div className="flex gap-4 pt-4">
-          <Button className="bg-purple-200 text-purple-900 border-2 border-purple-300">Train</Button>
+          <Button className="bg-purple-800 text-white px-6 py-2 rounded-md shadow hover:bg-purple-700">
+            Train
+          </Button>
           <Button variant="outline" className="border-2 border-purple-300 text-purple-900">Save Model</Button>
         </div>
       </div>

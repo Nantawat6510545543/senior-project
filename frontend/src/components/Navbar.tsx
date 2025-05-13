@@ -4,7 +4,6 @@ import {
   NavigationMenu,
   NavigationMenuList,
   NavigationMenuItem,
-  NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
 
 const navItems = [
@@ -23,10 +22,15 @@ const Navbar: React.FC = () => {
           <NavigationMenuList className="flex space-x-4">
             {navItems.map((item) => (
               <NavigationMenuItem key={item.to}>
-                <NavLink to={item.to}>
-                  <NavigationMenuLink className="text-lg">
-                    {item.label}
-                  </NavigationMenuLink>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    isActive
+                      ? "bg-purple-100 text-purple-800 px-4 py-2 rounded-lg" // Active state
+                      : "bg-transparent text-white px-4 py-2 rounded-lg" // Default state
+                  }
+                >
+                  {item.label}
                 </NavLink>
               </NavigationMenuItem>
             ))}
