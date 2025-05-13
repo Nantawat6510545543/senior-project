@@ -18,13 +18,13 @@ const Evaluate = () => {
   }));
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <div className="flex flex-col items-start gap-4">
+    <div className="flex justify-center p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center w-full max-w-7xl">
+        <div className="flex flex-col items-center gap-4">
           <Button className="bg-purple-200 text-purple-900 border border-purple-300 shadow-md">
             <UploadCloud className="mr-2 h-5 w-5" /> Upload Model
           </Button>
-          <div className="text-purple-900 space-y-1 text-lg">
+          <div className="text-purple-900 space-y-1 text-lg text-center">
             <p>Accuracy: {metrics.accuracy}%</p>
             <p>Precision: {metrics.precision}%</p>
             <p>Recall: {metrics.recall}%</p>
@@ -34,7 +34,7 @@ const Evaluate = () => {
 
         <Card className="bg-purple-100 border-purple-300 w-full">
           <CardContent className="p-4">
-            <h2 className="text-purple-800 text-lg font-semibold mb-2">Visualization</h2>
+            <h2 className="text-purple-800 text-lg font-semibold mb-2 text-center">Visualization</h2>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -52,6 +52,6 @@ const Evaluate = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Evaluate;

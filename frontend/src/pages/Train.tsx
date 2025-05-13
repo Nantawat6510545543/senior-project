@@ -48,19 +48,19 @@ const Train = () => {
           <Label className="text-purple-800 text-lg block">Configure Parameters</Label>
           <div className="flex flex-col gap-2">
             <div>
-              <Label>Learning Epoch:</Label>
+              <Label className="text-purple-800 py-2">Learning Epoch:</Label>
               <Input type="number" className="bg-purple-200 border-purple-300" />
             </div>
             <div>
-              <Label>Set k-fold:</Label>
+              <Label className="text-purple-800 py-2">Set k-fold:</Label>
               <Input type="number" className="bg-purple-200 border-purple-300" />
             </div>
           </div>
         </div>
 
         <div className="flex gap-4 pt-4">
-          <Button className="bg-purple-300 text-purple-900">Train</Button>
-          <Button variant="outline" className="border-purple-300 text-purple-900">Save Model</Button>
+          <Button className="bg-purple-200 text-purple-900 border-2 border-purple-300">Train</Button>
+          <Button variant="outline" className="border-2 border-purple-300 text-purple-900">Save Model</Button>
         </div>
       </div>
 
