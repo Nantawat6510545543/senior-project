@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Combobox } from "@/components/ComboBox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ApiButton from "@/components/PrimaryButton";
 import { trainModel } from "@/api/api";
+import NumberInput from "@/components/NumberInput";
 
 const datasets_options = [
   { value: "BCIC2a", label: "BCIC2a Dataset" },
@@ -32,18 +32,31 @@ const Train = () => {
     "[2025-03-22 10:05:30] Epoch 50/50 - Loss: 0.4567 - Accuracy: 89.5%",
     "[2025-03-22 10:05:32] Training complete! Total time: 5m 32s",
   ]);
-  
+
+  const [selectedDataset, setSelectedDataset] = useState("");
+  const [selectedModel, setSelectedModel] = useState("");
+  const [learningEpoch, setLearningEpoch] = useState(10);
+  const [kFold, setKFold] = useState(5);
+
+  const handleTrainModel = async () => {
+    return await trainModel({
+      model_name: selectedModel,
+      dataset_name: selectedDataset,
+      epochs: learningEpoch,
+      kfolds: kFold,
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="space-y-6">
         <div>
           <Label className="text-purple-800 text-lg mb-2 block">Select dataset</Label>
-          <Combobox options={datasets_options} />
+          <Combobox options={datasets_options} value={selectedDataset} onChange={setSelectedDataset}/>
         </div>
-
         <div>
           <Label className="text-purple-800 text-lg mb-2 block">Select Model</Label>
-          <Combobox options={model_options} />
+          <Combobox options={model_options} value={selectedModel} onChange={setSelectedModel}/>
         </div>
 
         <div className="space-y-4">
@@ -51,17 +64,17 @@ const Train = () => {
           <div className="flex flex-col gap-2">
             <div>
               <Label className="text-purple-800 py-2">Learning Epoch:</Label>
-              <Input type="number" className="bg-purple-200 border-purple-300" />
+              <NumberInput value={learningEpoch} onChange={setLearningEpoch} />
             </div>
             <div>
               <Label className="text-purple-800 py-2">Set k-fold:</Label>
-              <Input type="number" className="bg-purple-200 border-purple-300" />
+              <NumberInput value={kFold} onChange={setKFold} />
             </div>
           </div>
         </div>
 
         <div className="flex gap-4 pt-4">
-          <ApiButton onClickApi={trainModel} label="Train" />
+          <ApiButton onClickApi={handleTrainModel} label="Train" />
           <Button variant="outline" className="border-2 border-purple-300 text-purple-900">Save Model</Button>
         </div>
       </div>

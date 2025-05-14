@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 
-interface ApiButtonProps<T = unknown> {
-  onClickApi: () => Promise<T>;
+interface ApiButtonProps {
+  onClickApi: () => void;
   label?: string;
 }
 

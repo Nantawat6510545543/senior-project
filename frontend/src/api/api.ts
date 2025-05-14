@@ -1,7 +1,28 @@
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = "http://localhost:8000";
 
-export const trainModel = async () => {
-  const res = await fetch(`${BACKEND_URL}/train`, { method: "POST" });
+interface TrainModelData {
+  model_name: string;
+  dataset_name: string;
+  epochs: number;
+  kfolds: number;
+}
+
+export const trainModel = async (data: TrainModelData) => {
+  console.log(data)
+  const res = await fetch(`${BACKEND_URL}/train`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    console.error(`Backend error ${res.status}:`, error);
+    throw new Error("Failed to train model");
+  }
+
   return await res.json();
 };
 
