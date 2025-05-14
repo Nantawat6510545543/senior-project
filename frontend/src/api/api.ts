@@ -12,6 +12,16 @@ interface PredictModelData {
   model_name: string
 }
 
+interface EvaluateModelData {
+  file: File,
+}
+
+interface CompareModelData {
+  file1: File,
+  file2: File
+}
+
+
 export const trainModel = async (data: TrainModelData) => {
   console.log(data)
   const res = await fetch(`${BACKEND_URL}/train`, {
@@ -23,7 +33,7 @@ export const trainModel = async (data: TrainModelData) => {
   });
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch: ${res.statusText}`);
+    throw new Error(`Error: ${res.status} - ${res.statusText}`);
   }
 
   return await res.json();
@@ -41,17 +51,41 @@ export const predictModel = async (data: PredictModelData) => {
   });
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch: ${res.statusText}`);
+    throw new Error(`Error: ${res.status} - ${res.statusText}`);
   }
 
-  return await res.json(); // Return the prediction result
-};
-export const compareModel = async () => {
-  const res = await fetch(`${BACKEND_URL}/compare`, { method: "POST" });
   return await res.json();
 };
 
-export const evaluateModel = async () => {
-  const res = await fetch(`${BACKEND_URL}/evaluate`, { method: "POST" });
+export const evaluateModel = async (data: EvaluateModelData) => {
+  const formData = new FormData();
+  formData.append("file", data.file);
+
+  const res = await fetch(`${BACKEND_URL}/evaluate`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error(`Error: ${res.status} - ${res.statusText}`);
+  }
+
+  return await res.json();
+};
+
+export const compareModel = async (data: CompareModelData) => {
+  const formData = new FormData();
+  formData.append("file1", data.file1);
+  formData.append("file2", data.file2);
+
+  const res = await fetch(`${BACKEND_URL}/compare`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error(`Error: ${res.status} - ${res.statusText}`);
+  }
+
   return await res.json();
 };

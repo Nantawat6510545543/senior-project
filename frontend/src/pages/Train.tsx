@@ -3,7 +3,7 @@ import { Combobox } from "@/components/ComboBox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import ApiButton from "@/components/PrimaryButton";
+import ApiButton from "@/components/ApiButton";
 import { trainModel } from "@/api/api";
 import NumberInput from "@/components/NumberInput";
 

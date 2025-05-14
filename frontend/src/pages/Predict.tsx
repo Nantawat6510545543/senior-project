@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ComboBox";
 import FileUploadButton from "@/components/FileUploadButton";
-import ApiButton from "@/components/PrimaryButton";
+import ApiButton from "@/components/ApiButton";
 import { predictModel } from "@/api/api";
 
 const model_options = [
