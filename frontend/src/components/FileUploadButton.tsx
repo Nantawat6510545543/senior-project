@@ -1,6 +1,6 @@
-import { useRef } from "react"
-import { UploadCloud } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useRef } from "react";
+import { UploadCloud } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FileUploadButtonProps {
   fileName: string | null;
@@ -8,7 +8,14 @@ interface FileUploadButtonProps {
 }
 
 export default function FileUploadButton({ fileName, onFileChange }: FileUploadButtonProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onFileChange(file); // Pass the file to the parent component
+    }
+  };
 
   return (
     <div className="grid w-full max-w-sm items-center gap-1.5">
@@ -17,12 +24,7 @@ export default function FileUploadButton({ fileName, onFileChange }: FileUploadB
         id="picture"
         ref={inputRef}
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) {
-            onFileChange(file)  // Pass the file back to the parent component
-          }
-        }}
+        onChange={handleFileChange}
       />
       <Button
         variant="outline"
@@ -33,5 +35,5 @@ export default function FileUploadButton({ fileName, onFileChange }: FileUploadB
         {fileName || "Upload Picture"}
       </Button>
     </div>
-  )
+  );
 }
