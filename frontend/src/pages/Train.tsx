@@ -38,7 +38,7 @@ const Train = () => {
   const [learningEpoch, setLearningEpoch] = useState(10);
   const [kFold, setKFold] = useState(5);
 
-  const handleTrainModel = async () => {
+  const handleTrain = async () => {
     return await trainModel({
       model_name: selectedModel,
       dataset_name: selectedDataset,
@@ -74,7 +74,7 @@ const Train = () => {
         </div>
 
         <div className="flex gap-4 pt-4">
-          <ApiButton onClickApi={handleTrainModel} label="Train" />
+          <ApiButton onClickApi={handleTrain} label="Train" />
           <Button variant="outline" className="border-2 border-purple-300 text-purple-900">Save Model</Button>
         </div>
       </div>

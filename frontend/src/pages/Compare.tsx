@@ -37,6 +37,10 @@ const Compare = () => {
     f1Score: '0.915'
   };
 
+  const handleCompare = () => {
+    console.log("Predicting with file:");
+  }
+
   return (
     <div className="flex justify-center p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center w-full max-w-7xl">
@@ -65,7 +69,7 @@ const Compare = () => {
             <p>F1 Score: {model2.f1Score}</p>
           </div>
 
-            <ApiButton onClickApi={compareModel} label="Compare" />
+            <ApiButton onClickApi={handleCompare} label="Compare" />
         </div>
 
         {/* Chart area */}

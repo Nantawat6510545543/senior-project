@@ -20,7 +20,7 @@ export const trainModel = async (data: TrainModelData) => {
   if (!res.ok) {
     const error = await res.json();
     console.error(`Backend error ${res.status}:`, error);
-    throw new Error("Failed to train model");
+    throw new Error("Request not successful");
   }
 
   return await res.json();

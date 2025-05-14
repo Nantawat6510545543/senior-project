@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UploadCloud } from "lucide-react";
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts';
-import { evaluateModel } from "@/api/api";
 import ApiButton from "@/components/PrimaryButton";
 
 const Evaluate = () => {
@@ -19,6 +18,10 @@ const Evaluate = () => {
     accuracy: Math.min(1, 0.5 + i * 0.01 + Math.random() * 0.05),
   }));
 
+  const handleEvaluate = () => {
+    console.log("Predicting with file:");
+  }
+
   return (
     <div className="flex justify-center p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center w-full max-w-7xl">
@@ -32,7 +35,7 @@ const Evaluate = () => {
             <p>Recall: {metrics.recall}%</p>
             <p>F1 Score: {metrics.f1}</p>
           </div>
-          <ApiButton onClickApi={evaluateModel} label="Evaluate" />
+          <ApiButton onClickApi={handleEvaluate} label="Evaluate" />
         </div>
 
         <Card className="bg-purple-100 border-purple-300 w-full">
