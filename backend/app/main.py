@@ -1,12 +1,16 @@
 from fastapi import FastAPI
-from app.api.endpoints import train, classify
+from app.api.endpoints import train, predict, evaluate, compare
 
-app = FastAPI(title="EEG SSL FastAPI", version="0.1")
+app = FastAPI()
 
-# Register routes
-app.include_router(train.router, prefix="/train", tags=["Training"])
-app.include_router(classify.router, prefix="/classify", tags=["Classification"])
+# To run use -> uvicorn app.main:app --reload
+
+# Register the API routers
+app.include_router(train.router)
+app.include_router(predict.router)
+app.include_router(evaluate.router)
+app.include_router(compare.router)
 
 @app.get("/")
-def read_root():
-    return {"message": "EEG SSL API is up and running!"}
+def root():
+    return {"message": "Welcome to the ML API"}
