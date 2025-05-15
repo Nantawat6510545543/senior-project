@@ -6,15 +6,10 @@ router = APIRouter()
 @router.post("/train", response_model=TrainResponse)
 async def train(request: TrainRequest):
     try:
-        model_name = request.model_name
-        dataset_name = request.dataset_name
-        epochs = request.epochs
-        kfolds = request.kfolds
-
         return {
             "message": (
-                f"Training started for model '{model_name}' with dataset '{dataset_name}', "
-                f"for {epochs} epochs and {kfolds}-fold cross-validation."
+                f"Training started for model '{request.model_name}' with dataset '{request.dataset_name}', "
+                f"for {request.epochs} epochs and {request.kfolds}-fold cross-validation."
             )
         }
     except ValueError as ve:

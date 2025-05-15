@@ -6,7 +6,6 @@ router = APIRouter()
 
 @router.post("/compare", response_model=CompareResponse)
 async def compare(
-    request: CompareRequest,
     file1: UploadFile = File(...),  # First file
     file2: UploadFile = File(...),  # Second file
 ):
@@ -16,7 +15,7 @@ async def compare(
             raise HTTPException(status_code=400, detail="Both files must be uploaded.")
         
         return {
-            "message": f"Comparsion for file '{file1.filename}' and '{file2.filename}'"
+            "message": f"Comparison for file '{file1.filename}' and '{file2.filename}'"
         }
 
     except Exception as e:

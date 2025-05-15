@@ -11,7 +11,7 @@ class TrainRequest(BaseModel):
     @classmethod
     def non_empty_string(cls, v, field):
         if not v.strip():
-            raise ValueError(f"{field.name.replace('_', ' ').capitalize()} must not be empty.")
+            raise ValueError(f"{field} must not be empty.")
         return v
 
     @field_validator("epochs")
