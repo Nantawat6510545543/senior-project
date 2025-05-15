@@ -25,6 +25,9 @@ SSL framework, we aim to deliver a more robust and scalable solution for EEG dec
 **This project is a collaborative effort between Kasetsart University and the Vidyasirimedhi Institute of Science and
 Technology (VISTEC), combining expertise in software engineering, neuroscience, and machine learning.**
 
+See more information: [https://mixnetbci.github.io/](https://mixnetbci.github.io/)
+Dataset Used: [https://bnci-horizon-2020.eu/database/data-sets](https://bnci-horizon-2020.eu/database/data-sets)
+
 ## Project Execution Guide
 
 This project has two parts:
