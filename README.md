@@ -60,8 +60,8 @@ uvicorn main:app --reload
 
 Access API at:
 
-- API root: http://127.0.0.1:8000
-- Swagger UI: http://127.0.0.1:8000/docs
+- API root: http://127.0.0.1:3000
+- Swagger UI: http://127.0.0.1:3000/docs
 
 ### Frontend (Vite + React + TypeScript)
 
@@ -79,4 +79,4 @@ npm run dev
 ```
 
 Access frontend at:  
-http://localhost:5173
+http://localhost:3000
