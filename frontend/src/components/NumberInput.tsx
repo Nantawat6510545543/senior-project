@@ -1,16 +1,18 @@
 import { Input } from "@/components/ui/input";
 
 interface NumberInputProps {
-  value: number;
+  value?: number;
+  placeholder?: string;
   onChange: (value: number) => void;
 }
 
-const NumberInput = ({ value, onChange }: NumberInputProps) => (
+const NumberInput = ({ value, placeholder, onChange }: NumberInputProps) => (
   <div>
     <Input
       type="number"
-      className="bg-purple-200 border-purple-300"
+      className="bg-purple-200 border-purple-300 text-purple-900"
       value={value}
+      placeholder={placeholder}
       onChange={(e) => onChange(Number(e.target.value))}
     />
   </div>

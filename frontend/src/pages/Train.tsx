@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Combobox } from "@/components/ComboBox";
+import Combobox from "@/components/ComboBox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

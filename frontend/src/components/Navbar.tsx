@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/navigation-menu";
 
 const navItems = [
+  { to: "/eegui", label: "EEGUI" },
   { to: "/train", label: "Train" },
   { to: "/predict", label: "Predict" },
   { to: "/evaluate", label: "Evaluate" },
@@ -26,8 +27,8 @@ const Navbar: React.FC = () => {
                   to={item.to}
                   className={({ isActive }) =>
                     isActive
-                      ? "bg-purple-100 text-purple-800 px-4 py-2 rounded-lg" // Active state
-                      : "bg-transparent text-white px-4 py-2 rounded-lg" // Default state
+                      ? "bg-purple-100 text-purple-800 text-lg px-4 py-2 rounded-lg" // Active state
+                      : "bg-transparent text-white px-4 text-lg py-2 rounded-lg" // Default state
                   }
                 >
                   {item.label}

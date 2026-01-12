@@ -4,6 +4,7 @@ import Train from "./pages/Train";
 import Predict from "./pages/Predict";
 import Evaluate from "./pages/Evaluate";
 import Compare from "./pages/Compare";
+import EEGUI from "./pages/EEGUI";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <div className="p-4">
           <Routes>
             <Route path="/" element={<Navigate replace to="/train" />} />
+            <Route path="/eegui" element={<EEGUI />} />
             <Route path="/train" element={<Train />} />
             <Route path="/predict" element={<Predict />} />
             <Route path="/evaluate" element={<Evaluate />} />
