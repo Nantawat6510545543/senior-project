@@ -2,15 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import ApiButton from "@/components/ApiButton"
 import NumberInput from "@/components/NumberInput"
 import OptionButtons from "@/components/OptionsButton"
 import Combobox from "@/components/ComboBox"
 import { Header, SubHeader } from "@/components/Fonts"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import FilteringCleaningTabs from "@/components/FilteringCleaningTabs"
+import SettingsTab from "@/components/TabRenderer"
 
 export default function EEGUI() {
   const [inputType, setInputType] = useState("Single subject")
@@ -160,7 +158,7 @@ export default function EEGUI() {
         </div>
       </Card>
 
-      {mode !== "AI" && <FilteringCleaningTabs />}
+      <SettingsTab action={action} />
 
       {/* Run */}
       <div className="flex gap-4">

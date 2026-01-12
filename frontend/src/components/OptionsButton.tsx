@@ -19,8 +19,8 @@ export default function OptionButtons({
         variant={value === opt ? undefined : "outline"}
         className={
             value === opt
-            ? "bg-purple-800 text-white hover:bg-purple-700"
-            : "border-purple-800"
+            ? "bg-purple-800 text-lg text-white hover:bg-purple-700"
+            : "border-purple-800 text-lg text-purple-800"
         }
         onClick={() => onChange(opt)}
         >
