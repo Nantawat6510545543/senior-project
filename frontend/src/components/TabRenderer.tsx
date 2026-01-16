@@ -60,12 +60,15 @@ export default function SettingsTab({ action }: { action: string }) {
   return (
     <Card className="p-4 space-y-4 bg-white border border-purple-300">
       <Tabs defaultValue={requiredTabs[0]}>
-        <TabsList className="bg-purple-100 border border-purple-300 rounded-md">
+        <TabsList className="w-full bg-purple-100 border-0 rounded-md">
           {requiredTabs.map((tabName) => (
             <TabsTrigger
               key={tabName}
               value={tabName}
-              className="text-purple-900 data-[state=active]:bg-purple-800 data-[state=active]:text-white text-lg py-3 px-4"
+              className="text-purple-900 text-lg py-3 px-4
+              data-[state=active]:bg-purple-800 
+              data-[state=active]:text-white 
+              hover:bg-purple-300"
             >
               {tabName}
             </TabsTrigger>
@@ -76,7 +79,7 @@ export default function SettingsTab({ action }: { action: string }) {
           <TabsContent
             key={tabName}
             value={tabName}
-            className="bg-white text-purple-900 p-4 border border-t-0 border-purple-800 rounded-b-md"
+            className="bg-white text-purple-900 p-4"
           >
             {tabComponents[tabName]}
           </TabsContent>

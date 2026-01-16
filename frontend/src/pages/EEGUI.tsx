@@ -45,6 +45,15 @@ export default function EEGUI() {
     AI: ["Models", "Build Dataset", "Train", "Predict"],
   }
 
+  const modeDescriptions: Record<string, string> = {
+    Plot: "Produces one concise figure for the current EEG selection.",
+    "Grid Plot":
+      "Displays per-condition results in a labeled grid for side-by-side comparison with consistent axes and scaling.",
+    Data:
+      "Provides structured tables from the current selection for quick inspection and lightweight export (annotations, channels/electrodes, metadata, epoch summaries).",
+    AI: "AI training and inference on epochs (registry-based).",
+  }
+
   // Update action automatically if mode changes
   useEffect(() => {
     const actions = modeActions[mode]
@@ -141,6 +150,9 @@ export default function EEGUI() {
           value={mode}
           onChange={setMode}
         />
+        <p className="text-sm text-muted-foreground max-w-3xl">
+          {modeDescriptions[mode]}
+        </p>
       </Card>
 
       {/* Action */}
