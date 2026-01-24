@@ -21,7 +21,6 @@ interface CompareModelData {
   file2: File
 }
 
-
 export const trainModel = async (data: TrainModelData) => {
   console.log(data)
   const res = await fetch(`${BACKEND_URL}/train`, {
@@ -35,7 +34,7 @@ export const trainModel = async (data: TrainModelData) => {
   if (!res.ok) {
     throw new Error(`Error: ${res.status} - ${res.statusText}`);
   }
-
+  
   return await res.json();
 };
 
@@ -88,4 +87,17 @@ export const compareModel = async (data: CompareModelData) => {
   }
 
   return await res.json();
+};
+
+export const getPlotUrl = (params: {
+  type: string;
+  subject?: string;
+  task?: string;
+}) => {
+  const search = new URLSearchParams({
+    ...params,
+    t: Date.now().toString(), // cache bust
+  });
+
+  return `${BACKEND_URL}/plot?${search.toString()}`;
 };

@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import ApiButton from "@/components/ApiButton";
 import { compareModel } from "@/api/api";
 import FileUploadButton from "@/components/FileUploadButton";
 import { useState } from "react";
+import PrimaryButton from "@/components/PrimaryButton";
 
 const compareData = [
   {
@@ -75,7 +75,9 @@ const Compare = () => {
             <p>F1 Score: {model2.f1Score}</p>
           </div>
 
-          <ApiButton onClickApi={handleCompare} label="Compare" />
+          <PrimaryButton onClick={handleCompare}>
+            Compare
+          </PrimaryButton>
         </div>
 
         {/* Chart area */}

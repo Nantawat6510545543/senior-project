@@ -12,8 +12,8 @@ export default function FilteringCleaningTab() {
           "h_freq",
           "notch",
           "resample_fs",
-          "uv_min",
-          "uv_max",
+          "μv_min",
+          "μv_max",
           "clean_flatline_sec",
           "clean_hf_noise_sd_max",
         ].map((f) => (

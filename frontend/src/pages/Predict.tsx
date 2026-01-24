@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import Combobox from "@/components/ComboBox";
 import FileUploadButton from "@/components/FileUploadButton";
-import ApiButton from "@/components/ApiButton";
 import { predictModel } from "@/api/api";
+import PrimaryButton from "@/components/PrimaryButton";
 
 const model_options = [
   { value: "Mixnet", label: "MixNet" }
@@ -42,7 +42,9 @@ const Predict = () => {
             <Combobox options={model_options} value={selectedModel} onChange={setSelectedModel} />
           </div>
 
-          <ApiButton onClickApi={handlePredict} label="Predict" />
+          <PrimaryButton onClick={handlePredict}>
+            Predict
+          </PrimaryButton>
         </div>
 
         <div className="text-purple-900 text-lg space-y-2">

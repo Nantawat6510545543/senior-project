@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts';
-import ApiButton from "@/components/ApiButton";
 import { useState } from "react";
 import FileUploadButton from "@/components/FileUploadButton";
 import { evaluateModel } from "@/api/api";
+import PrimaryButton from "@/components/PrimaryButton";
 
 const metrics = {
   accuracy: 87.6,
@@ -40,7 +40,9 @@ const Evaluate = () => {
             <p>Recall: {metrics.recall}%</p>
             <p>F1 Score: {metrics.f1}</p>
           </div>
-          <ApiButton onClickApi={handleEvaluate} label="Evaluate" />
+          <PrimaryButton onClick={handleEvaluate}>
+            Evaluate
+          </PrimaryButton>
         </div>
 
         <Card className="bg-purple-100 border-purple-300 w-full">

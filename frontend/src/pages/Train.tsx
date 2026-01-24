@@ -3,9 +3,9 @@ import Combobox from "@/components/ComboBox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import ApiButton from "@/components/ApiButton";
 import { trainModel } from "@/api/api";
 import NumberInput from "@/components/NumberInput";
+import PrimaryButton from "@/components/PrimaryButton";
 
 const datasets_options = [
   { value: "BCIC2a", label: "BCIC2a Dataset" },
@@ -74,7 +74,9 @@ const Train = () => {
         </div>
 
         <div className="flex gap-4 pt-4">
-          <ApiButton onClickApi={handleTrain} label="Train" />
+          <PrimaryButton onClick={handleTrain}>
+            Train
+          </PrimaryButton>
           <Button variant="outline" className="border-2 border-purple-300 text-purple-900">Save Model</Button>
         </div>
       </div>

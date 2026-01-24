@@ -2,13 +2,26 @@
 
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
-import ApiButton from "@/components/ApiButton"
 import NumberInput from "@/components/NumberInput"
 import OptionButtons from "@/components/OptionsButton"
 import Combobox from "@/components/ComboBox"
 import { Header, SubHeader } from "@/components/Fonts"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import SettingsTab from "@/components/TabRenderer"
+import PrimaryButton from "@/components/PrimaryButton"
+import { getPlotUrl } from "@/api/api"
+
+const ACTION_TO_PLOT_TYPE: Record<string, string> = {
+  "Sensor Layout": "sensor_layout",
+  "Time Domain Plot": "time_domain",
+  "Frequency Domain": "frequency_domain",
+  "Epoch Plot": "epoch",
+  "Evoked Plot": "evoked",
+  "Evoked Topo Plot": "evoked_topo",
+  "Evoked Plot Joint": "evoked_joint",
+  "Evoked per Condition": "evoked_per_condition",
+  "SNR Spectrum": "snr_spectrum",
+};
 
 export default function EEGUI() {
   const [inputType, setInputType] = useState("Single subject")
@@ -16,6 +29,7 @@ export default function EEGUI() {
   const [action, setAction] = useState("Sensor Layout")
   const [subject, setSubject] = useState("")
   const [task, setTask] = useState("")
+  const [plotUrl, setPlotUrl] = useState<string | null>(null);
 
   const subjectOptions = [
     { value: "sub-NDARAC904DMU", label: "sub-NDARAC904DMU" },
@@ -53,6 +67,16 @@ export default function EEGUI() {
       "Provides structured tables from the current selection for quick inspection and lightweight export (annotations, channels/electrodes, metadata, epoch summaries).",
     AI: "AI training and inference on epochs (registry-based).",
   }
+
+  const handleRun = () => {
+    setPlotUrl(
+      getPlotUrl({
+        type: ACTION_TO_PLOT_TYPE[action],
+        subject,
+        task,
+      })
+    );
+  };
 
   // Update action automatically if mode changes
   useEffect(() => {
@@ -174,8 +198,9 @@ export default function EEGUI() {
 
       {/* Run */}
       <div className="flex gap-4">
-        <ApiButton label="Run on Tmux" />
-        <ApiButton label="Run Inline" />
+        <PrimaryButton>Run on Tmux</PrimaryButton>
+        <PrimaryButton onClick={handleRun}>Run Inline</PrimaryButton>
+        {plotUrl && <img src={plotUrl} alt={action} />}
       </div>
     </div>
   )

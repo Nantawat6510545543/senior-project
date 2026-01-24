@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import train, predict, evaluate, compare
+from app.api.endpoints import train, predict, evaluate, compare, plot
+
 app = FastAPI()
 
 origins = [
@@ -18,6 +19,7 @@ app.add_middleware(
 )
 
 # Register the API routers
+app.include_router(plot.router)
 app.include_router(train.router)
 app.include_router(predict.router)
 app.include_router(evaluate.router)
