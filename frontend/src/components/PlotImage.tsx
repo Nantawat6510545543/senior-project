@@ -1,3 +1,4 @@
+// // Unused for now
 function PlotImage({ type }) {
   if (!type) return null;
 

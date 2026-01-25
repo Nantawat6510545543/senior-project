@@ -1,94 +1,64 @@
+
+import { ENDPOINTS } from "./endpoints";
+import type {
+  TrainModelData,
+  PredictModelData,
+  EvaluateModelData,
+  CompareModelData,
+} from "./types";
+
 const BACKEND_URL = "http://localhost:8000";
 
-interface TrainModelData {
-  model_name: string;
-  dataset_name: string;
-  epochs: number;
-  kfolds: number;
-}
+const apiFetch = async (path: string, options: RequestInit) => {
+  const res = await fetch(`${BACKEND_URL}${path}`, options);
 
-interface PredictModelData {
-  file: File,
-  model_name: string
-}
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
 
-interface EvaluateModelData {
-  file: File,
-}
+  return res.json();
+};
 
-interface CompareModelData {
-  file1: File,
-  file2: File
-}
-
-export const trainModel = async (data: TrainModelData) => {
-  console.log(data)
-  const res = await fetch(`${BACKEND_URL}/train`, {
+export const trainModel = (data: TrainModelData) =>
+  apiFetch(ENDPOINTS.TRAIN, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) {
-    throw new Error(`Error: ${res.status} - ${res.statusText}`);
-  }
-  
-  return await res.json();
-};
-
-
-export const predictModel = async (data: PredictModelData) => {
+export const predictModel = (data: PredictModelData) => {
   const formData = new FormData();
-  formData.append("file", data.file); // Append the actual file to the FormData
+  formData.append("file", data.file);
   formData.append("model_name", data.model_name);
 
-  const res = await fetch(`${BACKEND_URL}/predict`, {
+  return apiFetch(ENDPOINTS.PREDICT, {
     method: "POST",
     body: formData,
   });
-
-  if (!res.ok) {
-    throw new Error(`Error: ${res.status} - ${res.statusText}`);
-  }
-
-  return await res.json();
 };
 
-export const evaluateModel = async (data: EvaluateModelData) => {
+export const evaluateModel = (data: EvaluateModelData) => {
   const formData = new FormData();
   formData.append("file", data.file);
 
-  const res = await fetch(`${BACKEND_URL}/evaluate`, {
+  return apiFetch(ENDPOINTS.EVALUATE, {
     method: "POST",
     body: formData,
   });
-
-  if (!res.ok) {
-    throw new Error(`Error: ${res.status} - ${res.statusText}`);
-  }
-
-  return await res.json();
 };
 
-export const compareModel = async (data: CompareModelData) => {
+export const compareModel = (data: CompareModelData) => {
   const formData = new FormData();
   formData.append("file1", data.file1);
   formData.append("file2", data.file2);
 
-  const res = await fetch(`${BACKEND_URL}/compare`, {
+  return apiFetch(ENDPOINTS.COMPARE, {
     method: "POST",
     body: formData,
   });
-
-  if (!res.ok) {
-    throw new Error(`Error: ${res.status} - ${res.statusText}`);
-  }
-
-  return await res.json();
 };
 
+// #TODO clean function
 export const getPlotUrl = (params: {
   type: string;
   subject?: string;
@@ -96,8 +66,8 @@ export const getPlotUrl = (params: {
 }) => {
   const search = new URLSearchParams({
     ...params,
-    t: Date.now().toString(), // cache bust
+    t: Date.now().toString(),
   });
 
-  return `${BACKEND_URL}/plot?${search.toString()}`;
+  return `${BACKEND_URL}${ENDPOINTS.PLOT}?${search.toString()}`;
 };
