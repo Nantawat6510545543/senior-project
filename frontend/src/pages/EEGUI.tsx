@@ -11,28 +11,21 @@ import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
 import { getPlotUrl } from "@/api/api"
 import { SETTINGS_MODE } from "./settings_mode"
+import { useSubjectOption } from "@/hooks/useSubjectOption"
+import { useTaskOption } from "@/hooks/useTaskOption"
 
 
 export default function EEGUI() {
   const [inputType, setInputType] = useState("Single subject")
-  const [mode, setMode] =
-    useState<keyof typeof SETTINGS_MODE>("Plot")
+  const [mode, setMode] = useState<keyof typeof SETTINGS_MODE>("Plot")
   const [action, setAction] = useState(
     Object.keys(SETTINGS_MODE.Plot.actions)[0]
   )
-  const [subject, setSubject] = useState("")
-  const [task, setTask] = useState("")
+
   const [plotUrl, setPlotUrl] = useState<string | null>(null)
 
-  const subjectOptions = [
-    { value: "sub-NDARAC904DMU", label: "sub-NDARAC904DMU" },
-    { value: "sub-NDARAC111AAA", label: "sub-NDARAC111AAA" },
-  ]
-
-  const taskOptions = [
-    { value: "DespicableMe", label: "DespicableMe" },
-    { value: "RestingState", label: "Resting State" },
-  ]
+  const [subject, setSubject] = useState("")
+  const [task, setTask] = useState("")
 
   const modeData = SETTINGS_MODE[mode]
   const actions = Object.keys(modeData.actions)
@@ -50,6 +43,9 @@ export default function EEGUI() {
       getPlotUrl({type: plotType, subject, task})
     )
   }
+
+  const subjectOptions = useSubjectOption()
+  const taskOptions = useTaskOption(subject)
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">

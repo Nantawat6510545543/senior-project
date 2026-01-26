@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import train, predict, evaluate, compare, plot
+from app.api.endpoints import train, predict, evaluate, compare, plot, participants
 
 app = FastAPI()
 
@@ -24,6 +24,12 @@ app.include_router(train.router)
 app.include_router(predict.router)
 app.include_router(evaluate.router)
 app.include_router(compare.router)
+
+app.include_router(
+    participants.router,
+    prefix="/participants",
+    tags=["participants"],
+)
 
 # To run use -> uvicorn app.main:app --reload
 @app.get("/")
