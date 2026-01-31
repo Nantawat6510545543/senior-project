@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.endpoints import train, predict, evaluate, compare, plot, participants
+from app.pipeline.task_resolver import EEGTaskResolver
 
 app = FastAPI()
 
@@ -18,6 +20,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+@app.on_event("startup")
+def startup():
+    app.state.resolver = EEGTaskResolver(data_dir="/data/eeg")
+
+# TODO extract to route/ folder
 # Register the API routers
 app.include_router(plot.router)
 app.include_router(train.router)

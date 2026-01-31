@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from app.services.participants_loader import list_subjects, list_tasks
+from app.core.participants_loader import list_subjects, list_tasks
 
 router = APIRouter()
-
 
 @router.get("/")
 def get_participants():
