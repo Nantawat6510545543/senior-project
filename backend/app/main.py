@@ -1,8 +1,16 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import train, predict, evaluate, compare, plot, participants
 from app.pipeline.task_resolver import EEGTaskResolver
+
+load_dotenv()
+
+DATA_ROOT = os.getenv("DATA_ROOT")
+if not DATA_ROOT:
+    raise RuntimeError("DATA_ROOT is not set in .env")
 
 app = FastAPI()
 
@@ -22,7 +30,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup():
-    app.state.resolver = EEGTaskResolver(data_dir="/data/eeg")
+    app.state.resolver = EEGTaskResolver(data_dir=DATA_ROOT)
 
 # TODO extract to route/ folder
 # Register the API routers

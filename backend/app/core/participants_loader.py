@@ -1,60 +1,514 @@
+"""Discover subjects/tasks and build participants metadata across releases."""
+
+import logging
+import re
+import time
+from collections import defaultdict
+from dataclasses import fields as dc_fields
 from pathlib import Path
-import os, re
-from typing import List, Tuple, Optional
-from dotenv import load_dotenv
+from typing import List, Optional, Dict, Set
 
-load_dotenv() 
-DATA_ROOT = Path(os.getenv("DATA_ROOT"))
+import numpy as np
+import pandas as pd
+from tqdm.auto import tqdm
 
-_TASK_RX = re.compile(
-    r"^(sub-[^_]+)_task-([^_]+)(?:_run-(\d+))?_eeg\.set$",
-    re.IGNORECASE,
-)
-
-# Check file on startup
-if not DATA_ROOT.exists():
-    raise FileNotFoundError(f"DATA_ROOT does not exist: {DATA_ROOT}")
-
-if not DATA_ROOT.is_dir():
-    raise NotADirectoryError(f"DATA_ROOT is not a directory: {DATA_ROOT}")
+from app.schemas.task_scehma import CohortTask
 
 
-def list_subjects() -> List[str]:
-    """
-    Return all subject IDs found under cmi_bids_R*/*/eeg folders.
-    """
-    subjects = set()
+class ParticipantManager:
+    """Index participants and tasks on disk; provide lookup and filtering helpers."""
 
-    for rdir in DATA_ROOT.glob("cmi_bids_R*"):
-        if not rdir.is_dir():
-            continue
+    def __init__(self, data_dir: Path):
+        """Initialize with BIDS-like root directory containing release folders."""
+        self._log = logging.getLogger(__name__)
+        self._data_dir = Path(data_dir)
+        # Lazy caches
+        self.__release_dirs: Optional[List[Path]] = None
+        self.__release_by_number: Optional[Dict[str, Path]] = None
+        self.__task_index: Optional[Dict[str, List[tuple]]] = None
+        self._participants_df: Optional[pd.DataFrame] = None
+        # Subject task pairs cache to avoid repeated globs
+        self.__pairs_cache: Dict[tuple[str, str], List[tuple[str, Optional[str]]]] = {}
 
-        for subj_dir in rdir.glob("sub-*"):
+    # ---------- lazy accessors ----------
+    @property
+    def release_dirs(self) -> List[Path]:
+        """Return list of detected release directories (excluding R5)."""
+        if self.__release_dirs is None:
+            self.__release_dirs = self._discover_release_dirs()
+        return self.__release_dirs
+
+    @property
+    def release_by_number(self) -> Dict[str, Path]:
+        """Return mapping like 'R3' -> Path for quick reverse lookup."""
+        if self.__release_by_number is None:
+            self.__release_by_number = self._map_release_numbers()
+        return self.__release_by_number
+
+    @property
+    def task_index(self) -> Dict[str, List[tuple]]:
+        """Return cached mapping subject -> [(task, run), ...]."""
+        if self.__task_index is None:
+            self.__task_index = self._discover_tasks()
+        return self.__task_index
+
+    # ---------- paths ----------
+    @property
+    def _combined_path(self) -> Path:
+        """Return path to combined participants TSV under data root."""
+        return self._data_dir / "participants_combine.tsv"
+
+    @property
+    def subject_dirs(self):
+        """Yield subject directories across releases, skipping R5."""
+        for rdir in self.release_dirs:
+            if rdir.name.lower().endswith("r5"):
+                continue
+            for p in rdir.glob("sub-*"):
+                if p.is_dir():
+                    yield p
+
+    # ---------- discovery ----------
+    def _discover_release_dirs(self) -> List[Path]:
+        """Discover release directories matching cmi_bids_R* pattern."""
+        t0 = time.perf_counter()
+        dirs = sorted(
+            [p for p in self._data_dir.glob("cmi_bids_R*") if p.is_dir() and not p.name.lower().endswith("r5")])
+        self._log.info("Discovered %d release dirs in %.2fs", len(dirs), time.perf_counter() - t0)
+        return dirs
+
+    def _map_release_numbers(self) -> Dict[str, Path]:
+        """Build map from release number string to directory path."""
+        t0 = time.perf_counter()
+        out: Dict[str, Path] = {}
+        rx = re.compile(r"cmi_bids_(R\d+)$", re.IGNORECASE)
+        for rdir in self.release_dirs:
+            if rdir.name.lower().endswith("r5"):
+                continue
+            m = rx.search(rdir.name)
+            if m:
+                out[m.group(1)] = rdir
+        self._log.debug("Mapped release numbers: %s", sorted(out.keys()))
+        self._log.info("Release number map built in %.2fs", time.perf_counter() - t0)
+        return out
+
+    def _discover_tasks(self):
+        """Scan filesystem to build subject -> [(task, run)] mapping."""
+        t0 = time.perf_counter()
+        task_map = defaultdict(list)
+        pat = re.compile(r"(sub-(?P<subject>[^_]+))_task-(?P<task>[^_]+)(?:_run-(?P<run>\d+))?_eeg\.set$",
+                         re.IGNORECASE)
+        subjects_scanned = 0
+        files_scanned = 0
+        subj_dirs = [p for p in self.subject_dirs]
+        for subj_dir in tqdm(subj_dirs, total=len(subj_dirs), desc="Discover tasks: subjects", leave=False):
             eeg_dir = subj_dir / "eeg"
-            if eeg_dir.exists():
-                subjects.add(subj_dir.name)
+            if not eeg_dir.exists():
+                continue
+            subjects_scanned += 1
+            for f in eeg_dir.glob("sub-*_task-*_eeg.set"):
+                files_scanned += 1
+                m = pat.match(f.name)
+                if not m:
+                    continue
+                subj = subj_dir.name
+                task, run = m.group("task"), m.group("run")
+                pair = (task, run)
+                if pair not in task_map[subj]:
+                    task_map[subj].append(pair)
+        elapsed = time.perf_counter() - t0
+        self._log.info(
+            "Discovered tasks for %d subjects; scanned %d files in %.2fs",
+            len(task_map), files_scanned, elapsed
+        )
+        return dict(task_map)
 
-    return sorted(subjects)
+    # ---------- normalization ----------
+    @staticmethod
+    def _norm(s: Optional[str]) -> str:
+        """Normalize string for comparisons (lowercase alnum only)."""
+        return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
 
+    @classmethod
+    def _norm_bases(cls, col: str) -> Set[str]:
+        """Return normalized base names for a task column (strip suffix/index)."""
+        n = cls._norm(col)
+        out = {n}
+        m = re.match(r"^(.*?)(?:_\d+)$", (col or "").lower())
+        if m:
+            out.add(cls._norm(m.group(1)))
+        m2 = re.match(r"^(.*?)(\d+)$", n)
+        if m2:
+            out.add(cls._norm(m2.group(1)))
+        return {x for x in out if x}
 
-def list_tasks(subject_id: str) -> List[Tuple[str, Optional[str]]]:
-    """
-    Return (task, run) pairs for a given subject across all releases.
-    """
-    tasks = set()
-
-    for rdir in DATA_ROOT.glob("cmi_bids_R*"):
-        eeg_dir = rdir / subject_id / "eeg"
+    def _subject_task_name_set(self, subject: str, release_dir: Path) -> Set[str]:
+        """Return normalized task names present for a subject in a release."""
+        eeg_dir = release_dir / subject / "eeg"
         if not eeg_dir.exists():
-            continue
+            return set()
+        names: Set[str] = set()
+        for p in eeg_dir.glob(f"{subject}_task-*_eeg.set"):
+            m = re.search(r"_task-([^_]+)_eeg\.set$", p.name, re.IGNORECASE)
+            if m:
+                names.add(self._norm(m.group(1)))
+        return names
 
-        for f in eeg_dir.glob("sub-*_task-*_eeg.set"):
-            m = _TASK_RX.match(f.name)
+    def _subject_task_pairs(self, subject: str, release_dir: Path) -> List[tuple[str, Optional[str]]]:
+        """Return list of (task, run) pairs for a subject in a release (cached)."""
+        key = (str(release_dir), subject)
+        if key in self.__pairs_cache:
+            return self.__pairs_cache[key]
+        eeg_dir = release_dir / subject / "eeg"
+        if not eeg_dir.exists():
+            self.__pairs_cache[key] = []
+            return []
+        out: List[tuple[str, Optional[str]]] = []
+        pat = re.compile(rf"^{re.escape(subject)}_task-([^_]+)(?:_run-(\d+))?_eeg\.set$", re.IGNORECASE)
+        for f in eeg_dir.glob(f"{subject}_task-*_eeg.set"):
+            m = pat.match(f.name)
             if not m:
                 continue
+            task = m.group(1)
+            run = m.group(2)
+            pair = (task, run)
+            if pair not in out:
+                out.append(pair)
+        self.__pairs_cache[key] = out
+        return out
 
-            task = m.group(2)
-            run = m.group(3)  # may be None
-            tasks.add((task, run))
+    # ---------- CCD metrics helpers ----------
+    def _ccd_event_files(self, subject: str, release_dir: Path) -> List[Path]:
+        """Return sorted list of event TSV files for CCD task of a subject."""
+        eeg_dir = release_dir / subject / "eeg"
+        if not eeg_dir.exists():
+            return []
+        pattern = f"{subject}_task-contrastChangeDetection*_events.tsv"
+        return sorted(eeg_dir.glob(pattern))
 
-    return sorted(tasks)
+    def _compute_ccd_metrics(self, subject: str, release_dir: Path):
+        """Compute CCD accuracy and response time metrics from event files."""
+        files = self._ccd_event_files(subject, release_dir)
+        if not files:
+            return {
+                "smiley_face": None,
+                "sad_face": None,
+                "non_target": None,
+                "miss_target": None,
+                "ccd_total_targets": None,
+                "ccd_accuracy": None,
+                "ccd_median_rt": None,
+                "smiley_response_time": [],
+                "sad_response_time": [],
+            }
+
+        total_targets = 0
+        smiley_count = 0
+        sad_count = 0
+        non_target_count = 0
+        miss_count = 0
+        smiley_rts: List[float] = []
+        sad_rts: List[float] = []
+
+        for fpath in tqdm(files, total=len(files), desc=f"CCD events {subject}", leave=False):
+            ev = pd.read_csv(fpath, sep="\t")
+            df = ev.copy()
+
+            df["onset"] = pd.to_numeric(df["onset"], errors="coerce")
+            df = df.dropna(subset=["onset"]).sort_values("onset").reset_index(drop=True)
+
+            is_target = df["value"].isin(["left_target", "right_target"]).values
+            is_press = df["value"].isin(["left_buttonPress", "right_buttonPress"]).values
+            is_trial_start = df["value"].eq("contrastTrial_start").values
+
+            idx_targets = np.where(is_target)[0]
+            idx_trial_starts = np.where(is_trial_start)[0]
+
+            for ti in idx_targets:
+                t_on = float(df.loc[ti, "onset"])
+                next_ts = idx_trial_starts[idx_trial_starts > ti]
+                window_end = float(df.loc[next_ts[0], "onset"]) if next_ts.size > 0 else np.inf
+                cand_idx = np.where((np.arange(len(df)) > ti) & is_press & (df["onset"].values < window_end))[0]
+                total_targets += 1
+                if cand_idx.size == 0:
+                    miss_count += 1
+                    continue
+                pi = cand_idx[0]
+                p_on = float(df.loc[pi, "onset"])
+                fb = str(df.loc[pi, "feedback"]) if pd.notna(df.loc[pi, "feedback"]) else None
+
+                if fb == "smiley_face":
+                    smiley_count += 1
+                    smiley_rts.append(round(max(0.0, p_on - t_on), 4))
+                elif fb == "sad_face":
+                    sad_count += 1
+                    sad_rts.append(round(max(0.0, p_on - t_on), 4))
+                elif fb == "non_target":
+                    non_target_count += 1
+                else:
+                    val_t = str(df.loc[ti, "value"])
+                    val_p = str(df.loc[pi, "value"])
+                    if (val_t.startswith("left") and val_p.startswith("left")) or (
+                            val_t.startswith("right") and val_p.startswith("right")):
+                        smiley_count += 1
+                        smiley_rts.append(round(max(0.0, p_on - t_on), 4))
+
+        acc = round(100.0 * smiley_count / float(total_targets), 4) if total_targets else None
+        mean_rt = round(float(np.mean(smiley_rts)), 4) if smiley_rts else None
+
+        return {
+            "smiley_face": int(smiley_count) if smiley_count > 0 else None,
+            "sad_face": int(sad_count) if sad_count > 0 else None,
+            "non_target": int(non_target_count) if non_target_count > 0 else None,
+            "miss_target": int(miss_count) if miss_count > 0 else None,
+            "smiley_response_time": smiley_rts if smiley_rts else [],
+            "sad_response_time": sad_rts if sad_rts else [],
+            "ccd_total_targets": total_targets if total_targets > 0 else None,
+            "ccd_accuracy": acc,
+            "ccd_response_time": mean_rt,
+        }
+
+    def _augment_ccd_metrics(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Fill missing CCD columns and augment them from event data if present."""
+        for col in [
+            "smiley_face", "sad_face", "non_target", "miss_target",
+            "smiley_response_time", "sad_response_time",
+            "ccd_total_targets", "ccd_accuracy", "ccd_median_rt"
+        ]:
+            if col not in df.columns:
+                if col.endswith("response_time"):
+                    df[col] = [[] for _ in range(len(df))]
+                else:
+                    df[col] = np.nan
+
+        t0 = time.perf_counter()
+        for idx, row in tqdm(df.iterrows(), total=len(df), desc="Augment CCD metrics", leave=False):
+            subj = str(row.get("participant_id"))
+            # check quickly if this subject has CCD events files on disk
+            rdir = self.release_by_number.get(str(row.get("release_number")))
+            if not rdir:
+                continue
+            files = self._ccd_event_files(subj, rdir)
+            if not files:
+                continue
+            metrics = self._compute_ccd_metrics(subj, rdir)
+            for k, v in metrics.items():
+                if v is None:
+                    continue
+                df.at[idx, k] = v
+        self._log.info("CCD metrics augmented for %d subjects in %.2fs", len(df), time.perf_counter() - t0)
+        return df
+
+    # ---------- combined TSV with validation ----------
+    def _validate_participants_file(self, p_path: Path, release_dir: Path) -> pd.DataFrame:
+        """Validate availability columns against actual on-disk files per subject."""
+        df = pd.read_csv(p_path, sep="\t")
+        status = {"available", "unavailable", "caution", "missing"}
+        task_cols = []
+        for col in df.columns:
+            ser = df[col]
+            if ser.dtype == object and ser.dropna().astype(str).str.lower().isin(status).any():
+                task_cols.append(col)
+
+        for idx, row in df.iterrows():
+            pid = str(row["participant_id"])
+            subj_dir = release_dir / pid
+            exists = subj_dir.exists() and subj_dir.is_dir()
+
+            if not exists:
+                for c in task_cols:
+                    if str(row[c]).lower() == "available":
+                        df.at[idx, c] = "missing"
+                continue
+
+            # Compute on-disk task/run pairs for this subject only (no global scan)
+            subj_pairs = self._subject_task_pairs(pid, release_dir)
+
+            for c in task_cols:
+                val = str(row[c]).lower()
+                if val != "available":
+                    continue
+
+                base_match = re.match(r"^(.*?)(?:_(\d+))?$", c)
+                if base_match:
+                    base = base_match.group(1)
+                    idx_str = base_match.group(2)
+                else:
+                    base, idx_str = c, None
+
+                if idx_str is not None:
+                    run = idx_str
+                    has_match = any(t == base and r == run for (t, r) in subj_pairs)
+                else:
+                    has_match = any(t == base for (t, r) in subj_pairs)
+
+                if not has_match:
+                    df.at[idx, c] = "missing"
+
+        return df
+
+    def _build_or_load_participants(self) -> pd.DataFrame:
+        """Load combined participants TSV or build it by validating each release."""
+        cp = self._combined_path
+        self._log.info("Finding participants_combine.tsv on %s", cp)
+        if cp.exists():
+            t0 = time.perf_counter()
+            self._log.info("Found participants_combine.tsv")
+            df = pd.read_csv(cp, sep='\t')
+            self._log.info("Loaded participants_combine.tsv in %.2fs (rows=%d, cols=%d)",
+                           time.perf_counter() - t0, df.shape[0], df.shape[1])
+            return df
+        self._log.info("Not found participants_combine.tsv; will build a new one")
+
+        frames: List[pd.DataFrame] = []
+        t_build0 = time.perf_counter()
+        for rdir in tqdm(self.release_dirs, total=len(self.release_dirs), desc="Validate releases", leave=False):
+            p = rdir / 'participants.tsv'
+            t0 = time.perf_counter()
+            self._log.info("Loading %s", p)
+            if p.exists():
+                vdf = self._validate_participants_file(p, rdir)
+                dt = time.perf_counter() - t0
+                self._log.info("Validated participants.tsv for %s in %.2fs (rows=%d)", rdir.name, dt, len(vdf))
+                if not vdf.empty:
+                    frames.append(vdf)
+        if not frames:
+            raise FileNotFoundError('No participants.tsv found in cmi_bids_R* directories')
+        combined = pd.concat(frames, ignore_index=True)
+        combined['participant_id'] = combined['participant_id'].astype(str)
+
+        t_aug0 = time.perf_counter()
+        combined = self._augment_ccd_metrics(combined)
+        self._log.info("Augmented CCD metrics in %.2fs", time.perf_counter() - t_aug0)
+
+        t_save0 = time.perf_counter()
+        combined.to_csv(cp, sep='\t', index=False)
+        self._log.info("participants_combine saved at %s (%.2fs)", cp, time.perf_counter() - t_save0)
+        self._log.info("Built participants_combine in total %.2fs (rows=%d, cols=%d)",
+                       time.perf_counter() - t_build0, combined.shape[0], combined.shape[1])
+        return combined
+
+    def _participants(self) -> pd.DataFrame:
+        """Return cached combined participants DataFrame, building if needed."""
+        if self._participants_df is None:
+            self._participants_df = self._build_or_load_participants()
+        return self._participants_df
+
+    # ---------- public API ----------
+    def subject_data_dir(self, subject: str) -> Path:
+        """Return release directory path containing a subject (fallback to first)."""
+        df = self._participants()
+        rows = df[df['participant_id'] == str(subject)]
+        if not rows.empty and 'release_number' in rows.columns:
+            rn = str(rows.iloc[0]['release_number'])
+            rdir = self.release_by_number.get(rn)
+            if rdir:
+                return rdir
+        for rdir in self.release_dirs:
+            if (rdir / subject).exists():
+                return rdir
+        return self.release_dirs[0] if self.release_dirs else self._data_dir
+
+    def list_subjects(self) -> List[str]:
+        """List all subject IDs as strings."""
+        df = self._participants()
+        return df['participant_id'].dropna().sort_values().tolist()
+
+    def list_all_tasks(self):
+        """List unique task base names across the dataset."""
+        df = self._participants()
+        status = {"available", "unavailable", "caution", "missing"}
+        task_cols = []
+        for col in df.columns:
+            ser = df[col]
+            if ser.dtype == object and ser.dropna().str.lower().isin(status).any():
+                task_cols.append(col)
+
+        merged = set()
+        for col in task_cols:
+            base = re.sub(r"_\d+$", "", col)
+            merged.add(base)
+        return sorted(merged)
+
+    def list_tasks(self, subject: str):
+        """List (task, run) pairs available for a given subject ID."""
+        df = self._participants()
+        rows = df[df['participant_id'] == str(subject)]
+        if rows.empty:
+            return []
+        avail_bases: Set[str] = set()
+        for col in rows.columns:
+            val = rows.iloc[0].get(col)
+            if isinstance(val, str) and val.lower() == 'available':
+                avail_bases |= self._norm_bases(col)
+        # Determine subject's release directory
+        rdir = None
+        if 'release_number' in rows.columns and pd.notna(rows.iloc[0].get('release_number')):
+            rdir = self.release_by_number.get(str(rows.iloc[0]['release_number']))
+        if rdir is None:
+            for candidate in self.release_dirs:
+                if (candidate / subject).exists():
+                    rdir = candidate
+                    break
+        if rdir is None:
+            return []
+        disk_pairs = self._subject_task_pairs(subject, rdir)
+        return sorted([(t, r) for (t, r) in disk_pairs if self._norm(t) in avail_bases])
+
+    def filter_subjects_by_dto(self, dto: CohortTask) -> List[str]:
+        """Filter subjects by availability and DTO constraints; return subject IDs."""
+        t0 = time.perf_counter()
+        df = self._participants().copy()
+        task = dto.task
+        if task in df.columns:
+            df = df[df[task].str.lower() == 'available']
+        else:
+            prefix = f"{task}_"
+            group_cols = [c for c in df.columns if c.startswith(prefix)]
+            if group_cols:
+                mask = (
+                    df[group_cols]
+                    .astype('string')
+                    .apply(lambda s: s.str.lower().eq('available'))
+                    .any(axis=1)
+                )
+                df = df[mask]
+
+        for f in dc_fields(dto):
+            name = f.name
+            if name in ('task', 'subject', 'run', 'subject_limit', 'per_subject'):
+                continue
+            val = getattr(dto, name, None)
+            if val is None:
+                continue
+            if name.endswith('_range'):
+                col = name[:-6]
+                if col in df.columns and isinstance(val, (tuple, list)):
+                    lo, hi = val
+                    s = pd.to_numeric(df[col], errors='coerce')
+                    if lo is not None:
+                        df = df[s >= lo]
+                    if hi is not None:
+                        df = df[s <= hi]
+            elif name in df.columns:
+                if isinstance(val, (list, tuple)):
+                    vals = [v for v in val if v is not None]
+                    if vals:
+                        df = df[df[name].isin(vals)]
+                else:
+                    df = df[df[name] == val]
+        subjects = df['participant_id'].dropna().tolist()
+        limit = dto.subject_limit
+        if limit and int(limit) > 0:
+            limit = int(limit)
+            subjects = subjects[:limit]
+
+        self._log.info("%d subjects found (filter in %.2fs)", len(subjects), time.perf_counter() - t0)
+        self._log.debug("Subjects: %s", sorted(subjects))
+        return sorted(subjects)
+
+    def get_subjects_metadata(self, subject_ids: List[str], columns: Optional[List[str]] = None) -> pd.DataFrame:
+        """Return participants rows for given subject IDs (optionally subset columns)."""
+        df = self._participants()
+        sub_df = df[df['participant_id'].astype(str).isin([str(s) for s in subject_ids])].copy()
+        return sub_df.sort_values('participant_id').reset_index(drop=True)

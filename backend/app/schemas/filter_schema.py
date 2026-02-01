@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from typing import Optional, Union
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, computed_field
 
 
 # -------------------------

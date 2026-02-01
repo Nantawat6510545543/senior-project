@@ -13,10 +13,16 @@ export function useTaskOption(subject: string) {
     }
 
     getTasks(subject)
-      .then((tasks) =>
-        setTaskOptions(tasks.map(([task]) => ({ value: task, label: task })))
+    .then((tasks) => {
+      setTaskOptions(
+        tasks.map(([task, run]) => {
+          const value = run ? `${task}|${run}` : task
+          const label = run ? `${task} (run ${run})` : task
+          return { value, label }
+        })
       )
-      .catch(console.error)
+    })
+    .catch(console.error)
   }, [subject])
 
   return taskOptions

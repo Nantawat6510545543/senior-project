@@ -73,15 +73,14 @@ export const getPlotUrl = (params: {
 };
 
 
-export async function getSubjects() {
-  const res = await fetch(`${BACKEND_URL}/participants`)
+export async function getSubjects(): Promise<string[]> {
+  const res = await fetch(`${BACKEND_URL}/participants/`)
   if (!res.ok) throw new Error("Failed to fetch subjects")
-  const data = await res.json()
-  return data.subjects as string[]
+  return await res.json()
 }
 
 export async function getTasks(subject: string) {
-  const res = await fetch(`${BACKEND_URL}/participants/${subject}/tasks`)
+  const res = await fetch(`${BACKEND_URL}/participants/${subject}/tasks/`)
   if (!res.ok) throw new Error("Failed to fetch tasks")
   const data = await res.json()
   return data.tasks as [string, string | null][]
