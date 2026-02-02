@@ -1,13 +1,15 @@
-import { SubHeader } from "@/components/Fonts"
-import NumberInput from "@/components/NumberInput"
+import SchemaFieldGrid from "./SchemaFieldGrid"
+import { useSchema } from "@/hooks/useSchema"
 
 export default function TopomapTab() {
+  const schema = useSchema("topomap")
+
+  if (!schema) return null
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div>
-        <SubHeader>Times</SubHeader>
-        <NumberInput />
-      </div>
-    </div>
+    <SchemaFieldGrid
+      schema={schema}
+      groups={["topo"]}
+    />
   )
 }

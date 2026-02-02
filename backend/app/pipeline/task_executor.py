@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 from .task_loader import EEGTaskLoader
 from .task_processor import EEGTaskProcessor
-from app.schemas.task_scehma import SingleSubjectTask
+from app.schemas.task_schema import SingleSubjectTask
 from app.core.cache_manager import LocalCache, PIPELINE_VERSION
 
 

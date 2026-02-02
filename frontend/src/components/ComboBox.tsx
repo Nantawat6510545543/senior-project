@@ -21,11 +21,18 @@ export default function Combobox({ options, value, onChange }: ComboboxProps) {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="w-[200px] justify-between bg-purple-200 border-purple-300 text-purple-800"
-          aria-expanded={open}
+          className="
+            w-auto
+            min-w-[200px]
+            max-w-none
+            justify-between
+            bg-purple-200 border-purple-300 text-purple-800
+          "
         >
-          {selectedLabel}
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
+          <span className="whitespace-nowrap">
+            {selectedLabel}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 flex-shrink-0" />
         </Button>
       </PopoverTrigger>
 

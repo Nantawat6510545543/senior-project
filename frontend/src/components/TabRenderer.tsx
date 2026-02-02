@@ -10,6 +10,7 @@ import TablesTab from "./tabs/TablesTab"
 import ModelsTab from "./tabs/ModelsTab"
 import TrainingTab from "./tabs/TrainingTab"
 import PredictionTab from "./tabs/PredictionTab"
+import { useEffect, useState } from "react"
 
 
 // Mapping: full action name → required tab names
@@ -54,21 +55,26 @@ const tabComponents: Record<string, React.ReactNode> = {
 
 export default function SettingsTab({ action }: { action: string }) {
   const requiredTabs = tabDependencies[action] || []
+  const [activeTab, setActiveTab] = useState(requiredTabs[0])
+
+  useEffect(() => {
+    setActiveTab(requiredTabs[0])
+  }, [action])
 
   if (requiredTabs.length === 0) return null
 
   return (
     <Card className="p-4 space-y-4 bg-white border border-purple-300">
-      <Tabs defaultValue={requiredTabs[0]}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full bg-purple-100 border-0 rounded-md">
           {requiredTabs.map((tabName) => (
             <TabsTrigger
               key={tabName}
               value={tabName}
               className="text-purple-900 text-lg py-3 px-4
-              data-[state=active]:bg-purple-800 
-              data-[state=active]:text-white 
-              hover:bg-purple-300"
+                data-[state=active]:bg-purple-800 
+                data-[state=active]:text-white 
+                hover:bg-purple-300"
             >
               {tabName}
             </TabsTrigger>
@@ -88,4 +94,3 @@ export default function SettingsTab({ action }: { action: string }) {
     </Card>
   )
 }
-

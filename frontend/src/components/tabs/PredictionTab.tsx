@@ -1,6 +1,5 @@
 import { SubHeader } from "@/components/Fonts";
-import NumberInput from "../NumberInput";
-
+import NumberInput from "../IntegerInput";
 
 export default function PredictionTab() {
   return (

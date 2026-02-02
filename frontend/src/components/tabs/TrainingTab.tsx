@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SubHeader } from "@/components/Fonts";
-import NumberInput from "@/components/NumberInput";
+import NumberInput from "@/components/IntegerInput";
 import Combobox from "../ComboBox";
 
 

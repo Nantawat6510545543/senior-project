@@ -3,7 +3,7 @@ from typing import Union
 import logging
 import time
 
-from app.schemas.task_scehma import SingleSubjectTask, CohortTask
+from app.schemas.task_schema import SingleSubjectTask, CohortTask
 from app.pipeline.task_executor import EEGTaskExecutor
 from app.pipeline.cohort_executor import EEGCohortExecutor
 from app.core.participants_loader import ParticipantManager

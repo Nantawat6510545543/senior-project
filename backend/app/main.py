@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.endpoints import train, predict, evaluate, compare, plot, participants
+from app.api.endpoints import train, predict, evaluate, compare, plot, participants, params_schema
 from app.pipeline.task_resolver import EEGTaskResolver
 
 load_dotenv()
@@ -32,19 +32,14 @@ app.add_middleware(
 def startup():
     app.state.resolver = EEGTaskResolver(data_dir=DATA_ROOT)
 
-# TODO extract to route/ folder
 # Register the API routers
 app.include_router(plot.router)
 app.include_router(train.router)
 app.include_router(predict.router)
 app.include_router(evaluate.router)
 app.include_router(compare.router)
-
-app.include_router(
-    participants.router,
-    prefix="/participants",
-    tags=["participants"],
-)
+app.include_router(params_schema.router)
+app.include_router(participants.router)
 
 # To run use -> uvicorn app.main:app --reload
 @app.get("/")

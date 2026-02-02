@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
-import NumberInput from "@/components/NumberInput"
 import OptionButtons from "@/components/OptionsButton"
 import Combobox from "@/components/ComboBox"
 import { Header, SubHeader } from "@/components/Fonts"
@@ -13,6 +12,7 @@ import { getPlotUrl } from "@/api/api"
 import { SETTINGS_MODE } from "./settings_mode"
 import { useSubjectOption } from "@/hooks/useSubjectOption"
 import { useTaskOption } from "@/hooks/useTaskOption"
+import IntegerInput from "@/components/IntegerInput"
 
 
 export default function EEGUI() {
@@ -90,7 +90,7 @@ export default function EEGUI() {
             />
 
             <SubHeader>Subject limit</SubHeader>
-            <NumberInput />
+            <IntegerInput />
 
             <div className="flex items-center gap-2">
               <PurpleCheckbox />
@@ -120,8 +120,8 @@ export default function EEGUI() {
                 <div key={name}>
                   <SubHeader>{name}_range</SubHeader>
                   <div className="flex gap-2">
-                    <NumberInput placeholder="min" />
-                    <NumberInput placeholder="max" />
+                    <IntegerInput placeholder="min" />
+                    <IntegerInput placeholder="max" />
                   </div>
                 </div>
               )

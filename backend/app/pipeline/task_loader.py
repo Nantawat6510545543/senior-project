@@ -7,7 +7,7 @@ from pathlib import Path
 import mne
 import pandas as pd
 
-from app.schemas.task_scehma import SingleSubjectTask
+from app.schemas.task_schema import SingleSubjectTask
 
 
 class EEGTaskLoader:

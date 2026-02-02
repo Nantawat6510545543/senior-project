@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request
 
-router = APIRouter()
+router = APIRouter(prefix="/participants", tags=["participants"])
 
 @router.get("/")
 def get_participants(request: Request):

@@ -7,8 +7,11 @@ import numpy as np
 from mne import Epochs, set_log_level, events_from_annotations
 
 from .constants import EVENT_ID, RESTING_STATE_EVENT_ID, CCD_EVENT_ID
-from app.schemas.task_scehma import TaskRequest
-from app.schemas.filter_schema import FilterParams, EpochParams, EvokedParams
+
+from app.schemas.task_schema import TaskRequest
+from app.schemas.params.base_filter_schema import FilterParams
+from app.schemas.params.epoch_filter_schema import EpochParams
+from app.schemas.params.evoked_filter_schema import EvokedParams
 from app.core.cache_manager import CacheKey
 from app.pipeline.signal_cleaner import EEGCleaner
 

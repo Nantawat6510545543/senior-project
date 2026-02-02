@@ -1,8 +1,5 @@
 """Spectral metrics helpers for EEG arrays."""
-from __future__ import annotations
-
 import numpy as np
-
 
 def snr_spectrum(
         psd: np.ndarray,
@@ -27,5 +24,3 @@ def snr_spectrum(
     pad = [(0, 0)] * (mean_noise.ndim - 1) + [(edge_width, edge_width)]
     mean_noise = np.pad(mean_noise, pad_width=tuple(pad), constant_values=float("nan"))
     return psd / mean_noise
-
-__all__ = ["snr_spectrum"]

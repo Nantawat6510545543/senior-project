@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { trainModel } from "@/api/api";
-import NumberInput from "@/components/NumberInput";
+import NumberInput from "@/components/IntegerInput";
 import PrimaryButton from "@/components/PrimaryButton";
 
 const datasets_options = [
