@@ -1,3 +1,4 @@
+from mne.io import Raw
 from typing import Optional, Type
 
 from .task_loader import EEGTaskLoader
@@ -51,7 +52,7 @@ class EEGTaskExecutor:
                 self.cache,
             )
 
-    def get_raw(self):
+    def get_raw(self) -> Raw:
         self._ensure()
         if self._raw is None:
             self._raw = self.loader.load_raw()

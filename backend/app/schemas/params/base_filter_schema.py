@@ -58,9 +58,12 @@ class FilterParams(BaseModel):
         0.5, json_schema_extra={"ui": "number", "unit": "sec", "group": "cleaning"}
     )
 
-    clean_asr_remove_only: bool = Field(
+    asr_remove_only: bool = Field(
         False, json_schema_extra={"ui": "checkbox", "group": "cleaning"}
     )
+
+    # combine_channels: bool = False
+    # show_bad: bool = False
 
     class Config:
         extra = "forbid"

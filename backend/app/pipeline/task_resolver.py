@@ -35,7 +35,7 @@ class EEGTaskResolver:
         return self._participants.list_tasks(subject)
 
     # ---------- resolution ----------
-    def resolve(self, task: Union[SingleSubjectTask, CohortTask]):
+    def resolve_task(self, task: Union[SingleSubjectTask, CohortTask]):
         if isinstance(task, SingleSubjectTask):
             return self._resolve_single(task)
 
@@ -48,9 +48,9 @@ class EEGTaskResolver:
         subject_dir = self._participants.subject_data_dir(task.subject)
 
         return EEGTaskExecutor(
-            task=task.task,
-            subject=task.subject,
-            run=task.run,
+            task=task,
+            # subject=task.subject,
+            # run=task.run,
             data_dir=subject_dir,
         )
 
