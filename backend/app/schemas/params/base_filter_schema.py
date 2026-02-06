@@ -58,7 +58,7 @@ class FilterParams(BaseModel):
         0.5, json_schema_extra={"ui": "number", "unit": "sec", "group": "cleaning"}
     )
 
-    asr_remove_only: bool = Field(
+    clean_asr_remove_only: bool = Field(
         False, json_schema_extra={"ui": "checkbox", "group": "cleaning"}
     )
 

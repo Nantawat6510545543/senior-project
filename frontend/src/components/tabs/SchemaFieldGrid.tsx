@@ -1,10 +1,13 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import IntegerInput from "@/components/IntegerInput"
 import DecimalInput from "@/components/DecimalInput"
 import { Input } from "@/components/ui/input"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import { SubHeader } from "@/components/Fonts"
 import Combobox from "../ComboBox"
+import useSessionPatch from "@/hooks/useSessionPatch"
+import useLoadSession from "@/hooks/useLoadSession"
+import type { SchemaEndpoints } from "@/hooks/useSchema"
 
 function resolveFieldType(field: any) {
   if (field.anyOf) {
@@ -25,14 +28,31 @@ function getSchemaFieldsByGroup(schema: any, groups: string[]) {
 export default function SchemaFieldGrid({
   schema,
   groups,
+  sessionId,
+  endpoint,
 }: {
   schema: any
   groups: string[]
+  sessionId: string
+  endpoint: SchemaEndpoints
 }) {
+
   const fields = getSchemaFieldsByGroup(schema, groups)
 
   // STRING-BASED UI STATE
+  const sessionValues = useLoadSession(sessionId, endpoint)
   const [values, setValues] = useState<Record<string, any>>({})
+  useSessionPatch(sessionId, endpoint, values)
+
+  const setField = (name: string, value: any) => {
+    setValues(prev => ({ ...prev, [name]: value }))
+  }
+
+  useEffect(() => {
+    if (sessionValues) {
+      setValues(sessionValues)
+    }
+  }, [sessionValues])
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -47,9 +67,7 @@ export default function SchemaFieldGrid({
             {type === "boolean" && (
               <PurpleCheckbox
                 checked={values[name] ?? field.default ?? false}
-                onChange={(v) =>
-                  setValues((prev) => ({ ...prev, [name]: v }))
-                }
+                onChange={(v) => setField(name, v)}
               />
             )}
 
@@ -57,9 +75,7 @@ export default function SchemaFieldGrid({
               <IntegerInput
                 placeholder={String(field.default ?? "")}
                 value={values[name]}
-                onChange={(v) =>
-                  setValues((prev) => ({ ...prev, [name]: v }))
-                }
+                onChange={(v) => setField(name, v)}
               />
             )}
 
@@ -67,21 +83,14 @@ export default function SchemaFieldGrid({
               <DecimalInput
                 placeholder={String(field.default ?? "")}
                 value={values[name]}
-                onChange={(v) =>
-                  setValues((prev) => ({ ...prev, [name]: v }))
-                }
+                onChange={(v) => setField(name, v)}
               />
             )}
 
             {type === "string" && (
               <Input
-                defaultValue={field.default}
-                onChange={(e) =>
-                  setValues((prev) => ({
-                    ...prev,
-                    [name]: e.target.value,
-                  }))
-                }
+                value={values[name] ?? field.default ?? ""}
+                onChange={(e) => setField(name, e.target.value)}
               />
             )}
 
@@ -89,9 +98,7 @@ export default function SchemaFieldGrid({
               <Combobox
                 options={field.options.map((v: string) => ({ value: v, label: v }))}
                 value={values[name] ?? field.default}
-                onChange={(v) =>
-                  setValues((prev) => ({ ...prev, [name]: v }))
-                }
+                onChange={(v) => setField(name, v)}
               />
             )}
           </div>

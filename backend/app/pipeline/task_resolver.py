@@ -47,12 +47,7 @@ class EEGTaskResolver:
     def _resolve_single(self, task: SingleSubjectTask) -> EEGTaskExecutor:
         subject_dir = self._participants.subject_data_dir(task.subject)
 
-        return EEGTaskExecutor(
-            task=task,
-            # subject=task.subject,
-            # run=task.run,
-            data_dir=subject_dir,
-        )
+        return EEGTaskExecutor(task=task, data_dir=subject_dir)
 
     def _resolve_cohort(self, task: CohortTask) -> EEGCohortExecutor:
         subjects = self._participants.filter_subjects(

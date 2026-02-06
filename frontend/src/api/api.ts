@@ -1,10 +1,12 @@
 
+import type { SchemaEndpoints } from "@/hooks/useSchema";
 import { ENDPOINTS } from "./endpoints";
 import type {
   TrainModelData,
   PredictModelData,
   EvaluateModelData,
   CompareModelData,
+  SingleSubjectTask,
 } from "./types";
 
 const BACKEND_URL = "http://localhost:8000";
@@ -58,16 +60,20 @@ export const compareModel = (data: CompareModelData) => {
   });
 };
 
-// #TODO clean function
 export const getPlotUrl = (params: {
   type: string;
-  subject?: string;
-  task?: string;
+  task: SingleSubjectTask
 }) => {
   const search = new URLSearchParams({
-    ...params,
+    type: params.type,
+    subject: params.task.subject,
+    task: params.task.task,
     t: Date.now().toString(),
-  });
+  })
+
+  if (params.task.run) {
+    search.set("run", params.task.run)
+  }
 
   return `${BACKEND_URL}${ENDPOINTS.PLOT}?${search.toString()}`;
 };
@@ -84,4 +90,43 @@ export async function getTasks(subject: string) {
   if (!res.ok) throw new Error("Failed to fetch tasks")
   const data = await res.json()
   return data.tasks as [string, string | null][]
+}
+
+
+// Sessions
+export async function createSession(): Promise<string> {
+  const res = await fetch(`${BACKEND_URL}/session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({})
+  })
+
+  if (!res.ok) throw new Error("Failed to create session")
+
+  const data = await res.json()
+  return data.session_id
+}
+
+
+export async function getSession(sessionId: string) {
+  if (!sessionId) throw new Error("getSession: sessionId required")
+
+  const res = await fetch(`${BACKEND_URL}/session/${sessionId}`)
+  if (!res.ok) throw new Error("Failed to fetch session")
+
+  return await res.json()
+}
+
+export async function patchSession(
+  sessionId: string,
+  endpoint: SchemaEndpoints,
+  values: Record<string, any>
+) {
+  const res = await fetch(`${BACKEND_URL}/session/${sessionId}/${endpoint}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(values),
+  })
+
+  if (!res.ok) throw new Error("Failed to patch session")
 }

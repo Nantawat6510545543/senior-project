@@ -32,15 +32,15 @@ def plot(
 
     fig = None
 
-    new_task = SingleSubjectTask(
-        task="DespicableMe",
-        subject="sub-NDARAC904DMU",
+    sst = SingleSubjectTask(
+        task=task,
+        subject=subject,
+        run=run
     )
-    if type == "sensor_layout":
-        task_dto = new_task
-        params = FilterParams()
+    params = FilterParams()
 
-        fig = plot_sensors(task_dto, params)
+    if type == "sensor_layout":
+        fig = plot_sensors(sst, params)
 
     else:
         fig, ax = plt.subplots()

@@ -4,7 +4,7 @@ load_dotenv() # Load .env before program runs
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.endpoints import train, predict, evaluate, compare, plot, participants, params_schema
+from app.api.endpoints import train, predict, evaluate, compare, plot, participants, params_schema, session
 from app.pipeline.task_resolver import EEGTaskResolver
 from app.core.config import DATA_ROOT
 
@@ -36,6 +36,7 @@ app.include_router(evaluate.router)
 app.include_router(compare.router)
 app.include_router(params_schema.router)
 app.include_router(participants.router)
+app.include_router(session.router)
 
 # To run use -> uvicorn app.main:app --reload
 @app.get("/")

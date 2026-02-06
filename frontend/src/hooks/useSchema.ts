@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { apiFetch } from "@/api/api"
 
-export const schemaPaths = [
+export const schemaEndpoints = [
   "filter",
   "epochs",
   "psd",
@@ -11,9 +11,9 @@ export const schemaPaths = [
   "tables",
 ] as const
 
-export type SchemaPath = typeof schemaPaths[number]
+export type SchemaEndpoints = typeof schemaEndpoints[number]
 
-export function useSchema(name: SchemaPath) {
+export function useSchema(name: SchemaEndpoints) {
   const [schema, setSchema] = useState<any>(null)
 
   useEffect(() => {

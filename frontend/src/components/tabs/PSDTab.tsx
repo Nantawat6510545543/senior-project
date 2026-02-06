@@ -1,15 +1,16 @@
 import SchemaFieldGrid from "./SchemaFieldGrid"
-import { useSchema } from "@/hooks/useSchema"
 
-export default function PSDTab() {
-  const schema = useSchema("psd")
-
+export default function PSDTab(
+  { sessionId, schema }: { sessionId: string, schema: any }
+) {
   if (!schema) return null
 
   return (
     <SchemaFieldGrid
       schema={schema}
       groups={["psd"]}
+      sessionId={sessionId}
+      endpoint="psd"
     />
   )
 }

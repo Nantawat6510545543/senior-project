@@ -18,3 +18,9 @@ export interface CompareModelData {
   file1: File;
   file2: File;
 }
+
+export interface SingleSubjectTask {
+  task: string
+  subject: string
+  run?: string | null
+}

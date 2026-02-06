@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import OptionButtons from "@/components/OptionsButton"
 import Combobox from "@/components/ComboBox"
@@ -8,11 +8,12 @@ import { Header, SubHeader } from "@/components/Fonts"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
-import { getPlotUrl } from "@/api/api"
+import { createSession, getPlotUrl } from "@/api/api"
 import { SETTINGS_MODE } from "./settings_mode"
 import { useSubjectOption } from "@/hooks/useSubjectOption"
 import { useTaskOption } from "@/hooks/useTaskOption"
 import IntegerInput from "@/components/IntegerInput"
+import type { SingleSubjectTask } from "@/api/types"
 
 
 export default function EEGUI() {
@@ -22,13 +23,21 @@ export default function EEGUI() {
     Object.keys(SETTINGS_MODE.Plot.actions)[0]
   )
 
-  const [plotUrl, setPlotUrl] = useState<string | null>(null)
-
-  const [subject, setSubject] = useState("")
-  const [task, setTask] = useState("")
-
   const modeData = SETTINGS_MODE[mode]
   const actions = Object.keys(modeData.actions)
+
+  const [plotUrl, setPlotUrl] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<string>("")
+
+  useEffect(() => {
+    createSession().then(setSessionId).catch(console.error)
+  }, [])
+
+  const [singleTask, setSingleTask] = useState<SingleSubjectTask>({
+    subject: "",
+    task: "",
+    run: null,
+  })
 
   let safeAction = action
   if (!(safeAction in modeData.actions)) {
@@ -40,12 +49,12 @@ export default function EEGUI() {
     if (!plotType) return
 
     setPlotUrl(
-      getPlotUrl({type: plotType, subject, task})
+      getPlotUrl({ type: plotType, task: singleTask })
     )
   }
 
   const subjectOptions = useSubjectOption()
-  const taskOptions = useTaskOption(subject)
+  const taskOptions = useTaskOption(singleTask.subject)
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
@@ -64,8 +73,10 @@ export default function EEGUI() {
               <SubHeader>Subject</SubHeader>
               <Combobox
                 options={subjectOptions}
-                value={subject}
-                onChange={setSubject}
+                value={singleTask.subject}
+                onChange={(value) =>
+                  setSingleTask((prev) => ({ ...prev, subject: value }))
+                }
               />
             </div>
 
@@ -73,8 +84,10 @@ export default function EEGUI() {
               <SubHeader>Task</SubHeader>
               <Combobox
                 options={taskOptions}
-                value={task}
-                onChange={setTask}
+                value={singleTask.task}
+                onChange={(value) =>
+                  setSingleTask((prev) => ({ ...prev, task: value }))
+                }
               />
             </div>
           </div>
@@ -83,11 +96,13 @@ export default function EEGUI() {
         {inputType === "Meta filter (group)" && (
           <div className="space-y-4 mt-4">
             <SubHeader>Task</SubHeader>
-            <Combobox
-              options={taskOptions}
-              value={task}
-              onChange={setTask}
-            />
+              <Combobox
+                options={subjectOptions}
+                value={singleTask.subject}
+                onChange={(value) =>
+                  setSingleTask((prev) => ({ ...prev, subject: value }))
+                }
+              />
 
             <SubHeader>Subject limit</SubHeader>
             <IntegerInput />
@@ -158,15 +173,13 @@ export default function EEGUI() {
         </div>
       </Card>
 
-      <SettingsTab action={safeAction} />
+      {/* Schema Settings Tabs */}
+      <SettingsTab action={safeAction} sessionId={sessionId} />
 
       {/* Run */}
-      <div className="flex gap-4">
-        <PrimaryButton>Run on Tmux</PrimaryButton>
-        <PrimaryButton onClick={handleRunInline}>
-          Run Inline
-        </PrimaryButton>
-      </div>
+      <PrimaryButton onClick={handleRunInline}>
+        Run Inline
+      </PrimaryButton>
 
       <div className="w-full flex justify-center mt-6">
         {plotUrl && <img src={plotUrl} alt={safeAction} />}

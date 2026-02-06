@@ -1,8 +1,8 @@
 import SchemaFieldGrid from "./SchemaFieldGrid"
-import { useSchema } from "@/hooks/useSchema"
 
-export default function TablesTab() {
-  const schema = useSchema("tables")
+export default function TablesTab(
+  { sessionId, schema }: { sessionId: string, schema: any }
+) {
 
   if (!schema) return null
 
@@ -10,6 +10,8 @@ export default function TablesTab() {
     <SchemaFieldGrid
       schema={schema}
       groups={["tables"]}
+      sessionId={sessionId}
+      endpoint="tables"
     />
   )
 }

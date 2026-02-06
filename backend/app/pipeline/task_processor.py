@@ -8,12 +8,13 @@ from mne import Epochs, set_log_level, events_from_annotations
 
 from .constants import EVENT_ID, RESTING_STATE_EVENT_ID, CCD_EVENT_ID
 
-from app.schemas.task_schema import TaskRequest
+from app.core.cache_manager import CacheKey
+from app.pipeline.signal_cleaner import EEGCleaner
+from app.schemas.task_schema import SingleSubjectTask
 from app.schemas.params.base_filter_schema import FilterParams
 from app.schemas.params.epoch_filter_schema import EpochParams
 from app.schemas.params.evoked_filter_schema import EvokedParams
-from app.core.cache_manager import CacheKey
-from app.pipeline.signal_cleaner import EEGCleaner
+
 
 set_log_level("WARNING")
 log = logging.getLogger(__name__)
@@ -154,7 +155,7 @@ TASK_PREPROCESSORS = {
 
 
 class EEGTaskProcessor:
-    def __init__(self, get_raw_fn, get_events_fn, task_dto: TaskRequest, cache):
+    def __init__(self, get_raw_fn, get_events_fn, task_dto: SingleSubjectTask, cache):
         self.get_raw = get_raw_fn
         self.get_events = get_events_fn
         self.task_dto = task_dto

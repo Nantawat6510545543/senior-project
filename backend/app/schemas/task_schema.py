@@ -1,11 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 
-class TaskRequest(BaseModel):
-    task: str
-    subject: Optional[str] = None
-    run: Optional[int] = None
-
 
 class SingleSubjectTask(BaseModel):
     task: str
@@ -19,7 +14,7 @@ class CohortTask(BaseModel):
     subject_limit: Optional[int] = None
     per_subject: bool = False
 
-    sex: list[str] = Field(default_factory=lambda: ["M", "F"])
+    sex: list[str] = Field(default_factory=lambda: ["None", "M", "F"])
 
     age_min: Optional[float] = None
     age_max: Optional[float] = None

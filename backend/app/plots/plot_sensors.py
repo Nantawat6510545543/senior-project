@@ -13,14 +13,9 @@ from app.pipeline.task_resolver import EEGTaskResolver
 # )
 
 # Prepare data for plotting
-def plot_sensors(task_dto: SingleSubjectTask, params: base_filter_schema):
+def plot_sensors(sst: SingleSubjectTask, params: base_filter_schema):
     """Plot sensor montage with channel names; return Matplotlib figure list."""
     ee = EEGTaskResolver(DATA_ROOT)
-    sst = SingleSubjectTask(
-        task="DespicableMe",
-        subject="sub-NDARAC904DMU",
-    )
-
     task_executor = ee.resolve_task(sst)
     raw = task_executor.get_raw()
     raw.pick(params.channels_list) # Pick only channel-specific data

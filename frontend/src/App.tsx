@@ -1,10 +1,11 @@
-import Navbar from "@/components/Navbar";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import Train from "./pages/Train";
 import Predict from "./pages/Predict";
 import Evaluate from "./pages/Evaluate";
 import Compare from "./pages/Compare";
 import EEGUI from "./pages/EEGUI";
+import Navbar from "@/components/Navbar";
 
 function App() {
   return (
