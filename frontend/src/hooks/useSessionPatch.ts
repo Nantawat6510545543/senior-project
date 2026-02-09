@@ -1,12 +1,12 @@
 
 import { patchSession } from "@/api/api"
 import { useEffect, useRef } from "react"
-import type { SchemaEndpoints } from "./useSchema"
+
 
 export default function useSessionPatch(
   sessionId: string,
-  endpoint: SchemaEndpoints,
-  data: Record<string, any>
+  endpoint: any,
+  data: any
 ) {
   const first = useRef(true)
   const timeout = useRef<NodeJS.Timeout | null>(null)
@@ -24,7 +24,7 @@ export default function useSessionPatch(
 
     timeout.current = setTimeout(() => {
       patchSession(sessionId, endpoint, data).catch(console.error)
-    }, 400)
+    }, 100)
 
     return () => {
       if (timeout.current) clearTimeout(timeout.current)

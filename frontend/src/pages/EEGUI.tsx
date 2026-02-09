@@ -14,6 +14,7 @@ import { useSubjectOption } from "@/hooks/useSubjectOption"
 import { useTaskOption } from "@/hooks/useTaskOption"
 import IntegerInput from "@/components/IntegerInput"
 import type { SingleSubjectTask } from "@/api/types"
+import useSessionPatch from "@/hooks/useSessionPatch"
 
 
 export default function EEGUI() {
@@ -44,13 +45,12 @@ export default function EEGUI() {
     safeAction = actions[0]
   }
 
-  function handleRunInline() {
-    const plotType = modeData.actions[safeAction]
-    if (!plotType) return
+  useSessionPatch(sessionId, "task", singleTask)
 
-    setPlotUrl(
-      getPlotUrl({ type: plotType, task: singleTask })
-    )
+  function handleRunInline() {
+    if (!sessionId) return
+    const plotType = modeData.actions[safeAction]
+    setPlotUrl(getPlotUrl(sessionId, plotType))
   }
 
   const subjectOptions = useSubjectOption()

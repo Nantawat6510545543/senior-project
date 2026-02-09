@@ -5,13 +5,13 @@ from .base_filter_schema import FilterParams
 
 class EpochParams(FilterParams):
     tmin: float = Field(
-        -2.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epoch"}
+        -2.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epochs"}
     )
     tmax: float = Field(
-        0.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epoch"}
+        0.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epochs"}
     )
     stimulus: list[Optional[str]] = Field(
-        "None", json_schema_extra={"ui": "list", "group": "epoch", "options": ["None"]}
+        "None", json_schema_extra={"ui": "list", "group": "epochs", "options": ["None"]}
     )
 
     @property

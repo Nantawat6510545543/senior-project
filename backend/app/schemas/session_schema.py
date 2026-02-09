@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from typing import Any, Optional
+from typing import Optional
 
+from ..schemas.task_schema import SingleSubjectTask, CohortTask
 from .params.base_filter_schema import FilterParams
 from .params.epoch_filter_schema import EpochParams
 from .params.evoked_filter_schema import EvokedParams, EvokedTopoParams
@@ -8,10 +9,8 @@ from .params.psd_filter_schema import PSDParams
 from .params.table_filter_schema import TableParams
 from .params.time_domain_filter_schema import TimeDomainParams
 
-
 class PipelineSession(BaseModel):
-    # dataset selection TODO change to task
-    input: dict[str, Any]
+    task: Optional[SingleSubjectTask | CohortTask] = None
 
     filter: Optional[FilterParams] = None
     epochs: Optional[EpochParams] = None

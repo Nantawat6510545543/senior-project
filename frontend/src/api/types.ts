@@ -24,3 +24,16 @@ export interface SingleSubjectTask {
   subject: string
   run?: string | null
 }
+
+// #TODO add types
+export type PipelineSession = {
+  task: SingleSubjectTask
+
+  filter?: any
+  epochs?: any
+  psd?: any
+  evoked?: any
+  topomap?: any
+  table?: any
+}
+

@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
-
 import io
 import matplotlib.pyplot as plt
 
-from app.plots.plot_sensors import plot_sensors
-from app.schemas.task_schema import SingleSubjectTask
-from app.schemas.params.base_filter_schema import FilterParams
+from app.core.session_store import get_session
+from app.schemas.ui.view_schema import ViewName
+from app.plots.plot_sensors import build_raw_from_sst, plot_sensors
 
-router = APIRouter()
+router = APIRouter(prefix="/plot")
 
 # TODO fix with real example
 def plot_time_domain(ax):
@@ -20,31 +19,21 @@ PLOT_HANDLERS = {
     "sensor_layout": plot_sensors,
 }
 
-@router.get("/plot")
-def plot(
-    type: str = Query(...),
-    task: str = Query(None),
-    subject: str = Query(None),
-    run: str | None = Query(None),
-):
-    if type not in PLOT_HANDLERS:
-        raise HTTPException(400, "Unknown plot type")
+@router.get("/{sid}")
+def plot(sid: str, view: ViewName = Query(...)):
+
+    session = get_session(sid)
+    if not session:
+        raise HTTPException(404, "Session not found")
 
     fig = None
-
-    sst = SingleSubjectTask(
-        task=task,
-        subject=subject,
-        run=run
-    )
-    params = FilterParams()
-
-    if type == "sensor_layout":
-        fig = plot_sensors(sst, params)
+    if view == "sensor_layout":
+        raw = build_raw_from_sst(session)
+        fig = plot_sensors(raw)
 
     else:
         fig, ax = plt.subplots()
-        PLOT_HANDLERS[type](ax)
+        PLOT_HANDLERS[view](ax)
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")

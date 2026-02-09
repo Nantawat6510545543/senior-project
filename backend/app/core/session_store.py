@@ -4,9 +4,9 @@ from ..schemas.session_schema import PipelineSession
 
 SESSIONS: Dict[str, PipelineSession] = {}
 
-def create_session(input_data: dict) -> str:
+def create_session() -> str:
     sid = uuid4().hex[:8]
-    SESSIONS[sid] = PipelineSession(input=input_data)
+    SESSIONS[sid] = PipelineSession()
     return sid
 
 def get_session(sid: str) -> PipelineSession:

@@ -30,7 +30,7 @@ class EvokedParams(EpochParams):
 
 class EvokedTopoParams(EpochParams):
     times: str = Field(
-        "auto", json_schema_extra={"ui": "text", "group": "topo"}
+        "auto", json_schema_extra={"ui": "text", "group": "topomap"}
     )
 
     @property

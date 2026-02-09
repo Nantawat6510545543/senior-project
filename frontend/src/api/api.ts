@@ -6,7 +6,7 @@ import type {
   PredictModelData,
   EvaluateModelData,
   CompareModelData,
-  SingleSubjectTask,
+  PipelineSession,
 } from "./types";
 
 const BACKEND_URL = "http://localhost:8000";
@@ -60,24 +60,27 @@ export const compareModel = (data: CompareModelData) => {
   });
 };
 
-export const getPlotUrl = (params: {
-  type: string;
-  task: SingleSubjectTask
-}) => {
-  const search = new URLSearchParams({
-    type: params.type,
-    subject: params.task.subject,
-    task: params.task.task,
-    t: Date.now().toString(),
-  })
+// export const getPlotUrl = (params: {
+//   type: string;
+//   task: SingleSubjectTask
+// }) => {
+//   const search = new URLSearchParams({
+//     type: params.type,
+//     subject: params.task.subject,
+//     task: params.task.task,
+//     t: Date.now().toString(),
+//   })
 
-  if (params.task.run) {
-    search.set("run", params.task.run)
-  }
+//   if (params.task.run) {
+//     search.set("run", params.task.run)
+//   }
 
-  return `${BACKEND_URL}${ENDPOINTS.PLOT}?${search.toString()}`;
-};
+//   return `${BACKEND_URL}${ENDPOINTS.PLOT}?${search.toString()}`;
+// };
 
+export function getPlotUrl(sid: string, view: string) {
+  return `${BACKEND_URL}/plot/${sid}?view=${view}&t=${Date.now()}`
+}
 
 export async function getSubjects(): Promise<string[]> {
   const res = await fetch(`${BACKEND_URL}/participants/`)
@@ -120,7 +123,7 @@ export async function getSession(sessionId: string) {
 export async function patchSession(
   sessionId: string,
   endpoint: SchemaEndpoints,
-  values: Record<string, any>
+  values: PipelineSession
 ) {
   const res = await fetch(`${BACKEND_URL}/session/${sessionId}/${endpoint}`, {
     method: "PATCH",
