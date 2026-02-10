@@ -15,7 +15,6 @@ def build_raw_from_sst(session: PipelineSession) -> Raw:
     raw = executor.get_raw()
 
     if session.filter:
-        
         raw.pick(session.filter.channels_list)
 
     return raw
