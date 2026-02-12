@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from app.core.session_store import get_session
 from app.plots.plot_sensors import build_raw_from_sst, plot_sensors
 from app.plots.plot_time_domain import plot_time_domain, prepare_time_domain_plot_data
+from app.plots.plot_frequency import plot_frequency, prepare_frequency_plot_data
 from app.schemas.ui.view_schema import ViewName
 
 router = APIRouter(prefix="/plot")
 
-# # TODO fix with real example
 # def plot_time_domain(ax):
 #     ax.plot([1, 2, 3], [1, 4, 2])
 #     ax.set_title("Time Domain")
@@ -33,11 +33,14 @@ def plot(sid: str, view: ViewName = Query(...)):
         fig = plot_sensors(raw)
 
     elif view == "time_domain":
-        raw = build_raw_from_sst(session)
         channels_prepared_raw = prepare_time_domain_plot_data(session)
         fig = plot_time_domain(channels_prepared_raw, session)
         # fig, ax = plt.subplots()
         # PLOT_HANDLERS[view](ax)
+
+    elif view == "frequency_domain":
+        psd = prepare_frequency_plot_data(session)
+        fig = plot_frequency(psd, session)
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")

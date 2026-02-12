@@ -16,8 +16,5 @@ def get_subject_tasks(subject_id: str, request: Request):
     if not tasks:
         raise HTTPException(status_code=404, detail="Subject not found")
 
-    return {
-        "subject": subject_id,
-        "tasks": tasks,
-    }
+    return { "subject": subject_id, "tasks": tasks }
 

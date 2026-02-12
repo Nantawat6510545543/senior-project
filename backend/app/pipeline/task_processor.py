@@ -194,6 +194,7 @@ class EEGTaskProcessor:
 
     def get_epochs(self, params: EpochParams):
         fn = TASK_PREPROCESSORS.get(self.task_dto.task)
+
         if fn is None:
             log.warning("Unsupported task: %s", self.task_dto.task)
             return None, "unavailable"
@@ -210,14 +211,26 @@ class EEGTaskProcessor:
         cached = self.cache.load_epochs(ck)
         if cached:
             epochs, labels = cached
+            # log.error(f"33333: {epochs}")
         else:
             epochs, labels = fn(self, params)
+            # log.error(f"Eror2222: {epochs}")
             if epochs is None:
                 return None, "unavailable"
             if epochs.info["bads"]:
                 epochs = epochs.interpolate_bads(reset_bads=True)
             self.cache.save_epochs(epochs, ck, labels)
 
+
+        epochs, labels = fn(self, params)
+        # log.error(f"Eror2222: {epochs}")
+        if epochs is None:
+            return None, "unavailable"
+        if epochs.info["bads"]:
+            epochs = epochs.interpolate_bads(reset_bads=True)
+        # self.cache.save_epochs(epochs, ck, labels)
+
+        log.error(f"Eror: {epochs}")
         if params.stimulus:
             stim = params.stimulus[0] if isinstance(params.stimulus, list) else params.stimulus
             if stim not in epochs.event_id:

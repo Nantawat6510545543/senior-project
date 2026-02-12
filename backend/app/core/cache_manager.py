@@ -170,8 +170,10 @@ class LocalCache:
                     except Exception:
                         labels_file.unlink(missing_ok=True)
                 log.warning("[cache] Corrupt EPOCHS, quarantined as %s (err=%s)", bad.name, e)
+                print("[cache] Corrupt EPOCHS, quarantined as %s (err=%s)", bad.name, e)
             except Exception:
                 log.warning("[cache] Corrupt EPOCHS read (and could not quarantine): %s", e)
+                print("[cache] Corrupt EPOCHS read (and could not quarantine): %s", e)
             return None, None
 
     def save_epochs(self, epochs, key: CacheKey, labels=None):

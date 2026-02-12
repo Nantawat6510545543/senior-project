@@ -8,6 +8,7 @@ from app.api.endpoints import train, predict, evaluate, compare, plot, participa
 from app.pipeline.task_resolver import EEGTaskResolver
 from app.core.config import DATA_ROOT
 
+# TODO disable matplotlib interactive plot pop-up (use plt.ioff())
 app = FastAPI()
 
 origins = [
