@@ -5,6 +5,7 @@ Signal processing pipeline: filtering, epoching and evoked computation with cach
 import logging
 import numpy as np
 from mne import Epochs, set_log_level, events_from_annotations
+from mne.io import read_raw_fif
 
 from .constants import EVENT_ID, RESTING_STATE_EVENT_ID, CCD_EVENT_ID
 
@@ -186,13 +187,13 @@ class EEGTaskProcessor:
         if raw is None:
             raw = EEGCleaner.pre_filter(self.get_raw(), params)
             path = self.cache.save_raw_filtered(raw, ck_pre)
-            raw = mne.io.read_raw_fif(path, preload=False, verbose="ERROR")
+            raw = read_raw_fif(path, preload=False, verbose="ERROR")
 
         raw = EEGCleaner.clean_mark(raw, params)
         self.cache.save_raw_filtered(raw, ck_clean)
         return raw
 
-    def get_epochs(self, params: EpochParams):
+    def get_epochs(self, params: EpochParams) -> Epochs:
         fn = TASK_PREPROCESSORS.get(self.task_dto.task)
 
         if fn is None:
@@ -211,26 +212,21 @@ class EEGTaskProcessor:
         cached = self.cache.load_epochs(ck)
         if cached:
             epochs, labels = cached
-            # log.error(f"33333: {epochs}")
         else:
             epochs, labels = fn(self, params)
-            # log.error(f"Eror2222: {epochs}")
             if epochs is None:
                 return None, "unavailable"
             if epochs.info["bads"]:
                 epochs = epochs.interpolate_bads(reset_bads=True)
             self.cache.save_epochs(epochs, ck, labels)
 
-
         epochs, labels = fn(self, params)
-        # log.error(f"Eror2222: {epochs}")
         if epochs is None:
             return None, "unavailable"
         if epochs.info["bads"]:
             epochs = epochs.interpolate_bads(reset_bads=True)
-        # self.cache.save_epochs(epochs, ck, labels)
+        self.cache.save_epochs(epochs, ck, labels)
 
-        log.error(f"Eror: {epochs}")
         if params.stimulus:
             stim = params.stimulus[0] if isinstance(params.stimulus, list) else params.stimulus
             if stim not in epochs.event_id:

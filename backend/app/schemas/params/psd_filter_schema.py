@@ -1,9 +1,11 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from .epoch_filter_schema import EpochParams
 
+from .base_filter_schema import FilterParams
 
-class PSDParams(BaseModel):
+
+class PSDParams(FilterParams):
     fmin: Optional[float] = Field(
         None, json_schema_extra={"ui": "number", "group": "psd", "placeholder": "4.0"}
     )
@@ -20,12 +22,15 @@ class PSDParams(BaseModel):
         True, json_schema_extra={"ui": "checkbox", "group": "psd"}
     )
 
-    @property
-    def psd_freqs(self):
-        return {
-            "fmin": self.fmin if self.fmin is not None else self.l_freq,
-            "fmax": self.fmax if self.fmax is not None else self.h_freq,
-        }
+    # TODO
+
+    # @model_validator(mode="after")
+    # def apply_default_to_filter_value(self):
+    #     if self.fmin is None:
+    #         self.fmin = self.l_freq
+    #     if self.fmax is None:
+    #         self.fmax = self.h_freq
+    #     return self
 
 
 class EpochPSDParams(EpochParams, PSDParams):

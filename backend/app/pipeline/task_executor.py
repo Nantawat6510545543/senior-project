@@ -1,3 +1,4 @@
+from mne import Epochs
 from mne.io import Raw
 from typing import Optional, Type
 
@@ -91,7 +92,7 @@ class EEGTaskExecutor:
         self._raw = None
         return raw
 
-    def get_epochs(self, epoch_params):
+    def get_epochs(self, epoch_params) -> Epochs:
         self._ensure()
         return self.processor.get_epochs(epoch_params)
 

@@ -1,9 +1,12 @@
 import re
+
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class FilterParams(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     l_freq: float = Field(
         4.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter", "placeholder": "4.0"}
     )
@@ -61,12 +64,8 @@ class FilterParams(BaseModel):
     clean_asr_remove_only: Optional[bool] = Field(
         False, json_schema_extra={"ui": "checkbox", "group": "cleaning"}
     )
-
     # combine_channels: bool = False
     # show_bad: bool = False
-
-    class Config:
-        extra = "forbid"
 
     @property
     def filter_key(self) -> dict[str, float | None]:

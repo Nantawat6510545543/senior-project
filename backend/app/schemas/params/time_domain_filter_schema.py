@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field
 
+from .base_filter_schema import FilterParams
 
-class TimeDomainParams(BaseModel):
+
+class TimeDomainParams(FilterParams):
     duration: float = Field(
         10.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "time"}
     )

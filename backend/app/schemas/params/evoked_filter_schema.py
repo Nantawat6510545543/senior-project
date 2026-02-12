@@ -3,10 +3,11 @@ import re
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
 
+from .base_filter_schema import FilterParams
 from .epoch_filter_schema import EpochParams
 
 
-class EvokedParams(BaseModel):
+class EvokedParams(FilterParams):
     spatial_colors: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "evoked"}
     )

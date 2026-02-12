@@ -1,8 +1,9 @@
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
 
+from .base_filter_schema import FilterParams
 
-class TableParams(BaseModel):
+class TableParams(FilterParams):
     rows: int = Field(
         10, json_schema_extra={"ui": "integer", "group": "tables"}
     )
