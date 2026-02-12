@@ -1,16 +1,17 @@
-from pydantic import Field
-from .base_filter_schema import FilterParams
+from pydantic import BaseModel, Field
+from typing import Literal, Optional
 
 
-class TableParams(FilterParams):
-    table_type: list[str] = Field(
-        "electrodes",
+class TableParams(BaseModel):
+    rows: int = Field(
+        10, json_schema_extra={"ui": "integer", "group": "tables"}
+    )
+
+    table_type: Optional[Literal["events", "channels", "electrodes"]] = Field(
+        "events",
         json_schema_extra={
             "ui": "list",
             "group": "tables",
             "options": ["events", "channels", "electrodes"],
         },
-    )
-    rows: int = Field(
-        10, json_schema_extra={"ui": "number", "group": "tables"}
     )

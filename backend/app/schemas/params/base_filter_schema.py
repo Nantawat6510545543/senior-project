@@ -5,60 +5,60 @@ from pydantic import BaseModel, Field
 
 class FilterParams(BaseModel):
     l_freq: float = Field(
-        4.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter"}
+        4.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter", "placeholder": "4.0"}
     )
     h_freq: float = Field(
-        30.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter"}
+        30.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter", "placeholder": "30.0"}
     )
     notch: Optional[float] = Field(
-        60.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter"}
+        None, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter", "placeholder": "60.0"}
     )
     resample_fs: float = Field(
-        100.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter"}
+        100.0, json_schema_extra={"ui": "number", "unit": "Hz", "group": "filter", "placeholder": "100.0"}
     )
 
     channels: str = Field(
-        "69-76,81-83,88,89",
-        json_schema_extra={"ui": "text", "group": "channels"},
+        "69-76,81-83,88,89", 
+        json_schema_extra={"ui": "text", "group": "channels", "placeholder": "69-76,81-83,88,89"},
     )
-    combine_channels: bool = Field(
+    combine_channels: Optional[bool] = Field(
         False, json_schema_extra={"ui": "checkbox", "group": "channels"}
     )
 
     uv_min: Optional[float] = Field(
-        -100.0, title="µV Min", json_schema_extra={"ui": "number", "group": "cleaning"}
+        None, title="µV Min", json_schema_extra={"ui": "number", "group": "cleaning", "placeholder": "-100.0"}
     )
     uv_max: Optional[float] = Field(
-        100.0, title="µV Max", json_schema_extra={"ui": "number", "group": "cleaning"}
+        None, title="µV Max", json_schema_extra={"ui": "number", "group": "cleaning", "placeholder": "100.0"}
     )
 
     clean_flatline_sec: Optional[float] = Field(
-        5.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "unit": "sec", "group": "cleaning", "placeholder": "5.0"}
     )
     clean_hf_noise_sd_max: Optional[float] = Field(
-        4.0, json_schema_extra={"ui": "number", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "group": "cleaning", "placeholder": "4.0"}
     )
     clean_corr_min: Optional[float] = Field(
-        0.8, json_schema_extra={"ui": "number", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "group": "cleaning", "placeholder": "0.8"}
     )
     clean_asr_max_std: Optional[float] = Field(
-        20.0, json_schema_extra={"ui": "number", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "group": "cleaning", "placeholder": "20.0"}
     )
 
     clean_power_min_sd: Optional[float] = Field(
-        -100.0, json_schema_extra={"ui": "number", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "group": "cleaning", "placeholder": "-100.0"}
     )
     clean_power_max_sd: Optional[float] = Field(
-        7.0, json_schema_extra={"ui": "number", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "group": "cleaning", "placeholder": "7.0"}
     )
     clean_max_outbound_pct: Optional[float] = Field(
-        25.0, json_schema_extra={"ui": "number", "unit": "%", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "unit": "%", "group": "cleaning", "placeholder": "25.0"}
     )
     clean_window_sec: Optional[float] = Field(
-        0.5, json_schema_extra={"ui": "number", "unit": "sec", "group": "cleaning"}
+        None, json_schema_extra={"ui": "number", "unit": "sec", "group": "cleaning", "placeholder": "0.5"}
     )
 
-    clean_asr_remove_only: bool = Field(
+    clean_asr_remove_only: Optional[bool] = Field(
         False, json_schema_extra={"ui": "checkbox", "group": "cleaning"}
     )
 

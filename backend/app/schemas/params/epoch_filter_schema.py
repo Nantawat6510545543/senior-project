@@ -1,22 +1,20 @@
 from typing import Literal, Optional
-from pydantic import Field, field_validator
-from .base_filter_schema import FilterParams
+from pydantic import BaseModel, Field, field_validator
 
-Stimulus = Optional[Literal["open", "close"]]
 
-class EpochParams(FilterParams):
+class EpochParams(BaseModel):
     tmin: float = Field(
         -2.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epochs"}
     )
     tmax: float = Field(
         0.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epochs"}
     )
-    stimulus: Stimulus = Field(
-        default=None,
+    stimulus: Optional[Literal["None", "open", "close"]] = Field(
+        "None",
         json_schema_extra={
             "ui": "list",
             "group": "epochs",
-            "options": ["None", "open", "close"],
+            "options": ["None", "open", "close"]
         },
     )
 

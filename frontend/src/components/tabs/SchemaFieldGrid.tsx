@@ -9,13 +9,16 @@ import useSessionPatch from "@/hooks/useSessionPatch"
 import useLoadSession from "@/hooks/useLoadSession"
 import type { SchemaEndpoints } from "@/hooks/useSchema"
 
-function resolveFieldType(field: any) {
-  if (field.anyOf) {
-    const types = field.anyOf.map((t: any) => t.type)
-    if (types.includes("number")) return "number"
-    if (types.includes("string")) return "string"
-  }
-  return field.type
+
+function resolveValue(field: any, value: any) {
+  if (value !== undefined && value !== null) return value
+  if (field.default !== undefined && field.default !== null) return field.default
+  return ""
+}
+
+function resolvePlaceholder(field: any) {
+  if (field.default !== undefined && field.default !== null) return undefined
+  return field.placeholder ?? ""
 }
 
 function getSchemaFieldsByGroup(schema: any, groups: string[]) {
@@ -58,43 +61,43 @@ export default function SchemaFieldGrid({
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {fields.map((name) => {
         const field = schema.properties[name]
-        const type = resolveFieldType(field)
 
         return (
           <div key={name}>
             <SubHeader>{field.title ?? name}</SubHeader>
 
-            {type === "boolean" && (
+            {field.ui === "checkbox" && (
               <PurpleCheckbox
-                checked={values[name] ?? field.default ?? false}
+                checked={Boolean(values[name] ?? field.default)}
                 onChange={(v) => setField(name, v)}
               />
             )}
 
-            {type === "integer" && (
+            {field.ui === "integer" && (
               <IntegerInput
-                placeholder={String(field.default ?? "")}
-                value={values[name]}
+                value={resolveValue(field, values[name])}
+                placeholder={resolvePlaceholder(field)}
                 onChange={(v) => setField(name, v)}
               />
             )}
 
-            {type === "number" && (
+            {field.ui === "number" && (
               <DecimalInput
-                placeholder={String(field.default ?? "")}
-                value={values[name]}
+                value={resolveValue(field, values[name])}
+                placeholder={resolvePlaceholder(field)}
                 onChange={(v) => setField(name, v)}
               />
             )}
 
-            {type === "string" && (
+            {field.ui === "text" && (
               <Input
-                value={values[name] ?? field.default ?? ""}
+                value={resolveValue(field, values[name])}
+                placeholder={resolvePlaceholder(field)}
                 onChange={(e) => setField(name, e.target.value)}
               />
             )}
 
-            {type === "array" && (
+            {field.ui === "list" && (
               <Combobox
                 options={field.options.map((v: string) => ({ value: v, label: v }))}
                 value={values[name] ?? field.default}

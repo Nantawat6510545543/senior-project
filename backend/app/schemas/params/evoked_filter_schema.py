@@ -1,13 +1,16 @@
 import re
-from pydantic import Field
+
+from pydantic import BaseModel, Field
+from typing import Literal, Optional
+
 from .epoch_filter_schema import EpochParams
 
 
-class EvokedParams(EpochParams):
+class EvokedParams(BaseModel):
     spatial_colors: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "evoked"}
     )
-    gfp: list[str] = Field(
+    gfp: Optional[Literal["False", "True", "only"]] = Field(
         "False",
         json_schema_extra={
             "ui": "list",
@@ -18,7 +21,7 @@ class EvokedParams(EpochParams):
     average_line: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "evoked"}
     )
-    scale_mode: list[str] = Field(
+    scale_mode: Optional[Literal["per-plot", "uniform-grid"]] = Field(
         "per-plot",
         json_schema_extra={
             "ui": "list",

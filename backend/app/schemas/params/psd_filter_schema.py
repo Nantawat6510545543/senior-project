@@ -1,15 +1,14 @@
 from typing import Optional
-from pydantic import Field
-from .base_filter_schema import FilterParams
+from pydantic import BaseModel, Field
 from .epoch_filter_schema import EpochParams
 
 
-class PSDParams(FilterParams):
+class PSDParams(BaseModel):
     fmin: Optional[float] = Field(
-        4.0, json_schema_extra={"ui": "number", "group": "psd"}
+        None, json_schema_extra={"ui": "number", "group": "psd", "placeholder": "4.0"}
     )
     fmax: Optional[float] = Field(
-        30.0, json_schema_extra={"ui": "number", "group": "psd"}
+        None, json_schema_extra={"ui": "number", "group": "psd", "placeholder": "30.0"}
     )
     average: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "psd"}
