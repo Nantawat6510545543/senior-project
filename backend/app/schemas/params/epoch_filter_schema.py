@@ -14,7 +14,8 @@ class EpochParams(FilterParams):
     )
 
     stimulus: Optional[Literal["None", "open", "close"]] = Field(
-        "None",
+        "None", 
+        validate_default=True,
         json_schema_extra={
             "ui": "list",
             "group": "epochs",
@@ -23,7 +24,6 @@ class EpochParams(FilterParams):
     )
 
     # Convert "none" to None
-    # TODO run this on startup
     @field_validator("stimulus", mode="before")
     @classmethod
     def normalize_none(cls, v):

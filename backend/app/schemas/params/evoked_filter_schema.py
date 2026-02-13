@@ -3,20 +3,19 @@ import re
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
 
-from .base_filter_schema import FilterParams
 from .epoch_filter_schema import EpochParams
 
 
-class EvokedParams(FilterParams):
+class EvokedParams(EpochParams):
     spatial_colors: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "evoked"}
     )
-    gfp: Optional[Literal["False", "True", "only"]] = Field(
-        "False",
+    gfp: Optional[Literal[False, True, "only"]] = Field(
+        False,
         json_schema_extra={
             "ui": "list",
             "group": "evoked",
-            "options": ["False", "True", "only"],
+            "options": [False, True, "only"],
         },
     )
     average_line: bool = Field(

@@ -1,12 +1,15 @@
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import StreamingResponse
 import io
 import matplotlib.pyplot as plt
 
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import StreamingResponse
+
 from app.core.session_store import get_session
+from app.plots.plot_epochs import plot_epochs, prepare_epochs_plot_data
+from app.plots.plot_evoked import plot_evoked, prepare_evoked_plot_data
+from app.plots.plot_frequency import plot_frequency, prepare_frequency_plot_data
 from app.plots.plot_sensors import build_raw_from_sst, plot_sensors
 from app.plots.plot_time_domain import plot_time_domain, prepare_time_domain_plot_data
-from app.plots.plot_frequency import plot_frequency, prepare_frequency_plot_data
 from app.schemas.ui.view_schema import ViewName
 
 router = APIRouter(prefix="/plot")
@@ -41,6 +44,14 @@ def plot(sid: str, view: ViewName = Query(...)):
     elif view == "frequency_domain":
         psd = prepare_frequency_plot_data(session)
         fig = plot_frequency(psd, session)
+
+    elif view == "epoch":
+        epochs = prepare_epochs_plot_data(session)
+        fig = plot_epochs(epochs, session)
+
+    elif view == "evoked":
+        evoked = prepare_evoked_plot_data(session)
+        fig = plot_evoked(evoked, session)
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")
