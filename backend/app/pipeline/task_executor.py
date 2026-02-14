@@ -1,4 +1,4 @@
-from mne import Epochs
+from mne import Epochs, Evoked
 from mne.io import Raw
 from typing import Optional, Type
 
@@ -96,6 +96,6 @@ class EEGTaskExecutor:
         self._ensure()
         return self.processor.get_epochs(epoch_params)
 
-    def get_evoked(self, epoch_params):
+    def get_evoked(self, epoch_params) -> Evoked:
         self._ensure()
         return self.processor.get_evoked(epoch_params)

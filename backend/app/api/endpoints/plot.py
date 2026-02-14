@@ -7,8 +7,11 @@ from fastapi.responses import StreamingResponse
 from app.core.session_store import get_session
 from app.plots.plot_epochs import plot_epochs, prepare_epochs_plot_data
 from app.plots.plot_evoked import plot_evoked, prepare_evoked_plot_data
+from app.plots.plot_evoked_joint import plot_evoked_joint, prepare_evoked_joint_plot_data
+from app.plots.plot_evoked_topo import plot_evoked_topo, prepare_evoked_topo_plot_data
 from app.plots.plot_frequency import plot_frequency, prepare_frequency_plot_data
 from app.plots.plot_sensors import build_raw_from_sst, plot_sensors
+from app.plots.plot_snr import plot_snr, prepare_snr_plot_data
 from app.plots.plot_time_domain import plot_time_domain, prepare_time_domain_plot_data
 from app.schemas.ui.view_schema import ViewName
 
@@ -52,7 +55,22 @@ def plot(sid: str, view: ViewName = Query(...)):
     elif view == "evoked":
         evoked = prepare_evoked_plot_data(session)
         fig = plot_evoked(evoked, session)
+    
+    elif view == "evoked_topo":
+        evoked = prepare_evoked_topo_plot_data(session)
+        fig = plot_evoked_topo(evoked, session)
 
+    elif view == "evoked_joint":
+        evoked_joint = prepare_evoked_joint_plot_data(session)
+        fig = plot_evoked_joint(evoked_joint, session)
+
+    elif view == "evoked_per_condition":
+        pass
+
+    elif view == "snr_spectrum":
+        psds, freqs, snrs = prepare_snr_plot_data(session)
+        fig = plot_snr(psds, freqs, snrs, session)
+        
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")
     plt.close(fig)

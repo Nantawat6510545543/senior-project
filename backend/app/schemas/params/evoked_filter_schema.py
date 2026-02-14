@@ -49,5 +49,19 @@ class EvokedTopoParams(EpochParams):
         return values or "auto"
 
 
-class EvokedJointParams(EvokedParams, EvokedTopoParams):
-    pass
+class EvokedJointParams(EvokedParams):
+    times: str = Field(
+        "auto", json_schema_extra={"ui": "text", "group": "topomap"}
+    )
+
+    @property
+    def resolved_times(self):
+        s = self.times.lower().strip()
+        if s in {"auto", "peak"}:
+            return s
+
+        values = [
+            float(x) for x in re.findall(r"[-+]?\d*\.?\d+", self.times)
+        ]
+        values = [t for t in values if self.tmin <= t <= self.tmax]
+        return values or "auto"

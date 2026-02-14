@@ -1,7 +1,7 @@
 """Spectral metrics helpers for EEG arrays."""
 import numpy as np
 
-def snr_spectrum(
+def compute_snr_spectrum(
         psd: np.ndarray,
         noise_n_neighbor_freqs: int = 3,
         noise_skip_neighbor_freqs: int = 1,
