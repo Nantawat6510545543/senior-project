@@ -1,17 +1,14 @@
-from app.core.config import DATA_ROOT
 from app.pipeline.channels_helper import prepare_channels
-from app.pipeline.task_resolver import EEGTaskResolver
+from app.pipeline.task_executor import EEGTaskExecutor
 from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
 from app.schemas.session_schema import PipelineSession
 
 
 # TODO fix bug with second dataset "resting state" task
-def prepare_frequency_plot_data(session: PipelineSession):
+def prepare_frequency_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
     epochs_dto = session.epochs
     psd_dto = session.psd
 
-    resolver = EEGTaskResolver(DATA_ROOT)
-    executor = resolver.resolve_task(session.task)
     epochs, _ = executor.get_epochs(epochs_dto)
 
     if epochs is None:

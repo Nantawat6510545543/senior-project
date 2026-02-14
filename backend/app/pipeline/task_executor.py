@@ -96,6 +96,6 @@ class EEGTaskExecutor:
         self._ensure()
         return self.processor.get_epochs(epoch_params)
 
-    def get_evoked(self, epoch_params) -> Evoked:
+    def get_evoked(self, evoked_params) -> Evoked:
         self._ensure()
-        return self.processor.get_evoked(epoch_params)
+        return self.processor.get_evoked(evoked_params)

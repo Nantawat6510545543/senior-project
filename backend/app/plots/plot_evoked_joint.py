@@ -1,6 +1,5 @@
-from app.core.config import DATA_ROOT
 from app.pipeline.channels_helper import prepare_channels
-from app.pipeline.task_resolver import EEGTaskResolver
+from app.pipeline.task_executor import EEGTaskExecutor
 from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
 from app.schemas.params.evoked_filter_schema import EvokedJointParams
 from app.schemas.session_schema import PipelineSession
@@ -22,11 +21,8 @@ def get_evoked_joint_params(session: PipelineSession):
     return evoked_joint_dto
 
 
-def prepare_evoked_joint_plot_data(session: PipelineSession):
+def prepare_evoked_joint_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
     evoked_joint_dto = get_evoked_joint_params(session)
-
-    resolver = EEGTaskResolver(DATA_ROOT)
-    executor = resolver.resolve_task(session.task)
     evoked = executor.get_evoked(evoked_joint_dto)
 
     if evoked is None:
