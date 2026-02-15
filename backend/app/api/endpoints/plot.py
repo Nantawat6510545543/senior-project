@@ -9,12 +9,15 @@ from app.pipeline.task_resolver import EEGTaskResolver
 from app.core.session_store import get_session
 from app.plots.plot_epochs import plot_epochs, prepare_epochs_plot_data
 from app.plots.plot_evoked import plot_evoked, prepare_evoked_plot_data
+from app.plots.plot_evoked_grid import plot_evoked_grid, prepare_evoked_grid_data
 from app.plots.plot_evoked_joint import plot_evoked_joint, prepare_evoked_joint_plot_data
 from app.plots.plot_evoked_per_condition import plot_evoked_per_condition, prepare_evoked_per_condition_plot_data
 from app.plots.plot_evoked_topo import plot_evoked_topo, prepare_evoked_topo_plot_data
 from app.plots.plot_frequency import plot_frequency, prepare_frequency_plot_data
+from app.plots.plot_psd_grid import plot_psd_grid, prepare_psd_grid_data
 from app.plots.plot_sensors import build_raw_from_sst, plot_sensors
 from app.plots.plot_snr import plot_snr, prepare_snr_plot_data
+from app.plots.plot_snr_grid import plot_snr_grid, prepare_snr_grid_data
 from app.plots.plot_time_domain import plot_time_domain, prepare_time_domain_plot_data
 from app.schemas.ui.view_schema import ViewName
 
@@ -51,7 +54,7 @@ def plot(sid: str, view: ViewName = Query(...)):
     elif view == "evoked":
         evoked = prepare_evoked_plot_data(task_executor, session)
         fig = plot_evoked(evoked, session)
-    
+
     elif view == "evoked_topo":
         evoked = prepare_evoked_topo_plot_data(task_executor, session)
         fig = plot_evoked_topo(evoked, session)
@@ -67,6 +70,19 @@ def plot(sid: str, view: ViewName = Query(...)):
     elif view == "snr_spectrum":
         psds, freqs, snrs = prepare_snr_plot_data(task_executor, session)
         fig = plot_snr(psds, freqs, snrs, session)
+
+    elif view == "psd_grid":
+        epochs, available_labels, psd_cache = prepare_psd_grid_data(task_executor, session)
+        fig = plot_psd_grid(epochs, available_labels, psd_cache, session)
+
+    elif view == "snr_grid":
+        epochs, available_labels, snr_cache = prepare_snr_grid_data(task_executor, session)
+        fig = plot_snr_grid(epochs, available_labels, snr_cache, session)
+
+    elif view == "evoked_grid":
+        epochs, available_labels, evoked_cache = prepare_evoked_grid_data(task_executor, session)
+        fig = plot_evoked_grid(epochs, available_labels, evoked_cache, session)
+
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")

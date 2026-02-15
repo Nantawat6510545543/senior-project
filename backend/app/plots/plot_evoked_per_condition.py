@@ -2,25 +2,8 @@ from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
 from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
 from app.plots.plot_merger import merge_figures_vertical
-
 from app.schemas.session_schema import PipelineSession
 
-# def prepare_evoked_per_condition_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
-#     epochs_dto = session.epochs
-#     evoked_dto = session.evoked
-
-#     epochs, _ = executor.get_epochs(epochs_dto)
-#     if epochs is None:
-#         return
-
-#     for condition in epochs.event_id:
-#         conditioned_evoked_dto = evoked_dto.model_copy(update={"stimulus": condition})
-#         evoked = executor.get_evoked(conditioned_evoked_dto)
-#         if evoked is None:
-#             continue
-#         prepared_evoked = prepare_channels(evoked, conditioned_evoked_dto)
-
-#         yield prepared_evoked, conditioned_evoked_dto
 
 def prepare_evoked_per_condition_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
     epochs_dto = session.epochs
@@ -43,22 +26,6 @@ def prepare_evoked_per_condition_plot_data(executor: EEGTaskExecutor, session: P
 
     return prepared
 
-# def plot_evoked_per_condition(prepared_evoked, conditioned_evoked_dto, session: PipelineSession):
-#     """Return list of evoked figures, one per available condition/label."""
-
-#     fig = prepared_evoked.plot(
-#         gfp=conditioned_evoked_dto.gfp,
-#         spatial_colors=conditioned_evoked_dto.spatial_colors,
-#         show=False
-#     )
-
-#     header = FigureHeader(
-#         plot_name="Evoked per Condition",
-#         subject_line=format_subject_label(session.task, conditioned_evoked_dto.stimulus),
-#         caption_line=str(conditioned_evoked_dto)
-#     )
-
-#     return finalize_figure(fig, header)
 
 def plot_evoked_per_condition(prepared_data, session: PipelineSession):
     if not prepared_data:

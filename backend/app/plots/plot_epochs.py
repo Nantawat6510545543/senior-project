@@ -21,7 +21,7 @@ def prepare_epochs_plot_data(executor: EEGTaskExecutor, session: PipelineSession
 def plot_epochs(epochs, session: PipelineSession):
     """Plot epochs with channel selection; return finalized Matplotlib figure."""
     fig = epochs.plot(events=False, show=False)
-    
+
     header = FigureHeader(
         plot_name="Epoch Plot",
         subject_line=format_subject_label(session.task, session.epochs.stimulus),

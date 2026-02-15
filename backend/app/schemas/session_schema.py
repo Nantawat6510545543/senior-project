@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from ..schemas.task_schema import SingleSubjectTask, CohortTask
+from app.schemas.task_schema import SingleSubjectTask, CohortTask
 from .params.base_filter_schema import FilterParams
 from .params.epoch_filter_schema import EpochParams
 from .params.evoked_filter_schema import EvokedParams, EvokedTopoParams

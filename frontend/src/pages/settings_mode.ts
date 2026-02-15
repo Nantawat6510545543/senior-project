@@ -18,9 +18,9 @@ export const SETTINGS_MODE = {
     description:
       "Displays per-condition results in a labeled grid for side-by-side comparison.",
     actions: {
-      "PSD Grid": null,
-      "SNR Grid": null,
-      "Evoked Grid": null,
+      "PSD Grid": "psd_grid",
+      "SNR Grid": "snr_grid",
+      "Evoked Grid": "evoked_grid",
     },
   },
 
