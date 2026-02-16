@@ -41,7 +41,7 @@ def plot_frequency(fq_psd, session: PipelineSession):
         dB=psd_dto.dB,
         show=False
     )
-    
+
     header = FigureHeader(
         plot_name="Frequency Domain",
         subject_line=format_subject_label(session.task),

@@ -77,6 +77,10 @@ def plot_snr_grid(epochs, available_labels, snr_cache, session: PipelineSession)
     """Render SNR spectrum per label in a grid; return figure or None."""
     epochs_psd_dto = get_epoch_psd_params(session)
 
+    scale_mode = getattr(epochs_psd_dto, "scale_mode", "per-plot")
+    if isinstance(scale_mode, (list, tuple)) and scale_mode:
+        scale_mode = scale_mode[0]
+
     def _draw(ax, label):
         item = snr_cache.get(label)
         if item is None:
@@ -103,6 +107,7 @@ def plot_snr_grid(epochs, available_labels, snr_cache, session: PipelineSession)
         xlim=(epochs_psd_dto.fmin, epochs_psd_dto.fmax),
         xlabel="Frequency [Hz]",
         unit_tag="SNR",
+        scale_mode=scale_mode,
         per_cell_draw=_draw,
     )
 

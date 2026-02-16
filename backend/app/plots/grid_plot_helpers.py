@@ -20,9 +20,7 @@ from typing import Tuple, Callable, Optional, Dict
 from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
 
 
-
 # ---- token & axis helpers ----
-
 def split_tokens(label: str) -> list[str]:
     """Split a label by underscores and drop empty tokens."""
     return [token for token in (label or '').split('_') if token]
@@ -103,6 +101,7 @@ def render_label_grid(
         xlim: tuple[float, float],
         xlabel: str,
         unit_tag: str,
+        scale_mode: str,
         per_cell_draw: Callable[[Axes, str], Optional[Tuple[float, float]]],
 ):
     """Render label-tokenized grids."""
@@ -144,7 +143,7 @@ def render_label_grid(
                         ax.set_ylabel(f"{row_token}")
                         ax.tick_params(labelleft=True)
                     else:
-                        if params.scale_mode == 'per-plot':
+                        if scale_mode == 'per-plot':
                             ax.tick_params(labelleft=True)
                         else:
                             ax.tick_params(labelleft=False)
@@ -154,7 +153,7 @@ def render_label_grid(
 
                     pbar.update(1)
 
-            if params.scale_mode == 'uniform-grid' and y_min is not None and y_max is not None:
+            if scale_mode == 'uniform-grid' and y_min is not None and y_max is not None:
                 pad = 0.05 * max(1.0, abs(y_max - y_min))
                 y_lo, y_hi = y_min - pad, y_max + pad
                 for r in range(num_rows):

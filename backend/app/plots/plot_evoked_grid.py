@@ -75,6 +75,7 @@ def plot_evoked_grid(epochs, available_labels, evoked_cache, session: PipelineSe
         xlim=(evoked_dto.tmin, evoked_dto.tmax),
         xlabel="Time [s]",
         unit_tag="µV",
+        scale_mode=evoked_dto.scale_mode,
         per_cell_draw=_draw,
     )
 
