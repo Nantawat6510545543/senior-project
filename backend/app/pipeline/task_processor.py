@@ -162,6 +162,10 @@ class EEGTaskProcessor:
         self.task_dto = task_dto
         self.cache = cache
 
+    def _canonical_task(self, task_name: str) -> str:
+    # BIDS: task_run-1, task_acq-xyz_run-2, etc
+        return task_name.split("_")[0]
+
     def get_filtered(self, params: FilterParams):
         ck_clean = CacheKey(
             subject=self.task_dto.subject,
@@ -194,7 +198,9 @@ class EEGTaskProcessor:
         return raw
 
     def get_epochs(self, params: EpochParams) -> Epochs:
-        fn = TASK_PREPROCESSORS.get(self.task_dto.task)
+        # preprocess_fn = self.preprocessors.get(self.task_dto.task)
+        task_key = self._canonical_task(self.task_dto.task)
+        fn = TASK_PREPROCESSORS.get(task_key)
 
         if fn is None:
             log.warning("Unsupported task: %s", self.task_dto.task)
