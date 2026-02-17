@@ -39,6 +39,7 @@ class EEGTaskExecutor:
         self.cache = cache
 
     def _ensure(self):
+        """Ensure loader, cache and processor are initialized."""
         if self.loader is None:
             self.loader = self._loader_cls(self.task, self._data_dir)
 
@@ -54,12 +55,14 @@ class EEGTaskExecutor:
             )
 
     def get_raw(self) -> Raw:
+        """Return (and cache) raw MNE object for this task."""
         self._ensure()
         if self._raw is None:
             self._raw = self.loader.load_raw()
         return self._raw
 
     def get_event(self):
+        """Return (and cache) events DataFrame for this task."""
         self._ensure()
         if self._events is None:
             self._events = self.loader.load_events()
@@ -87,15 +90,18 @@ class EEGTaskExecutor:
         return self._channels
 
     def get_filtered_raw(self, filter_params):
+        """Return filtered Raw from processor and clear base raw cache."""
         self._ensure()
         raw = self.processor.get_filtered(filter_params)
         self._raw = None
         return raw
 
     def get_epochs(self, epoch_params) -> Epochs:
+        """Return (epochs, labels) from processor for given params."""
         self._ensure()
         return self.processor.get_epochs(epoch_params)
 
     def get_evoked(self, evoked_params) -> Evoked:
+        """Return evoked response from processor for given params."""
         self._ensure()
         return self.processor.get_evoked(evoked_params)

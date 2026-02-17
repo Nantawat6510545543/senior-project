@@ -156,18 +156,34 @@ TASK_PREPROCESSORS = {
 
 
 class EEGTaskProcessor:
+    """Apply preprocessing recipe per task and manage cached intermediate artifacts."""
     def __init__(self, get_raw_fn, get_events_fn, task_dto: SingleSubjectTask, cache):
         self.get_raw = get_raw_fn
         self.get_events = get_events_fn
         self.task_dto = task_dto
         self.cache = cache
 
+        self._log = logging.getLogger(__name__)
+
     def _canonical_task(self, task_name: str) -> str:
-    # BIDS: task_run-1, task_acq-xyz_run-2, etc
+        # BIDS: task_run-1, task_acq-xyz_run-2, etc
         return task_name.split("_")[0]
 
+    def _apply_stimulus_filter(self, epochs: Epochs, params: EpochParams):
+        stim = params.stimulus
+        if isinstance(stim, (list, tuple)):
+            stim = stim[0] if len(stim) > 0 else None
+        if stim:
+            if stim in epochs.event_id:
+                return epochs[stim]
+            self._log.warning("stim '%s' not in available event IDs %s", stim, list(epochs.event_id.keys()))
+            return None
+        return epochs.apply_baseline(baseline=(None, 0.0))
+
     def get_filtered(self, params: FilterParams):
-        ck_clean = CacheKey(
+        """Return cleaned Raw using cached prefilter/clean stages when available."""
+        # 1) Find cleaned cache
+        clean_ck = CacheKey(
             subject=self.task_dto.subject,
             task=self.task_dto.task,
             run=self.task_dto.run,
@@ -175,11 +191,12 @@ class EEGTaskProcessor:
             params=params.cleaning_key,
             pipeline_ver=self.cache.pipeline_ver,
         )
-        cached = self.cache.load_raw_filtered(ck_clean)
-        if cached is not None:
-            return cached
+        cleaned_cached = self.cache.load_raw_filtered(clean_ck)
+        if cleaned_cached is not None:
+            return cleaned_cached
 
-        ck_pre = CacheKey(
+        # 2) If cleaned cache not found, Build prefilter cache (Bandpass/resample/notch)
+        pre_ck = CacheKey(
             subject=self.task_dto.subject,
             task=self.task_dto.task,
             run=self.task_dto.run,
@@ -187,17 +204,22 @@ class EEGTaskProcessor:
             params=params.filter_key,
             pipeline_ver=self.cache.pipeline_ver,
         )
-        raw = self.cache.load_raw_filtered(ck_pre)
-        if raw is None:
-            raw = EEGCleaner.pre_filter(self.get_raw(), params)
-            path = self.cache.save_raw_filtered(raw, ck_pre)
-            raw = read_raw_fif(path, preload=False, verbose="ERROR")
+        cached = self.cache.load_raw_filtered(pre_ck)
+        if cached is None:
+            raw_pref = EEGCleaner.pre_filter(self.get_raw(), params)
+            p = self.cache.save_raw_filtered(raw_pref, pre_ck)
+            del raw_pref
+            raw_pref = read_raw_fif(p.as_posix(), preload=False, verbose="ERROR")
+        else:
+            raw_pref = cached
 
-        raw = EEGCleaner.clean_mark(raw, params)
-        self.cache.save_raw_filtered(raw, ck_clean)
-        return raw
+        # 3) Mark bad channels/time windows and save cleaned cache
+        raw_clean = EEGCleaner.clean_mark(raw_pref, params)
+        self.cache.save_raw_filtered(raw_clean, clean_ck)
+        return raw_clean
 
     def get_epochs(self, params: EpochParams) -> Epochs:
+        """Return (epochs, labels) via registered task preprocessor with stimulus filter."""
         # preprocess_fn = self.preprocessors.get(self.task_dto.task)
         task_key = self._canonical_task(self.task_dto.task)
         fn = TASK_PREPROCESSORS.get(task_key)
@@ -215,35 +237,31 @@ class EEGTaskProcessor:
             pipeline_ver=self.cache.pipeline_ver,
         )
 
-        cached = self.cache.load_epochs(ck)
-        if cached:
-            epochs, labels = cached
-        else:
-            epochs, labels = fn(self, params)
-            if epochs is None:
+        epochs, labels = self.cache.load_epochs(ck)
+        if epochs is not None:
+            epochs_sel = self._apply_stimulus_filter(epochs, params)
+            if epochs_sel is None:
                 return None, "unavailable"
-            if epochs.info["bads"]:
-                epochs = epochs.interpolate_bads(reset_bads=True)
-            self.cache.save_epochs(epochs, ck, labels)
+            return epochs_sel, labels
 
         epochs, labels = fn(self, params)
         if epochs is None:
             return None, "unavailable"
-        if epochs.info["bads"]:
+
+        if epochs.info.get('bads'):
             epochs = epochs.interpolate_bads(reset_bads=True)
-        self.cache.save_epochs(epochs, ck, labels)
 
-        if params.stimulus:
-            stim = params.stimulus[0] if isinstance(params.stimulus, list) else params.stimulus
-            if stim not in epochs.event_id:
-                return None, "unavailable"
-            epochs = epochs[stim]
-        else:
-            epochs = epochs.apply_baseline((None, 0.0))
+        if self.cache and ck:
+            self.cache.save_epochs(epochs, ck, labels=labels)
 
-        return epochs, labels
+        epochs_sel = self._apply_stimulus_filter(epochs, params)
+        if epochs_sel is None:
+            return None, "unavailable"
+
+        return epochs_sel, labels
 
     def get_evoked(self, params: EvokedParams):
+        """Return evoked average from epochs, caching on disk when possible."""
         ck = CacheKey(
             subject=self.task_dto.subject,
             task=self.task_dto.task,
