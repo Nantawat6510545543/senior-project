@@ -1,3 +1,6 @@
+# MUST be first — before any plot modules import pyplot
+from app.core import matplotlib_config
+
 from dotenv import load_dotenv
 load_dotenv() # Load .env before program runs
 

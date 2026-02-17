@@ -87,6 +87,8 @@ def plot(sid: str, view: ViewName = Query(...)):
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")
     plt.close(fig)
+    plt.clf() # reduce memory creep
+    plt.close("all")
     buf.seek(0)
 
     return StreamingResponse(buf, media_type="image/png")
