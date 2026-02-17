@@ -1,6 +1,6 @@
 import re
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Literal, Optional
 
 from .epoch_filter_schema import EpochParams
@@ -10,8 +10,9 @@ class EvokedParams(EpochParams):
     spatial_colors: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "evoked"}
     )
-    gfp: Optional[Literal["False", "True", "only"]] = Field(
-        "False",
+    gfp: Optional[bool | Literal["only"]] = Field(
+        False,
+        validate_default=True,
         json_schema_extra={
             "ui": "list",
             "group": "evoked",
@@ -29,6 +30,15 @@ class EvokedParams(EpochParams):
             "options": ["per-plot", "uniform-grid"],
         },
     )
+
+    @field_validator("gfp", mode="before")
+    @classmethod
+    def normalize_gfp(cls, v):
+        if v == "True":
+            return True
+        if v == "False":
+            return False
+        return v
 
 
 class EvokedTopoParams(EpochParams):

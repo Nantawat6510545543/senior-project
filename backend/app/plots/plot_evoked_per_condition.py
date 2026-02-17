@@ -28,6 +28,7 @@ def prepare_evoked_per_condition_plot_data(executor: EEGTaskExecutor, session: P
 
 
 def plot_evoked_per_condition(prepared_data, session: PipelineSession):
+    """Return list of evoked figures, one per available condition/label."""
     if not prepared_data:
         return None
 
