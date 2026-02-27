@@ -2,7 +2,6 @@
 
 Contains helpers to finalize Matplotlib figures with wrapped titles and captions.
 """
-from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 

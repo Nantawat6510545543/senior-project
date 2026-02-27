@@ -10,11 +10,12 @@ import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
 import { createSession, getPlotUrl } from "@/api/api"
 import { SETTINGS_MODE } from "./settings_mode"
-import { useSubjectOption } from "@/hooks/useSubjectOption"
-import { useTaskOption } from "@/hooks/useTaskOption"
+import useSubjectOption from "@/hooks/useSubjectOption"
+import useTaskOption from "@/hooks/useTaskOption"
 import IntegerInput from "@/components/IntegerInput"
 import type { SingleSubjectTask } from "@/api/types"
 import useSessionPatch from "@/hooks/useSessionPatch"
+import LogPanel from "@/components/LogPanel"
 
 
 export default function EEGUI() {
@@ -180,6 +181,8 @@ export default function EEGUI() {
       <PrimaryButton onClick={handleRunInline}>
         Run Inline
       </PrimaryButton>
+
+      <LogPanel sessionId={sessionId} />
 
       <div className="w-full flex justify-center mt-6">
         {plotUrl && <img src={plotUrl} alt={safeAction} />}

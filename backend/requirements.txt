@@ -1,6 +1,4 @@
-fastapi
-uvicorn
-pydantic
+fastapi[standard]
 python-multipart
 matplotlib
 python-dotenv

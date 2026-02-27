@@ -15,7 +15,6 @@ import numpy as np
 
 from matplotlib.axes import Axes
 from tqdm.auto import tqdm
-from typing import Tuple, Callable, Optional, Dict
 
 from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
 

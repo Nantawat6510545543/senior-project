@@ -2,7 +2,7 @@ import { getSubjects } from "@/api/api";
 import { useEffect, useState } from "react"
 
 
-export function useSubjectOption() {
+export default function useSubjectOption() {
   const [subjectOptions, setSubjectOptions] = useState<
     { value: string; label: string }[]
   >([])

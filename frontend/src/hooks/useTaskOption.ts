@@ -1,7 +1,7 @@
 import { getTasks } from "@/api/api";
 import { useEffect, useState } from "react"
 
-export function useTaskOption(subject: string) {
+export default function useTaskOption(subject: string) {
   const [taskOptions, setTaskOptions] = useState<
     { value: string; label: string }[]
   >([])
