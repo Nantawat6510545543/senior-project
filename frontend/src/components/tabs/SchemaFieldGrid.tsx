@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import IntegerInput from "@/components/IntegerInput"
 import DecimalInput from "@/components/DecimalInput"
 import { Input } from "@/components/ui/input"
@@ -9,12 +9,8 @@ import useSessionPatch from "@/hooks/useSessionPatch"
 import useLoadSession from "@/hooks/useLoadSession"
 import type { SchemaEndpoints } from "@/hooks/useSchema"
 
+import { useForm, Controller, useWatch } from "react-hook-form"
 
-function resolveValue(field: any, value: any) {
-  if (value !== undefined && value !== null) return value
-  if (field.default !== undefined && field.default !== null) return field.default
-  return ""
-}
 
 function resolvePlaceholder(field: any) {
   if (field.default !== undefined && field.default !== null) return undefined
@@ -44,18 +40,18 @@ export default function SchemaFieldGrid({
 
   // STRING-BASED UI STATE
   const sessionValues = useLoadSession(sessionId, endpoint)
-  const [values, setValues] = useState<Record<string, any>>({})
-  useSessionPatch(sessionId, endpoint, values)
+  const { control, reset } = useForm({
+    defaultValues: sessionValues || {}
+  })
 
-  const setField = (name: string, value: any) => {
-    setValues(prev => ({ ...prev, [name]: value }))
-  }
+  const values = useWatch({ control })
+  useSessionPatch(sessionId, endpoint, values)
 
   useEffect(() => {
     if (sessionValues) {
-      setValues(sessionValues)
+      reset(sessionValues)
     }
-  }, [sessionValues])
+  }, [sessionValues, reset])
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -67,41 +63,75 @@ export default function SchemaFieldGrid({
             <SubHeader>{field.title ?? name}</SubHeader>
 
             {field.ui === "checkbox" && (
-              <PurpleCheckbox
-                checked={Boolean(values[name] ?? field.default)}
-                onChange={(v) => setField(name, v)}
+              <Controller
+                name={name}
+                control={control}
+                defaultValue={field.default ?? false}
+                render={({ field: rhfField }) => (
+                  <PurpleCheckbox
+                    checked={rhfField.value}
+                    onChange={rhfField.onChange}
+                  />
+                )}
               />
             )}
 
             {field.ui === "integer" && (
-              <IntegerInput
-                value={resolveValue(field, values[name])}
-                placeholder={resolvePlaceholder(field)}
-                onChange={(v) => setField(name, v)}
+              <Controller
+                name={name}
+                control={control}
+                defaultValue={field.default ?? ""}
+                render={({ field: rhfField }) => (
+                  <IntegerInput
+                    value={rhfField.value ?? ""}
+                    placeholder={resolvePlaceholder(field)}
+                    onChange={rhfField.onChange}
+                  />
+                )}
               />
             )}
 
             {field.ui === "number" && (
-              <DecimalInput
-                value={resolveValue(field, values[name])}
-                placeholder={resolvePlaceholder(field)}
-                onChange={(v) => setField(name, v)}
+              <Controller
+                name={name}
+                control={control}
+                defaultValue={field.default ?? ""}
+                render={({ field: rhfField }) => (
+                  <DecimalInput
+                    value={rhfField.value ?? ""}
+                    placeholder={resolvePlaceholder(field)}
+                    onChange={rhfField.onChange}
+                  />
+                )}
               />
             )}
 
             {field.ui === "text" && (
-              <Input
-                value={resolveValue(field, values[name])}
-                placeholder={resolvePlaceholder(field)}
-                onChange={(e) => setField(name, e.target.value)}
+              <Controller
+                name={name}
+                control={control}
+                defaultValue={field.default ?? ""}
+                render={({ field: rhfField }) => (
+                  <Input
+                    {...rhfField}
+                    placeholder={resolvePlaceholder(field)}
+                  />
+                )}
               />
             )}
 
             {field.ui === "list" && (
-              <Combobox
-                options={field.options.map((v: string) => ({ value: v, label: v }))}
-                value={values[name] ?? field.default}
-                onChange={(v) => setField(name, v)}
+              <Controller
+                name={name}
+                control={control}
+                defaultValue={field.default}
+                render={({ field: rhfField }) => (
+                  <Combobox
+                    options={field.options.map((v: string) => ({ value: v, label: v }))}
+                    value={rhfField.value}
+                    onChange={rhfField.onChange}
+                  />
+                )}
               />
             )}
           </div>

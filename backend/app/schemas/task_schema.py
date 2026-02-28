@@ -2,6 +2,11 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+class RangeFilter(BaseModel):
+    min: Optional[int] = None
+    max: Optional[int] = None
+
+
 class SingleSubjectTask(BaseModel):
     task: str
     subject: str
@@ -16,11 +21,27 @@ class CohortTask(BaseModel):
 
     sex: list[str] = Field(default_factory=lambda: ["None", "M", "F"])
 
-    age_min: Optional[float] = None
-    age_max: Optional[float] = None
+    age: Optional[RangeFilter]
+    ehq_total: Optional[RangeFilter]
+    p_factor: Optional[RangeFilter]
+    attention: Optional[RangeFilter]
+    internalizing: Optional[RangeFilter]
+    externalizing: Optional[RangeFilter]
+    ccd_accuracy: Optional[RangeFilter]
+    ccd_response_time: Optional[RangeFilter]
 
-    ehq_total_min: Optional[float] = None
-    ehq_total_max: Optional[float] = None
 
-    p_factor_min: Optional[float] = None
-    p_factor_max: Optional[float] = None
+class SubjectFilterDTO(BaseModel):
+    task: Optional[str]
+    subject_limit: Optional[int]
+    per_subject: Optional[bool]
+    sex: Optional[str]
+
+    age: Optional[RangeFilter]
+    ehq_total: Optional[RangeFilter]
+    p_factor: Optional[RangeFilter]
+    attention: Optional[RangeFilter]
+    internalizing: Optional[RangeFilter]
+    externalizing: Optional[RangeFilter]
+    ccd_accuracy: Optional[RangeFilter]
+    ccd_response_time: Optional[RangeFilter]

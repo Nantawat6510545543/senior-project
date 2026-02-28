@@ -17,4 +17,3 @@ def get_subject_tasks(subject_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Subject not found")
 
     return { "subject": subject_id, "tasks": tasks }
-

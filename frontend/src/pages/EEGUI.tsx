@@ -10,13 +10,11 @@ import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
 import { createSession, getPlotUrl } from "@/api/api"
 import { SETTINGS_MODE } from "./settings_mode"
-import useSubjectOption from "@/hooks/useSubjectOption"
-import useTaskOption from "@/hooks/useTaskOption"
 import IntegerInput from "@/components/IntegerInput"
-import type { SingleSubjectTask } from "@/api/types"
-import useSessionPatch from "@/hooks/useSessionPatch"
 import LogPanel from "@/components/LogPanel"
 
+import { useForm, Controller } from "react-hook-form"
+import TaskForm from "@/components/forms/TaskForm"
 
 export default function EEGUI() {
   const [inputType, setInputType] = useState("Single subject")
@@ -35,27 +33,16 @@ export default function EEGUI() {
     createSession().then(setSessionId).catch(console.error)
   }, [])
 
-  const [singleTask, setSingleTask] = useState<SingleSubjectTask>({
-    subject: "",
-    task: "",
-    run: null,
-  })
-
   let safeAction = action
   if (!(safeAction in modeData.actions)) {
     safeAction = actions[0]
   }
-
-  useSessionPatch(sessionId, "task", singleTask)
 
   function handleRunInline() {
     if (!sessionId) return
     const plotType = modeData.actions[safeAction]
     setPlotUrl(getPlotUrl(sessionId, plotType))
   }
-
-  const subjectOptions = useSubjectOption()
-  const taskOptions = useTaskOption(singleTask.subject)
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
@@ -69,41 +56,19 @@ export default function EEGUI() {
         />
 
         {inputType === "Single subject" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <SubHeader>Subject</SubHeader>
-              <Combobox
-                options={subjectOptions}
-                value={singleTask.subject}
-                onChange={(value) =>
-                  setSingleTask((prev) => ({ ...prev, subject: value }))
-                }
-              />
-            </div>
-
-            <div>
-              <SubHeader>Task</SubHeader>
-              <Combobox
-                options={taskOptions}
-                value={singleTask.task}
-                onChange={(value) =>
-                  setSingleTask((prev) => ({ ...prev, task: value }))
-                }
-              />
-            </div>
-          </div>
+          <TaskForm sessionId={sessionId} />
         )}
 
         {inputType === "Meta filter (group)" && (
           <div className="space-y-4 mt-4">
             <SubHeader>Task</SubHeader>
-              <Combobox
-                options={subjectOptions}
-                value={singleTask.subject}
+              {/* <Combobox
+                options={taskOptions}
+                value={singleTask.task}
                 onChange={(value) =>
-                  setSingleTask((prev) => ({ ...prev, subject: value }))
+                  setSingleTask((prev) => ({ ...prev, task: value }))
                 }
-              />
+              /> */}
 
             <SubHeader>Subject limit</SubHeader>
             <IntegerInput />

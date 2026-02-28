@@ -23,7 +23,14 @@ export default function useSessionPatch(
     if (timeout.current) clearTimeout(timeout.current)
 
     timeout.current = setTimeout(() => {
-      patchSession(sessionId, endpoint, data).catch(console.error)
+      const cleaned = Object.fromEntries(
+        Object.entries(data ?? {}).map(([k, v]) => {
+          if (v === "") return [k, null]
+          return [k, v]
+        })
+      )
+
+      patchSession(sessionId, endpoint, cleaned).catch(console.error)
     }, 100)
 
     return () => {

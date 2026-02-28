@@ -13,10 +13,10 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import mne
 from dataclasses import dataclass
 from pathlib import Path
 
-import mne
 
 PIPELINE_VERSION = "v3"
 log = logging.getLogger(__name__)
