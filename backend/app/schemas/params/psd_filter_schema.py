@@ -1,7 +1,7 @@
+from pydantic import Field
 from typing import Optional
-from pydantic import BaseModel, Field, model_validator
-from .epoch_filter_schema import EpochParams
 
+from .epoch_filter_schema import EpochParams
 from .base_filter_schema import FilterParams
 
 

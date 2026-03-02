@@ -9,6 +9,7 @@ export const schemaEndpoints = [
   "topomap",
   "time",
   "tables",
+  "subject_type",
 ] as const
 
 export type SchemaEndpoints = typeof schemaEndpoints[number]

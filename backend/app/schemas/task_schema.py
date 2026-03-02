@@ -7,41 +7,27 @@ class RangeFilter(BaseModel):
     max: Optional[int] = None
 
 
+# TODO change to subject: str | list[str]
 class SingleSubjectTask(BaseModel):
-    task: str
-    subject: str
+    task: Optional[str] = None
+    subject: Optional[str] = None
     run: Optional[str] = None
 
-
+# TODO CohortTask -> SingleSubjectFilter -> list[SingleSubjectTask]
+# TODO deprecate this
 class CohortTask(BaseModel):
-    task: str
+    task: Optional[str] = None
 
     subject_limit: Optional[int] = None
     per_subject: bool = False
 
-    sex: list[str] = Field(default_factory=lambda: ["None", "M", "F"])
+    sex: Optional[str] = None
 
-    age: Optional[RangeFilter]
-    ehq_total: Optional[RangeFilter]
-    p_factor: Optional[RangeFilter]
-    attention: Optional[RangeFilter]
-    internalizing: Optional[RangeFilter]
-    externalizing: Optional[RangeFilter]
-    ccd_accuracy: Optional[RangeFilter]
-    ccd_response_time: Optional[RangeFilter]
-
-
-class SubjectFilterDTO(BaseModel):
-    task: Optional[str]
-    subject_limit: Optional[int]
-    per_subject: Optional[bool]
-    sex: Optional[str]
-
-    age: Optional[RangeFilter]
-    ehq_total: Optional[RangeFilter]
-    p_factor: Optional[RangeFilter]
-    attention: Optional[RangeFilter]
-    internalizing: Optional[RangeFilter]
-    externalizing: Optional[RangeFilter]
-    ccd_accuracy: Optional[RangeFilter]
-    ccd_response_time: Optional[RangeFilter]
+    age: Optional[RangeFilter] = None
+    ehq_total: Optional[RangeFilter] = None
+    p_factor: Optional[RangeFilter] = None
+    attention: Optional[RangeFilter] = None
+    internalizing: Optional[RangeFilter] = None
+    externalizing: Optional[RangeFilter] = None
+    ccd_accuracy: Optional[RangeFilter] = None
+    ccd_response_time: Optional[RangeFilter] = None

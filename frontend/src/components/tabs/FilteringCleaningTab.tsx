@@ -1,4 +1,4 @@
-import SchemaFieldGrid from "./SchemaFieldGrid"
+import SchemaFieldGrid from "../forms/SchemaFieldGrid"
 
 // #TODO bring back "Combine Channels" AND "Show bad"
 export default function FilteringCleaningTab(

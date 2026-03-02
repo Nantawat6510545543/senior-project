@@ -11,7 +11,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import (
-    train, predict, evaluate, compare, plot, participants, params_schema, progress_ws, session
+    train, predict, evaluate, compare, plot, participants, params_schema, progress_ws, session,
 )
 from app.pipeline.task_resolver import EEGTaskResolver
 from app.core.config import DATA_ROOT

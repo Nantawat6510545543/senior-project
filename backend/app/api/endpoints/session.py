@@ -1,5 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from pydantic import TypeAdapter
+from typing import Any
+
 from app.core.session_store import create_session, get_session
 
 router = APIRouter(prefix="/session", tags=["session"])
@@ -15,7 +17,7 @@ def read_session(sid: str):
     return get_session(sid)
 
 @router.patch("/{sid}/{schema_type}")
-def patch_session(sid: str, schema_type: str, payload: dict | None):
+def patch_session(sid: str, schema_type: str, payload: Any = Body(...)):
     session = get_session(sid)
 
     if schema_type not in type(session).model_fields:

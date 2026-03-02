@@ -1,4 +1,4 @@
-import SchemaFieldGrid from "./SchemaFieldGrid"
+import SchemaFieldGrid from "../forms/SchemaFieldGrid"
 
 export default function TablesTab(
   { sessionId, schema }: { sessionId: string, schema: any }

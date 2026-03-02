@@ -1,4 +1,4 @@
-import SchemaFieldGrid from "./SchemaFieldGrid"
+import SchemaFieldGrid from "../forms/SchemaFieldGrid"
 
 // TODO why this tab doesn't render
 export default function EpochsTab(

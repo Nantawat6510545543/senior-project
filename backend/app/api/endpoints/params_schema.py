@@ -2,8 +2,9 @@ from fastapi import APIRouter
 
 from app.schemas.params.base_filter_schema import FilterParams
 from app.schemas.params.epoch_filter_schema import EpochParams
-from app.schemas.params.psd_filter_schema import PSDParams
 from app.schemas.params.evoked_filter_schema import EvokedParams, EvokedTopoParams
+from app.schemas.params.psd_filter_schema import PSDParams
+from app.schemas.params.subject_filter_schema import SubjectFilterParams
 from app.schemas.params.table_filter_schema import TableParams
 from app.schemas.params.time_domain_filter_schema import TimeDomainParams
 
@@ -25,6 +26,10 @@ def psd_schema():
 @router.get("/evoked")
 def evoked_schema():
     return EvokedParams.model_json_schema()
+
+@router.get("/subject_filter")
+def subject_filter_schema():
+    return SubjectFilterParams.model_json_schema()
 
 @router.get("/topomap")
 def topomap_schema():

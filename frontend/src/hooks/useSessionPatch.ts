@@ -1,4 +1,3 @@
-
 import { patchSession } from "@/api/api"
 import { useEffect, useRef } from "react"
 
@@ -23,12 +22,16 @@ export default function useSessionPatch(
     if (timeout.current) clearTimeout(timeout.current)
 
     timeout.current = setTimeout(() => {
-      const cleaned = Object.fromEntries(
-        Object.entries(data ?? {}).map(([k, v]) => {
-          if (v === "") return [k, null]
-          return [k, v]
-        })
-      )
+      let cleaned = data
+
+      if (data && typeof data === "object" && !Array.isArray(data)) {
+        cleaned = Object.fromEntries(
+          Object.entries(data).map(([k, v]) => {
+            if (v === "") return [k, null]
+            return [k, v]
+          })
+        )
+      }
 
       patchSession(sessionId, endpoint, cleaned).catch(console.error)
     }, 100)

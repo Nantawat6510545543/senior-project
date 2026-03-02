@@ -60,24 +60,6 @@ export const compareModel = (data: CompareModelData) => {
   });
 };
 
-// export const getPlotUrl = (params: {
-//   type: string;
-//   task: SingleSubjectTask
-// }) => {
-//   const search = new URLSearchParams({
-//     type: params.type,
-//     subject: params.task.subject,
-//     task: params.task.task,
-//     t: Date.now().toString(),
-//   })
-
-//   if (params.task.run) {
-//     search.set("run", params.task.run)
-//   }
-
-//   return `${BACKEND_URL}${ENDPOINTS.PLOT}?${search.toString()}`;
-// };
-
 export function getPlotUrl(sid: string, view: string) {
   return `${BACKEND_URL}/plot/${sid}?view=${view}&t=${Date.now()}`
 }

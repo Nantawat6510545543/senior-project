@@ -27,9 +27,9 @@ export const SETTINGS_MODE = {
   Data: {
     description: "Provides structured tables from the current selection.",
     actions: {
-      "EEG Table": null,
-      "Epochs Table": null,
-      Metadata: null,
+      "EEG Table": "eeg_table",
+      "Epochs Table": "epochs_table",
+      "Metadata": "metadata",
     },
   },
 

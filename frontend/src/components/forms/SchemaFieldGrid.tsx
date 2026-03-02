@@ -134,6 +134,34 @@ export default function SchemaFieldGrid({
                 )}
               />
             )}
+
+            {field.ui === "range" && (
+              <div className="flex gap-2">
+                <Controller
+                  name={`${name}.min`}
+                  control={control}
+                  render={({ field: rhfField }) => (
+                    <DecimalInput
+                      value={rhfField.value ?? ""}
+                      placeholder="min"
+                      onChange={rhfField.onChange}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name={`${name}.max`}
+                  control={control}
+                  render={({ field: rhfField }) => (
+                    <DecimalInput
+                      value={rhfField.value ?? ""}
+                      placeholder="max"
+                      onChange={rhfField.onChange}
+                    />
+                  )}
+                />
+              </div>
+            )}
           </div>
         )
       })}
