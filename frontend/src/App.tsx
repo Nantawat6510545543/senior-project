@@ -14,7 +14,7 @@ function App() {
         <Navbar />
         <div className="p-4">
           <Routes>
-            <Route path="/" element={<Navigate replace to="/train" />} />
+            <Route path="/" element={<Navigate replace to="/eegui" />} />
             <Route path="/eegui" element={<EEGUI />} />
             <Route path="/train" element={<Train />} />
             <Route path="/predict" element={<Predict />} />

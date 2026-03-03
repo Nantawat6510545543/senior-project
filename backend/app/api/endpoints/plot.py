@@ -1,15 +1,14 @@
 import io
 import matplotlib.pyplot as plt
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 
-from app.core.config import DATA_ROOT
 from app.core.session_store import get_session
 from app.core.progress_logger import ProgressEmitter
 from app.core.ws_manager import ws_manager
-from app.pipeline.task_resolver import EEGTaskResolver
+from app.pipeline.task_resolver import get_single_subject_executor, get_cohort_subject_executor
 
 from app.plots.plot_epochs import plot_epochs, prepare_epochs_plot_data
 from app.plots.plot_evoked import plot_evoked, prepare_evoked_plot_data
@@ -85,7 +84,7 @@ def build_plot_figure(view, task_executor, session):
 router = APIRouter(prefix="/plot")
 
 @router.get("/{sid}")
-async def plot(sid: str, view: ViewName = Query(...)):
+async def plot(sid: str, request: Request, view: ViewName = Query(...)):
 
     session = get_session(sid)
     if not session:
@@ -98,12 +97,12 @@ async def plot(sid: str, view: ViewName = Query(...)):
     try:
         await progress.log("Resolving EEG task")
 
-        resolver = EEGTaskResolver(DATA_ROOT)
+        pm = request.app.state.participant_manager
 
         if session.subject_type == "single":
-            task_executor = resolver._resolve_single(session.task)
+            task_executor = get_single_subject_executor(pm, session.task)
         elif session.subject_type == "cohort":
-            task_executor = resolver._resolve_cohort(session.subject_filter)
+            task_executor = get_cohort_subject_executor(pm, session.subject_filter)
 
         await progress.log(f"Building plot figure for: {view}")
 

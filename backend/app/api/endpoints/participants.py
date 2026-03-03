@@ -4,14 +4,14 @@ router = APIRouter(prefix="/participants", tags=["participants"])
 
 @router.get("/")
 def get_participants(request: Request):
-    resolver = request.app.state.resolver
-    return resolver.list_subjects()
+    participant_manager = request.app.state.participant_manager
+    return participant_manager.list_subjects()
 
 
 @router.get("/{subject_id}/tasks/")
 def get_subject_tasks(subject_id: str, request: Request):
-    resolver = request.app.state.resolver
-    tasks = resolver.list_tasks(subject_id)
+    participant_manager = request.app.state.participant_manager
+    tasks = participant_manager.list_tasks(subject_id)
 
     if not tasks:
         raise HTTPException(status_code=404, detail="Subject not found")

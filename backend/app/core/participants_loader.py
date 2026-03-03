@@ -4,7 +4,6 @@ import logging
 import re
 import time
 from collections import defaultdict
-from dataclasses import fields as dc_fields
 from pathlib import Path
 from typing import List, Optional, Dict, Set
 
