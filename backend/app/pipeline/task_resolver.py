@@ -1,3 +1,4 @@
+"""Subject-level access layer resolving single tasks or building cohorts."""
 from typing import Union
 
 import logging
@@ -35,7 +36,9 @@ class EEGTaskResolver:
         return self._participants.list_tasks(subject)
 
     # ---------- resolution ----------
+    # TODO deprecate
     def resolve_task(self, task: Union[SingleSubjectTask, CohortTask]):
+
         if isinstance(task, SingleSubjectTask):
             return self._resolve_single(task)
 
@@ -49,21 +52,19 @@ class EEGTaskResolver:
 
         return EEGTaskExecutor(task=task, data_dir=subject_dir)
 
-    def _resolve_cohort(self, task: CohortTask) -> EEGCohortExecutor:
-        subjects = self._participants.filter_subjects(
-            sex=task.sex,
-            age_min=task.age_min,
-            age_max=task.age_max,
-            ehq_total_min=task.ehq_total_min,
-            ehq_total_max=task.ehq_total_max,
-            p_factor_min=task.p_factor_min,
-            p_factor_max=task.p_factor_max,
-            limit=task.subject_limit,
-        )
+    def _resolve_cohort(self, cohort_task: CohortTask) -> EEGCohortExecutor:
+        subjects = self._participants.filter_subjects_by_dto(cohort_task)
 
-        return EEGCohortExecutor(
-            task=task.task,
-            subjects=subjects,
-            per_subject=task.per_subject,
-            participant_manager=self._participants,
-        )
+        task = cohort_task.task
+        models = []
+        for subj in subjects:
+            subj_tasks = self._participants.list_tasks(subj)
+            runs = [r for (t, r) in subj_tasks if t == task] or [None]
+            subj_dir = self._participants.subject_data_dir(subj)
+            for run in runs:
+                dto = SingleSubjectTask(subject=subj, task=task, run=run)
+                models.append(EEGTaskExecutor(dto, subj_dir))
+        
+        cohort = EEGCohortExecutor(cohort_task, models, len(subjects))
+
+        return cohort

@@ -22,7 +22,7 @@ from app.plots.plot_evoked_per_condition import (
 from app.plots.plot_evoked_topo import plot_evoked_topo, prepare_evoked_topo_plot_data
 from app.plots.plot_frequency import plot_frequency, prepare_frequency_plot_data
 from app.plots.plot_psd_grid import plot_psd_grid, prepare_psd_grid_data
-from app.plots.plot_sensors import build_raw_from_sst, plot_sensors
+from app.plots.plot_sensors import plot_sensors, prepare_plot_sensors_data
 from app.plots.plot_snr import plot_snr, prepare_snr_plot_data
 from app.plots.plot_snr_grid import plot_snr_grid, prepare_snr_grid_data
 from app.plots.plot_time_domain import plot_time_domain, prepare_time_domain_plot_data
@@ -31,7 +31,7 @@ from app.schemas.ui.view_schema import ViewName
 
 def build_plot_figure(view, task_executor, session):
     if view == "sensor_layout":
-        raw = build_raw_from_sst(task_executor, session)
+        raw = prepare_plot_sensors_data(task_executor, session)
         return plot_sensors(raw)
 
     elif view == "time_domain":
@@ -91,9 +91,7 @@ async def plot(sid: str, view: ViewName = Query(...)):
     if not session:
         raise HTTPException(404, "Session not found")
 
-    progress = ProgressEmitter(
-        lambda msg: ws_manager.send(sid, msg)
-    )
+    progress = ProgressEmitter(lambda msg: ws_manager.send(sid, msg))
 
     await progress.log("Session loaded")
 
@@ -101,7 +99,11 @@ async def plot(sid: str, view: ViewName = Query(...)):
         await progress.log("Resolving EEG task")
 
         resolver = EEGTaskResolver(DATA_ROOT)
-        task_executor = resolver.resolve_task(session.task)
+
+        if session.subject_type == "single":
+            task_executor = resolver._resolve_single(session.task)
+        elif session.subject_type == "cohort":
+            task_executor = resolver._resolve_cohort(session.subject_filter)
 
         await progress.log(f"Building plot figure for: {view}")
 

@@ -5,10 +5,8 @@ from app.pipeline.task_executor import EEGTaskExecutor
 from app.schemas.session_schema import PipelineSession
 
 
-# TODO this doesn't belong here, MOVE!
-def build_raw_from_sst(executor: EEGTaskExecutor, session: PipelineSession) -> Raw:
-    "Build raw data from SingleSubjectTask Schemas"
-    raw = executor.get_raw()
+def prepare_plot_sensors_data(executor, session: PipelineSession) -> Raw:
+    raw = executor.get_filtered_raw(session.filter)
 
     if session.filter:
         raw.pick(session.filter.channels_list)

@@ -474,13 +474,16 @@ class ParticipantManager:
                 )
                 df = df[mask]
 
-        for f in dc_fields(dto):
-            name = f.name
+        filters = dto.model_dump(exclude_none=True)
+
+        for name, val in filters.items():
             if name in ('task', 'subject', 'run', 'subject_limit', 'per_subject'):
                 continue
-            val = getattr(dto, name, None)
-            if val is None:
+
+            # Skip empty range filters
+            if val in ({}, None):
                 continue
+
             if name.endswith('_range'):
                 col = name[:-6]
                 if col in df.columns and isinstance(val, (tuple, list)):
@@ -490,6 +493,7 @@ class ParticipantManager:
                         df = df[s >= lo]
                     if hi is not None:
                         df = df[s <= hi]
+
             elif name in df.columns:
                 if isinstance(val, (list, tuple)):
                     vals = [v for v in val if v is not None]
@@ -497,6 +501,7 @@ class ParticipantManager:
                         df = df[df[name].isin(vals)]
                 else:
                     df = df[df[name] == val]
+
         subjects = df['participant_id'].dropna().tolist()
         limit = dto.subject_limit
         if limit and int(limit) > 0:
