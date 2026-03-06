@@ -4,6 +4,7 @@ import logging
 # MUST be first — before any plot modules import pyplot
 from app.core import matplotlib_config
 
+from app.api.endpoints import show_data
 from dotenv import load_dotenv
 load_dotenv() # Load .env before program runs
 
@@ -57,6 +58,7 @@ def startup():
 
 # Register the API routers
 app.include_router(plot.router)
+app.include_router(show_data.router)
 app.include_router(train.router)
 app.include_router(predict.router)
 app.include_router(evaluate.router)

@@ -1,15 +1,30 @@
-"""Grid of PSD curves per condition/label."""
+"""Grid of SNR spectra per condition/label."""
 import numpy as np
 
 from app.pipeline.channels_helper import prepare_channels
+from app.pipeline.signal_spatial import compute_snr_spectrum
 from app.pipeline.task_executor import EEGTaskExecutor
+from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
-from .grid_plot_helpers import render_label_grid
-from .plot_merger import merge_figures_vertical
-from .plot_snr_grid import get_epoch_psd_params
+from app.schemas.params.psd_filter_schema import EpochPSDParams
+
+from ..grid_plot_helpers import render_label_grid
 
 
-def prepare_psd_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
+# TODO move asap
+def get_epoch_psd_params(session: PipelineSession) -> EpochPSDParams:
+    epoch_dict = session.epochs.model_dump()
+    psd_dict = session.psd.model_dump()
+
+    # remove overlapping keys from psd
+    for k in epoch_dict.keys():
+        psd_dict.pop(k, None)
+
+    epochs_psd_dto = EpochPSDParams(**epoch_dict, **psd_dict)
+    return epochs_psd_dto
+
+
+def prepare_snr_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
     epochs_psd_dto = get_epoch_psd_params(session)
     epochs, available_labels = executor.get_epochs(epochs_psd_dto)
     if epochs is None:
@@ -24,7 +39,7 @@ def prepare_psd_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
     nfft = int(max(8, sfreq * max(0.5, duration)))
 
     # ---- precompute once per label ----
-    psd_cache = {}
+    snr_cache = {}
 
     for label in available_labels:
         try:
@@ -35,8 +50,6 @@ def prepare_psd_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
             spectrum = ce.compute_psd(
                 method="welch",
                 n_fft=nfft,
-                n_overlap=0,
-                n_per_seg=None,
                 tmin=epochs_psd_dto.tmin,
                 tmax=epochs_psd_dto.tmax,
                 fmin=epochs_psd_dto.fmin,
@@ -47,21 +60,22 @@ def prepare_psd_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
             )
 
             psd, freqs = spectrum.get_data(return_freqs=True)
+            snr = compute_snr_spectrum(psd)
 
-            psd_db = 10 * np.log10(psd, where=psd > 0, out=np.full_like(psd, np.nan))
-            mean = np.nanmean(psd_db, axis=(0, 1))
-            std = np.nanstd(psd_db, axis=(0, 1))
+            mean = np.nanmean(snr, axis=(0, 1))
+            std = np.nanstd(snr, axis=(0, 1))
 
-            psd_cache[label] = (freqs, mean, std, len(ce))
+            snr_cache[label] = (freqs, mean, std, len(ce))
 
         except Exception:
             continue
 
-    return epochs, available_labels, psd_cache
+    return epochs, available_labels, snr_cache
 
 
-def plot_psd_grid(epochs, available_labels, psd_cache, session: PipelineSession):
-    """Render PSD spectrum per label in a grid; return figure or None."""
+# TODO fix dto type (EpochPSD)
+def plot_snr_grid(epochs, available_labels, snr_cache, session: PipelineSession):
+    """Render SNR spectrum per label in a grid; return figure or None."""
     epochs_psd_dto = get_epoch_psd_params(session)
 
     scale_mode = getattr(epochs_psd_dto, "scale_mode", "per-plot")
@@ -69,21 +83,19 @@ def plot_psd_grid(epochs, available_labels, psd_cache, session: PipelineSession)
         scale_mode = scale_mode[0]
 
     def _draw(ax, label):
-        item = psd_cache.get(label)
+        item = snr_cache.get(label)
         if item is None:
             return None
 
         freqs, mean, std, n = item
 
-        ax.plot(freqs, mean, color="b")
-        ax.fill_between(freqs, mean - std, mean + std, color="b", alpha=0.2)
+        ax.plot(freqs, mean, color="r")
+        ax.fill_between(freqs, mean - std, mean + std, color="r", alpha=0.2)
 
-        ax.text(
-            1, 1, f"n={n}",
-            transform=ax.transAxes,
-            ha="right", va="bottom",
-            fontsize=8, color="0.4"
-        )
+        ax.text(1, 1, f"n={n}",
+                transform=ax.transAxes,
+                ha="right", va="bottom",
+                fontsize=8, color="0.4")
 
         return float(np.nanmin(mean)), float(np.nanmax(mean))
 
@@ -92,10 +104,10 @@ def plot_psd_grid(epochs, available_labels, psd_cache, session: PipelineSession)
         epochs=epochs,
         available_labels=available_labels,
         params=epochs_psd_dto,
-        plot_name="PSD Grid",
+        plot_name="SNR Grid",
         xlim=(epochs_psd_dto.fmin, epochs_psd_dto.fmax),
         xlabel="Frequency [Hz]",
-        unit_tag="dB",
+        unit_tag="SNR",
         scale_mode=scale_mode,
         per_cell_draw=_draw,
     )

@@ -10,21 +10,8 @@ from app.core.progress_logger import ProgressEmitter
 from app.core.ws_manager import ws_manager
 from app.pipeline.task_resolver import get_single_subject_executor, get_cohort_subject_executor
 
-from app.plots.plot_epochs import plot_epochs, prepare_epochs_plot_data
-from app.plots.plot_evoked import plot_evoked, prepare_evoked_plot_data
-from app.plots.plot_evoked_grid import plot_evoked_grid, prepare_evoked_grid_data
-from app.plots.plot_evoked_joint import plot_evoked_joint, prepare_evoked_joint_plot_data
-from app.plots.plot_evoked_per_condition import (
-    plot_evoked_per_condition,
-    prepare_evoked_per_condition_plot_data,
-)
-from app.plots.plot_evoked_topo import plot_evoked_topo, prepare_evoked_topo_plot_data
-from app.plots.plot_frequency import plot_frequency, prepare_frequency_plot_data
-from app.plots.plot_psd_grid import plot_psd_grid, prepare_psd_grid_data
-from app.plots.plot_sensors import plot_sensors, prepare_plot_sensors_data
-from app.plots.plot_snr import plot_snr, prepare_snr_plot_data
-from app.plots.plot_snr_grid import plot_snr_grid, prepare_snr_grid_data
-from app.plots.plot_time_domain import plot_time_domain, prepare_time_domain_plot_data
+from app.plots.plot import *
+from app.plots.grid_plot import *
 from app.schemas.ui.view_schema import ViewName
 
 

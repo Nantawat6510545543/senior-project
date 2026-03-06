@@ -115,3 +115,13 @@ export async function patchSession(
 
   if (!res.ok) throw new Error("Failed to patch session")
 }
+
+export async function fetchTableData(sessionId: string, view: string) {
+  const res = await fetch(`${BACKEND_URL}/data/${sessionId}?view=${view}`)
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch table data")
+  }
+
+  return res.json()
+}

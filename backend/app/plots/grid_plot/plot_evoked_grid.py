@@ -3,9 +3,10 @@ import numpy as np
 
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
+from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
-from .grid_plot_helpers import draw_evoked_response, render_label_grid
-from .plot_merger import merge_figures_vertical
+
+from ..grid_plot_helpers import draw_evoked_response, render_label_grid
 
 
 def prepare_evoked_grid_data(executor: EEGTaskExecutor, session: PipelineSession):

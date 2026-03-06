@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { trainModel } from "@/api/api";
 import NumberInput from "@/components/IntegerInput";
 import PrimaryButton from "@/components/PrimaryButton";
+import PurpleTable from "@/components/PurpleTable";
 
 const datasets_options = [
   { value: "BCIC2a", label: "BCIC2a Dataset" },
@@ -47,6 +48,25 @@ const Train = () => {
     });
   };
 
+  const data = [
+  {
+    onset: 0.0,
+    duration: null,
+    sample: 0,
+    value: "break cnt",
+    event_code: "break cnt",
+    feedback: null,
+  },
+  {
+    onset: 33.4,
+    duration: null,
+    sample: 16700,
+    value: "contrastChangeB1_start",
+    event_code: 94,
+    feedback: null,
+  },
+]
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div className="space-y-6">
@@ -81,6 +101,7 @@ const Train = () => {
         </div>
       </div>
 
+      <PurpleTable data={data} />
       <Card className="bg-purple-100 border-purple-300">
         <CardContent className="p-4">
           <h2 className="text-purple-800 text-lg font-semibold mb-2">Training Log</h2>

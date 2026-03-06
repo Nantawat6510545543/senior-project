@@ -13,7 +13,7 @@ def prepare_plot_sensors_data(executor, session: PipelineSession) -> Raw:
 
     return raw
 
-# Actual plotter
+
 def plot_sensors(raw: Raw) -> Figure:
     """Plot sensor montage with channel names; return Matplotlib figure list."""
     fig = raw.plot_sensors(show_names=True)

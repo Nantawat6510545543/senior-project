@@ -7,13 +7,14 @@ import { Header, SubHeader } from "@/components/Fonts"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
-import { createSession, getPlotUrl } from "@/api/api"
+import { createSession, fetchTableData, getPlotUrl } from "@/api/api"
 import { SETTINGS_MODE } from "./settings_mode"
 import LogPanel from "@/components/LogPanel"
 
 import TaskForm from "@/components/forms/TaskForm"
 import CohortTaskForm from "@/components/forms/CohortTaskForm"
 import useSessionPatch from "@/hooks/useSessionPatch"
+import PurpleTable from "@/components/PurpleTable"
 
 
 export default function EEGUI() {
@@ -25,6 +26,10 @@ export default function EEGUI() {
 
   const modeData = SETTINGS_MODE[mode]
   const actions = Object.keys(modeData.actions)
+
+  // TODO resolve
+  const TABLE_VIEWS = ["eeg_table", "epochs_table", "metadata"]
+  const [tableData, setTableData] = useState<any>(null)
 
   const [plotUrl, setPlotUrl] = useState<string | null>(null)
   const [sessionId, setSessionId] = useState<string>("")
@@ -43,10 +48,22 @@ export default function EEGUI() {
     safeAction = actions[0]
   }
 
-  function handleRunInline() {
+  // TODO resolve
+  async function handleRunInline() {
     if (!sessionId) return
-    const plotType = modeData.actions[safeAction]
-    setPlotUrl(getPlotUrl(sessionId, plotType))
+
+    const view = modeData.actions[safeAction]
+
+    if (TABLE_VIEWS.includes(view)) {
+      setPlotUrl(null)
+
+      const json = await fetchTableData(sessionId, view)
+      setTableData(json)
+
+    } else {
+      setTableData(null)
+      setPlotUrl(getPlotUrl(sessionId, view))
+    }
   }
 
   return (
@@ -108,7 +125,13 @@ export default function EEGUI() {
       <LogPanel sessionId={sessionId} />
 
       <div className="w-full flex justify-center mt-6">
-        {plotUrl && <img src={plotUrl} alt={safeAction} />}
+        {plotUrl && (
+          <img src={plotUrl} alt={safeAction} />
+        )}
+
+        {tableData && (
+          <PurpleTable data={tableData} />
+        )}
       </div>
     </div>
   )
