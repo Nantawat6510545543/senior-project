@@ -1,20 +1,33 @@
 import { Checkbox } from "@/components/ui/checkbox"
+import { Controller, useFormContext } from "react-hook-form"
 
 interface PurpleCheckboxProps {
-  checked: boolean
-  onChange: (checked: boolean) => void
+  name: string
+  defaultValue?: boolean
 }
 
-export default function PurpleCheckbox({ checked, onChange }: PurpleCheckboxProps) {
+export default function PurpleCheckbox({
+  name,
+  defaultValue = false,
+}: PurpleCheckboxProps) {
+  const { control } = useFormContext()
+
   return (
-    <Checkbox
-      checked={checked}
-      onCheckedChange={(v) => onChange(Boolean(v))}
-      className="
-        border-purple-800
-        data-[state=checked]:bg-purple-700
-        data-[state=checked]:text-white
-      "
+    <Controller
+      name={name}
+      control={control}
+      defaultValue={defaultValue}
+      render={({ field }) => (
+        <Checkbox
+          checked={Boolean(field.value)}
+          onCheckedChange={(v) => field.onChange(Boolean(v))}
+          className="
+            border-purple-800
+            data-[state=checked]:bg-purple-700
+            data-[state=checked]:text-white
+          "
+        />
+      )}
     />
   )
 }

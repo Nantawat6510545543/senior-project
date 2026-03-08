@@ -104,7 +104,7 @@ export default function EEGUI() {
         />
 
         <div className="flex items-center gap-2">
-          <PurpleCheckbox />
+          <PurpleCheckbox name="ui.show_all_groups" />
           <SubHeader>Show all groups</SubHeader>
         </div>
       </Card>

@@ -1,27 +1,37 @@
 import { Input } from "@/components/ui/input"
+import { Controller, useFormContext } from "react-hook-form"
 
 interface DecimalInputProps {
-  value?: number | null
+  name: string
   placeholder?: string
-  onChange?: (value: number | null) => void
+  defaultValue?: number | null
 }
 
 export default function DecimalInput({
-  value,
+  name,
   placeholder,
-  onChange,
+  defaultValue = null,
 }: DecimalInputProps) {
+  const { control } = useFormContext()
+
   return (
-    <Input
-      type="text"
-      inputMode="decimal"
-      className="bg-purple-200 border-purple-300 text-purple-900 !text-base"
-      value={value ?? ""}
-      placeholder={placeholder}
-      onChange={(e) => {
-        const v = e.target.value
-        onChange?.(v === "" ? null : Number(v))
-      }}
+    <Controller
+      name={name}
+      control={control}
+      defaultValue={defaultValue}
+      render={({ field }) => (
+        <Input
+          type="text"
+          inputMode="decimal"
+          className="bg-purple-200 border-purple-300 text-purple-900 !text-base"
+          value={field.value ?? ""}
+          placeholder={placeholder}
+          onChange={(e) => {
+            const v = e.target.value
+            field.onChange(v === "" ? null : Number(v))
+          }}
+        />
+      )}
     />
   )
 }

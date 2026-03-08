@@ -25,22 +25,6 @@ export interface SingleSubjectTask {
   run?: string | null
 }
 
-// #TODO add types
-export type PipelineSession = {
-  task: SingleSubjectTask
-
-  filter?: any
-  epochs?: any
-  psd?: any
-  evoked?: any
-  topomap?: any
-  table?: any
-}
-
-export type Range = {
-  min: number | null
-  max: number | null
-}
 export type Range = {
   min: number | null
   max: number | null

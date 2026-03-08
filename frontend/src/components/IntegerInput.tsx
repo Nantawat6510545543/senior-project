@@ -1,27 +1,37 @@
 import { Input } from "@/components/ui/input"
+import { Controller, useFormContext } from "react-hook-form"
 
 interface IntegerInputProps {
-  value?: number | null
+  name: string
   placeholder?: string
-  onChange?: (value: number | null) => void
+  defaultValue?: number | null
 }
 
 export default function IntegerInput({
-  value,
+  name,
   placeholder,
-  onChange,
+  defaultValue = null,
 }: IntegerInputProps) {
+  const { control } = useFormContext()
+
   return (
-    <Input
-      type="text"
-      inputMode="numeric"
-      className="bg-purple-200 border-purple-300 text-purple-900 !text-base"
-      value={value ?? ""}
-      placeholder={placeholder}
-      onChange={(e) => {
-        const v = e.target.value
-        onChange?.(v === "" ? null : parseInt(v))
-      }}
+    <Controller
+      name={name}
+      control={control}
+      defaultValue={defaultValue}
+      render={({ field }) => (
+        <Input
+          type="text"
+          inputMode="numeric"
+          className="bg-purple-200 border-purple-300 text-purple-900 !text-base"
+          value={field.value ?? ""}
+          placeholder={placeholder}
+          onChange={(e) => {
+            const v = e.target.value
+            field.onChange(v === "" ? null : parseInt(v))
+          }}
+        />
+      )}
     />
   )
 }

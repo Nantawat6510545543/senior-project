@@ -2,148 +2,97 @@
 
 import IntegerInput from "@/components/IntegerInput"
 import DecimalInput from "@/components/DecimalInput"
-import { Input } from "@/components/ui/input"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
+import Combobox from "@/components/ComboBox"
+import { Input } from "@/components/ui/input"
 import { SubHeader } from "@/components/Fonts"
-import Combobox from "../ComboBox"
-
-import { Controller, useFormContext } from "react-hook-form"
 
 import type { SchemaEndpoints } from "@/hooks/useSchema"
-import type { SessionFormSchema } from "@/api/types"
-
-
-function resolvePlaceholder(field: any) {
-  if (field.default !== undefined && field.default !== null) return undefined
-  return field.placeholder ?? ""
-}
 
 function getSchemaFieldsByGroup(schema: any, groups: string[]) {
   if (!schema?.properties) return []
+
   return Object.keys(schema.properties).filter(
     (name) => groups.includes(schema.properties[name].group)
   )
 }
-// TODO render all default varaiable field at once
-export default function SchemaFieldGrid({ schema, groups, endpoint }: {
+
+export default function SchemaFieldGrid({
+  schema,
+  groups,
+  endpoint,
+}: {
   schema: any
   groups: string[]
   endpoint: SchemaEndpoints
 }) {
-
-  const { control } = useFormContext<SessionFormSchema>()
   const fields = getSchemaFieldsByGroup(schema, groups)
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {fields.map((name) => {
-        const field = schema.properties[name]
+        const schemaField = schema.properties[name]
         const fieldName = `${endpoint}.${name}`
 
         return (
           <div key={name}>
-            <SubHeader>{field.title ?? name}</SubHeader>
+            <SubHeader>{schemaField.title ?? name}</SubHeader>
 
-            {field.ui === "checkbox" && (
-              <Controller
+            {schemaField.ui === "checkbox" && (
+              <PurpleCheckbox
                 name={fieldName}
-                control={control}
-                defaultValue={field.default ?? false}
-                render={({ field }) => (
-                  <PurpleCheckbox
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
+                defaultValue={schemaField.default}
               />
             )}
 
-            {field.ui === "integer" && (
-              <Controller
+            {schemaField.ui === "integer" && (
+              <IntegerInput
                 name={fieldName}
-                control={control}
-                defaultValue={field.default ?? null}
-                render={({ field }) => (
-                  <IntegerInput
-                    value={field.value}
-                    placeholder={resolvePlaceholder(field)}
-                    onChange={field.onChange}
-                  />
-                )}
+                placeholder={schemaField.placeholder}
+                defaultValue={schemaField.default}
               />
             )}
 
-            {field.ui === "number" && (
-              <Controller
+            {schemaField.ui === "number" && (
+              <DecimalInput
                 name={fieldName}
-                control={control}
-                defaultValue={field.default ?? null}
-                render={({ field }) => (
-                  <DecimalInput
-                    value={field.value}
-                    placeholder={resolvePlaceholder(field)}
-                    onChange={field.onChange}
-                  />
-                )}
+                placeholder={schemaField.placeholder}
+                defaultValue={schemaField.default}
               />
             )}
 
-            {field.ui === "text" && (
-              <Controller
+            {schemaField.ui === "text" && (
+              <Input
                 name={fieldName}
-                control={control}
-                defaultValue={field.default ?? ""}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder={resolvePlaceholder(field)}
-                  />
-                )}
+                placeholder={schemaField.placeholder}
+                defaultValue={schemaField.default}
               />
             )}
 
-            {field.ui === "list" && (
-              <Controller
+            {schemaField.ui === "list" && (
+              <Combobox
                 name={fieldName}
-                control={control}
-                defaultValue={field.default}
-                render={({ field: rhfField }) => (
-                  <Combobox
-                    options={field.options.map((v: string) => ({
-                      value: v,
-                      label: v,
-                    }))}
-                    value={rhfField.value}
-                    onChange={rhfField.onChange}
-                  />
-                )}
+                options={(schemaField.options ?? []).map((v: string) => ({
+                  value: v,
+                  label: v,
+                }))}
+                placeholder={schemaField.placeholder}
+                defaultValue={schemaField.default}
               />
             )}
 
-            {field.ui === "range" && (
+            {schemaField.ui === "range" && (
               <div className="flex gap-2">
-                <Controller
+                <DecimalInput
                   name={`${fieldName}.min`}
-                  control={control}
-                  render={({ field }) => (
-                    <DecimalInput
-                      value={field.value ?? ""}
-                      placeholder="min"
-                      onChange={field.onChange}
-                    />
-                  )}
+                  placeholder="min"
+                  defaultValue={schemaField.default?.min}
                 />
 
-                <Controller
+                <DecimalInput
                   name={`${fieldName}.max`}
-                  control={control}
-                  render={({ field }) => (
-                    <DecimalInput
-                      value={field.value ?? ""}
-                      placeholder="max"
-                      onChange={field.onChange}
-                    />
-                  )}
+                  placeholder="max"
+                  defaultValue={schemaField.default?.max}
                 />
               </div>
             )}
