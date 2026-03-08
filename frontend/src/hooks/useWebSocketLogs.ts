@@ -6,15 +6,15 @@ type LogMessage = {
   message: string
 }
 
-export function useWebSocketLogs(sessionId: string | null) {
+export function useWebSocketLogs(runId: string | null) {
   const [logs, setLogs] = useState<LogMessage[]>([])
 
   useEffect(() => {
-    if (!sessionId) return
+    if (!runId) return
 
     setLogs([])
 
-    const ws = new WebSocket(`ws://localhost:8000/progress/${sessionId}`)
+    const ws = new WebSocket(`ws://localhost:8000/progress/${runId}`)
 
     ws.onmessage = (event) => {
       try {
@@ -26,7 +26,7 @@ export function useWebSocketLogs(sessionId: string | null) {
     }
 
     return () => ws.close()
-  }, [sessionId])
+  }, [runId])
 
   return logs
 }

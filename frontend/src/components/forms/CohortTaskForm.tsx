@@ -1,67 +1,15 @@
 "use client"
 
-import { useForm, Controller } from "react-hook-form"
+import { useFormContext, Controller } from "react-hook-form"
 import Combobox from "@/components/ComboBox"
 import IntegerInput from "@/components/IntegerInput"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import { SubHeader } from "@/components/Fonts"
-import useSessionPatch from "@/hooks/useSessionPatch"
+import type { SessionFormSchema } from "@/api/types"
 
-function toSubjectFilterParams(values: CohortTaskFormValues) {
-  return {
-    ...values,
-    sex: values.sex === "None" ? null : values.sex,
-  }
-}
 
-type Range = {
-  min: number | null
-  max: number | null
-}
-
-type CohortTaskFormValues = {
-  task: string | null
-  subject_limit: number | null
-  per_subject: boolean
-  sex: string
-
-  age: Range
-  ehq_total: Range
-  p_factor: Range
-  attention: Range
-  internalizing: Range
-  externalizing: Range
-  ccd_accuracy: Range
-  ccd_response_time: Range
-}
-
-type Props = {
-  sessionId: string
-}
-
-export default function CohortTaskForm({ sessionId }: Props) {
-  const { control, watch } = useForm<CohortTaskFormValues>({
-    defaultValues: {
-      task: "",
-      subject_limit: null,
-      per_subject: false,
-      sex: "None",
-
-      age: { min: null, max: null },
-      ehq_total: { min: null, max: null },
-      p_factor: { min: null, max: null },
-      attention: { min: null, max: null },
-      internalizing: { min: null, max: null },
-      externalizing: { min: null, max: null },
-      ccd_accuracy: { min: null, max: null },
-      ccd_response_time: { min: null, max: null }
-    },
-  })
-
-  const values = watch()
-
-  const subjectFilter = toSubjectFilterParams(values)
-  useSessionPatch(sessionId, "subject_filter", subjectFilter)
+export default function CohortTaskForm() {
+  const { control } = useFormContext<SessionFormSchema>()
 
   // TODO fix hardcode
     const taskOptions: { value: string; label: string }[] = [
@@ -98,7 +46,7 @@ export default function CohortTaskForm({ sessionId }: Props) {
         <SubHeader>Task</SubHeader>
         <Controller
           control={control}
-          name="task"
+          name="subject_filter.task"
           render={({ field }) => (
             <Combobox
               options={taskOptions}
@@ -114,10 +62,10 @@ export default function CohortTaskForm({ sessionId }: Props) {
         <SubHeader>Subject limit</SubHeader>
         <Controller
           control={control}
-          name="subject_limit"
+          name="subject_filter.subject_limit"
           render={({ field }) => (
             <IntegerInput
-              value={field.value ?? ""}
+              value={field.value}
               onChange={field.onChange}
             />
           )}
@@ -128,7 +76,7 @@ export default function CohortTaskForm({ sessionId }: Props) {
       <div className="flex items-center gap-2">
         <Controller
           control={control}
-          name="per_subject"
+          name="subject_filter.per_subject"
           render={({ field }) => (
             <PurpleCheckbox
               checked={field.value}
@@ -144,7 +92,7 @@ export default function CohortTaskForm({ sessionId }: Props) {
         <SubHeader>Sex</SubHeader>
         <Controller
           control={control}
-          name="sex"
+          name="subject_filter.sex"
           render={({ field }) => (
             <Combobox
               options={[
@@ -167,11 +115,11 @@ export default function CohortTaskForm({ sessionId }: Props) {
           <div className="flex gap-2">
             <Controller
               control={control}
-              name={`${name}.min`}
+              name={`subject_filter.${name}.min`}
               render={({ field }) => (
                 <IntegerInput
                   placeholder="min"
-                  value={field.value ?? ""}
+                  value={field.value}
                   onChange={field.onChange}
                 />
               )}
@@ -179,11 +127,11 @@ export default function CohortTaskForm({ sessionId }: Props) {
 
             <Controller
               control={control}
-              name={`${name}.max`}
+              name={`subject_filter.${name}.max`}
               render={({ field }) => (
                 <IntegerInput
                   placeholder="max"
-                  value={field.value ?? ""}
+                  value={field.value}
                   onChange={field.onChange}
                 />
               )}

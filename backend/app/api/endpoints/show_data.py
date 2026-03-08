@@ -1,15 +1,15 @@
 import numpy as np
 import pandas as pd
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.concurrency import run_in_threadpool
 
 from app.core.progress_logger import ProgressEmitter
-from app.core.session_store import get_session
 from app.core.ws_manager import ws_manager
 
 from app.pipeline.task_resolver import get_single_subject_executor, get_cohort_subject_executor
 from app.plots.data import *
+from app.schemas.session_schema import PipelineSession
 from app.schemas.ui.view_schema import ViewName
 
 
@@ -30,15 +30,14 @@ def build_table_data(view, task_executor, session):
 
 router = APIRouter(prefix="/data")
 
-
-@router.get("/{sid}")
-async def show_data(sid: str, request: Request, view: ViewName = Query(...)):
-
-    session = get_session(sid)
-    if not session:
-        raise HTTPException(404, "Session not found")
-
-    progress = ProgressEmitter(lambda msg: ws_manager.send(sid, msg))
+@router.post("/")
+async def show_data(
+    request: Request,
+    session: PipelineSession,
+    view: ViewName = Query(...),
+    runId: str = Query(...)
+):
+    progress = ProgressEmitter(lambda msg: ws_manager.send(runId, msg))
 
     await progress.log("Session loaded")
 

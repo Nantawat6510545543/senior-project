@@ -1,24 +1,24 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { useFormContext } from "react-hook-form"
+
 import { Card } from "@/components/ui/card"
 import OptionButtons from "@/components/OptionsButton"
 import { Header, SubHeader } from "@/components/Fonts"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
-import { createSession, fetchTableData, getPlotUrl } from "@/api/api"
+import { fetchTableData, getPlotUrl } from "@/api/api"
 import { SETTINGS_MODE } from "./settings_mode"
 import LogPanel from "@/components/LogPanel"
-
 import TaskForm from "@/components/forms/TaskForm"
 import CohortTaskForm from "@/components/forms/CohortTaskForm"
-import useSessionPatch from "@/hooks/useSessionPatch"
 import PurpleTable from "@/components/PurpleTable"
+import type { SessionFormSchema } from "@/api/types"
 
 
 export default function EEGUI() {
-  const [subjectType, setSubjectType] = useState("Single subject")
   const [mode, setMode] = useState<keyof typeof SETTINGS_MODE>("Plot")
   const [action, setAction] = useState(
     Object.keys(SETTINGS_MODE.Plot.actions)[0]
@@ -30,18 +30,13 @@ export default function EEGUI() {
   // TODO resolve
   const TABLE_VIEWS = ["eeg_table", "epochs_table", "metadata"]
   const [tableData, setTableData] = useState<any>(null)
-
   const [plotUrl, setPlotUrl] = useState<string | null>(null)
-  const [sessionId, setSessionId] = useState<string>("")
+  const [runId] = useState(() =>
+    crypto.randomUUID().replace(/-/g, "").slice(0, 8)
+  )
 
-  useEffect(() => {
-    createSession().then(setSessionId).catch(console.error)
-  }, [])
-
-  const backendSubjectType =
-    subjectType === "Single subject" ? "single" : "cohort"
-
-  useSessionPatch(sessionId, "subject_type", backendSubjectType)
+  const { watch, setValue, getValues } = useFormContext<SessionFormSchema>()
+  const subjectType = watch("subject_type")
 
   let safeAction = action
   if (!(safeAction in modeData.actions)) {
@@ -50,19 +45,19 @@ export default function EEGUI() {
 
   // TODO resolve
   async function handleRunInline() {
-    if (!sessionId) return
+    const session = getValues()
+    console.log("Session", session)
 
     const view = modeData.actions[safeAction]
 
     if (TABLE_VIEWS.includes(view)) {
-      setPlotUrl(null)
-
-      const json = await fetchTableData(sessionId, view)
+      const json = await fetchTableData(session, view, runId)
       setTableData(json)
-
+      setPlotUrl(null)
     } else {
+      const url = await getPlotUrl(session, view, runId)
+      setPlotUrl(url)
       setTableData(null)
-      setPlotUrl(getPlotUrl(sessionId, view))
     }
   }
 
@@ -73,17 +68,17 @@ export default function EEGUI() {
         <Header>Input Type:</Header>
         <OptionButtons
           options={["Single subject", "Meta filter (group)"]}
-          value={subjectType}
-          onChange={setSubjectType}
+          value={subjectType === "single" ? "Single subject" : "Meta filter (group)"}
+          onChange={(v) =>
+            setValue(
+              "subject_type",
+              v === "Single subject" ? "single" : "cohort"
+            )
+          }
         />
 
-        {subjectType === "Single subject" && (
-          <TaskForm sessionId={sessionId} />
-        )}
-
-        {subjectType === "Meta filter (group)" && (
-          <CohortTaskForm sessionId={sessionId} />
-        )}
+        {subjectType === "single" && <TaskForm />}
+        {subjectType === "cohort" && <CohortTaskForm />}
       </Card>
 
       {/* Mode */}
@@ -114,15 +109,15 @@ export default function EEGUI() {
         </div>
       </Card>
 
-      {/* Schema Settings Tabs */}
-      <SettingsTab action={safeAction} sessionId={sessionId} />
+      {/* Schema Parameters Tabs */}
+      <SettingsTab action={safeAction}/>
 
       {/* Run */}
       <PrimaryButton onClick={handleRunInline}>
         Run Inline
       </PrimaryButton>
 
-      <LogPanel sessionId={sessionId} />
+      <LogPanel runId={runId} />
 
       <div className="w-full flex justify-center mt-6">
         {plotUrl && (

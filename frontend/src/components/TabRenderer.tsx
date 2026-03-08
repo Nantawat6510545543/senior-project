@@ -62,22 +62,20 @@ const tabToSchemaEndpoint: Record<string, SchemaEndpoints> = {
 // -----------------------------
 // Tab component registry
 // -----------------------------
-const tabComponents: Record<string, (sessionId: string, schema: any) => ReactNode> = {
-  "Filtering and Cleaning": (sid, schema) => <FilteringCleaningTab sessionId={sid} schema={schema} />,
-  "Time Domain": (sid, schema) => <TimeDomainTab sessionId={sid} schema={schema} />,
-  "Epochs": (sid, schema) => <EpochsTab sessionId={sid} schema={schema} />,
-  "PSD": (sid, schema) => <PSDTab sessionId={sid} schema={schema} />,
-  "Evoked Display": (sid, schema) => <EvokedDisplayTab sessionId={sid} schema={schema} />,
-  "Topomap": (sid, schema) => <TopomapTab sessionId={sid} schema={schema} />,
-  "Tables": (sid, schema) => <TablesTab sessionId={sid} schema={schema} />,
-  "Models": (sid, schema) => <ModelsTab sessionId={sid} schema={schema} />,
-  "Training": (sid, schema) => <TrainingTab sessionId={sid} schema={schema} />,
-  "Prediction": (sid, schema) => <PredictionTab sessionId={sid} schema={schema} />,
+const tabComponents: Record<string, (schema: any) => ReactNode> = {
+  "Filtering and Cleaning": (schema) => <FilteringCleaningTab schema={schema} />,
+  "Time Domain": (schema) => <TimeDomainTab schema={schema} />,
+  "Epochs": (schema) => <EpochsTab schema={schema} />,
+  "PSD": (schema) => <PSDTab schema={schema} />,
+  "Evoked Display": (schema) => <EvokedDisplayTab schema={schema} />,
+  "Topomap": (schema) => <TopomapTab schema={schema} />,
+  "Tables": (schema) => <TablesTab schema={schema} />,
+  "Models": (schema) => <ModelsTab schema={schema} />,
+  "Training": (schema) => <TrainingTab schema={schema} />,
+  "Prediction": (schema) => <PredictionTab schema={schema} />,
 }
 
-export default function SettingsTab({ action, sessionId }: {
-  action: string, sessionId: string }
-) {
+export default function SettingsTab({ action }: { action: string }) {
   const requiredTabs = tabDependencies[action] || []
   const [activeTab, setActiveTab] = useState(requiredTabs[0])
 
@@ -114,7 +112,7 @@ export default function SettingsTab({ action, sessionId }: {
             value={tabName}
             className="bg-white text-purple-900 p-4"
           >
-            {tabComponents[tabName]?.(sessionId, schema)}
+            {tabComponents[tabName]?.(schema)}
           </TabsContent>
         ))}
       </Tabs>

@@ -1,9 +1,9 @@
 import { Input } from "@/components/ui/input"
 
 interface DecimalInputProps {
-  value?: string
+  value?: number | null
   placeholder?: string
-  onChange?: (value: string) => void
+  onChange?: (value: number | null) => void
 }
 
 export default function DecimalInput({
@@ -16,9 +16,12 @@ export default function DecimalInput({
       type="text"
       inputMode="decimal"
       className="bg-purple-200 border-purple-300 text-purple-900 !text-base"
-      value={value}
+      value={value ?? ""}
       placeholder={placeholder}
-      onChange={(e) => onChange?.(e.target.value)}
+      onChange={(e) => {
+        const v = e.target.value
+        onChange?.(v === "" ? null : Number(v))
+      }}
     />
   )
 }

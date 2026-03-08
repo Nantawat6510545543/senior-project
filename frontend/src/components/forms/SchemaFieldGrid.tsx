@@ -1,15 +1,16 @@
-import { useEffect } from "react"
+"use client"
+
 import IntegerInput from "@/components/IntegerInput"
 import DecimalInput from "@/components/DecimalInput"
 import { Input } from "@/components/ui/input"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import { SubHeader } from "@/components/Fonts"
 import Combobox from "../ComboBox"
-import useSessionPatch from "@/hooks/useSessionPatch"
-import useLoadSession from "@/hooks/useLoadSession"
-import type { SchemaEndpoints } from "@/hooks/useSchema"
 
-import { useForm, Controller, useWatch } from "react-hook-form"
+import { Controller, useFormContext } from "react-hook-form"
+
+import type { SchemaEndpoints } from "@/hooks/useSchema"
+import type { SessionFormSchema } from "@/api/types"
 
 
 function resolvePlaceholder(field: any) {
@@ -23,40 +24,21 @@ function getSchemaFieldsByGroup(schema: any, groups: string[]) {
     (name) => groups.includes(schema.properties[name].group)
   )
 }
-
-export default function SchemaFieldGrid({
-  schema,
-  groups,
-  sessionId,
-  endpoint,
-}: {
+// TODO render all default varaiable field at once
+export default function SchemaFieldGrid({ schema, groups, endpoint }: {
   schema: any
   groups: string[]
-  sessionId: string
   endpoint: SchemaEndpoints
 }) {
 
+  const { control } = useFormContext<SessionFormSchema>()
   const fields = getSchemaFieldsByGroup(schema, groups)
-
-  // STRING-BASED UI STATE
-  const sessionValues = useLoadSession(sessionId, endpoint)
-  const { control, reset } = useForm({
-    defaultValues: sessionValues || {}
-  })
-
-  const values = useWatch({ control })
-  useSessionPatch(sessionId, endpoint, values)
-
-  useEffect(() => {
-    if (sessionValues) {
-      reset(sessionValues)
-    }
-  }, [sessionValues, reset])
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {fields.map((name) => {
         const field = schema.properties[name]
+        const fieldName = `${endpoint}.${name}`
 
         return (
           <div key={name}>
@@ -64,13 +46,13 @@ export default function SchemaFieldGrid({
 
             {field.ui === "checkbox" && (
               <Controller
-                name={name}
+                name={fieldName}
                 control={control}
                 defaultValue={field.default ?? false}
-                render={({ field: rhfField }) => (
+                render={({ field }) => (
                   <PurpleCheckbox
-                    checked={rhfField.value}
-                    onChange={rhfField.onChange}
+                    checked={field.value}
+                    onChange={field.onChange}
                   />
                 )}
               />
@@ -78,14 +60,14 @@ export default function SchemaFieldGrid({
 
             {field.ui === "integer" && (
               <Controller
-                name={name}
+                name={fieldName}
                 control={control}
-                defaultValue={field.default ?? ""}
-                render={({ field: rhfField }) => (
+                defaultValue={field.default ?? null}
+                render={({ field }) => (
                   <IntegerInput
-                    value={rhfField.value ?? ""}
+                    value={field.value}
                     placeholder={resolvePlaceholder(field)}
-                    onChange={rhfField.onChange}
+                    onChange={field.onChange}
                   />
                 )}
               />
@@ -93,14 +75,14 @@ export default function SchemaFieldGrid({
 
             {field.ui === "number" && (
               <Controller
-                name={name}
+                name={fieldName}
                 control={control}
-                defaultValue={field.default ?? ""}
-                render={({ field: rhfField }) => (
+                defaultValue={field.default ?? null}
+                render={({ field }) => (
                   <DecimalInput
-                    value={rhfField.value ?? ""}
+                    value={field.value}
                     placeholder={resolvePlaceholder(field)}
-                    onChange={rhfField.onChange}
+                    onChange={field.onChange}
                   />
                 )}
               />
@@ -108,12 +90,12 @@ export default function SchemaFieldGrid({
 
             {field.ui === "text" && (
               <Controller
-                name={name}
+                name={fieldName}
                 control={control}
                 defaultValue={field.default ?? ""}
-                render={({ field: rhfField }) => (
+                render={({ field }) => (
                   <Input
-                    {...rhfField}
+                    {...field}
                     placeholder={resolvePlaceholder(field)}
                   />
                 )}
@@ -122,12 +104,15 @@ export default function SchemaFieldGrid({
 
             {field.ui === "list" && (
               <Controller
-                name={name}
+                name={fieldName}
                 control={control}
                 defaultValue={field.default}
                 render={({ field: rhfField }) => (
                   <Combobox
-                    options={field.options.map((v: string) => ({ value: v, label: v }))}
+                    options={field.options.map((v: string) => ({
+                      value: v,
+                      label: v,
+                    }))}
                     value={rhfField.value}
                     onChange={rhfField.onChange}
                   />
@@ -138,25 +123,25 @@ export default function SchemaFieldGrid({
             {field.ui === "range" && (
               <div className="flex gap-2">
                 <Controller
-                  name={`${name}.min`}
+                  name={`${fieldName}.min`}
                   control={control}
-                  render={({ field: rhfField }) => (
+                  render={({ field }) => (
                     <DecimalInput
-                      value={rhfField.value ?? ""}
+                      value={field.value ?? ""}
                       placeholder="min"
-                      onChange={rhfField.onChange}
+                      onChange={field.onChange}
                     />
                   )}
                 />
 
                 <Controller
-                  name={`${name}.max`}
+                  name={`${fieldName}.max`}
                   control={control}
-                  render={({ field: rhfField }) => (
+                  render={({ field }) => (
                     <DecimalInput
-                      value={rhfField.value ?? ""}
+                      value={field.value ?? ""}
                       placeholder="max"
-                      onChange={rhfField.onChange}
+                      onChange={field.onChange}
                     />
                   )}
                 />

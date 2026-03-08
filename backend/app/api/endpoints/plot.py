@@ -1,17 +1,17 @@
 import io
 import matplotlib.pyplot as plt
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 
-from app.core.session_store import get_session
 from app.core.progress_logger import ProgressEmitter
 from app.core.ws_manager import ws_manager
 from app.pipeline.task_resolver import get_single_subject_executor, get_cohort_subject_executor
 
 from app.plots.plot import *
 from app.plots.grid_plot import *
+from app.schemas.session_schema import PipelineSession
 from app.schemas.ui.view_schema import ViewName
 
 
@@ -70,16 +70,14 @@ def build_plot_figure(view, task_executor, session):
 
 router = APIRouter(prefix="/plot")
 
-@router.get("/{sid}")
-async def plot(sid: str, request: Request, view: ViewName = Query(...)):
-
-    session = get_session(sid)
-    if not session:
-        raise HTTPException(404, "Session not found")
-
-    progress = ProgressEmitter(lambda msg: ws_manager.send(sid, msg))
-
-    await progress.log("Session loaded")
+@router.post("/")
+async def plot(
+    request: Request,
+    session: PipelineSession,
+    view: ViewName = Query(...),
+    runId: str = Query(...)
+):
+    progress = ProgressEmitter(lambda msg: ws_manager.send(runId, msg))
 
     try:
         await progress.log("Resolving EEG task")

@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { useWebSocketLogs } from "@/hooks/useWebSocketLogs"
 
 interface LogPanelProps {
-  sessionId: string | null
+  runId: string | null
 }
 
-export default function LogPanel({ sessionId }: LogPanelProps) {
-  const logs = useWebSocketLogs(sessionId)
+export default function LogPanel({ runId }: LogPanelProps) {
+  const logs = useWebSocketLogs(runId)
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {

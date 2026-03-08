@@ -6,6 +6,7 @@ import Evaluate from "./pages/Evaluate";
 import Compare from "./pages/Compare";
 import EEGUI from "./pages/EEGUI";
 import Navbar from "@/components/Navbar";
+import SessionForm from "./components/forms/SessionForm";
 
 function App() {
   return (
@@ -15,7 +16,9 @@ function App() {
         <div className="p-4">
           <Routes>
             <Route path="/" element={<Navigate replace to="/eegui" />} />
-            <Route path="/eegui" element={<EEGUI />} />
+            <Route path="/eegui" element={
+              <SessionForm><EEGUI /></SessionForm>}
+            />
             <Route path="/train" element={<Train />} />
             <Route path="/predict" element={<Predict />} />
             <Route path="/evaluate" element={<Evaluate />} />

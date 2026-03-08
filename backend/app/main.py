@@ -12,7 +12,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import (
-    train, predict, evaluate, compare, plot, participants, params_schema, progress_ws, session,
+    train, predict, evaluate, compare, plot, participants, params_schema, progress_ws
 )
 
 from app.core.config import DATA_ROOT
@@ -66,7 +66,6 @@ app.include_router(compare.router)
 app.include_router(params_schema.router)
 app.include_router(participants.router)
 app.include_router(progress_ws.router)
-app.include_router(session.router)
 
 
 # To run use -> "uvicorn app.main:app --reload" OR "fastapi dev"

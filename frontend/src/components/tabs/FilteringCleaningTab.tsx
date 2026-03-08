@@ -1,16 +1,13 @@
 import SchemaFieldGrid from "../forms/SchemaFieldGrid"
 
 // #TODO bring back "Combine Channels" AND "Show bad"
-export default function FilteringCleaningTab(
-  { sessionId, schema }: { sessionId: string, schema: any }
-) {
+export default function FilteringCleaningTab({ schema }: { schema: any }) {
   if (!schema) return null
 
   return (
     <SchemaFieldGrid
       schema={schema}
       groups={["filter", "channels", "cleaning"]}
-      sessionId={sessionId}
       endpoint="filter"
     />
   )

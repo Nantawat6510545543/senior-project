@@ -1,12 +1,10 @@
-
-import type { SchemaEndpoints } from "@/hooks/useSchema";
 import { ENDPOINTS } from "./endpoints";
 import type {
   TrainModelData,
   PredictModelData,
   EvaluateModelData,
   CompareModelData,
-  PipelineSession,
+  SessionFormSchema,
 } from "./types";
 
 const BACKEND_URL = "http://localhost:8000";
@@ -60,9 +58,23 @@ export const compareModel = (data: CompareModelData) => {
   });
 };
 
-export function getPlotUrl(sid: string, view: string) {
-  return `${BACKEND_URL}/plot/${sid}?view=${view}&t=${Date.now()}`
+export async function getPlotUrl(session: SessionFormSchema, view: string, runId: string) {
+  const res = await fetch(`${BACKEND_URL}/plot?view=${view}&runId=${runId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(session)
+  })
+
+  if (!res.ok) {
+    throw new Error("Plot request failed")
+  }
+
+  const blob = await res.blob()
+  return URL.createObjectURL(blob)
 }
+
 
 export async function getSubjects(): Promise<string[]> {
   const res = await fetch(`${BACKEND_URL}/participants/`)
@@ -77,47 +89,19 @@ export async function getTasks(subject: string) {
   return data.tasks as [string, string | null][]
 }
 
-
-// Sessions
-export async function createSession(): Promise<string> {
-  const res = await fetch(`${BACKEND_URL}/session`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({})
-  })
-
-  if (!res.ok) throw new Error("Failed to create session")
-
-  const data = await res.json()
-  return data.session_id
-}
-
-
-export async function getSession(sessionId: string) {
-  if (!sessionId) throw new Error("getSession: sessionId required")
-
-  const res = await fetch(`${BACKEND_URL}/session/${sessionId}`)
-  if (!res.ok) throw new Error("Failed to fetch session")
-
-  return await res.json()
-}
-
-export async function patchSession(
-  sessionId: string,
-  endpoint: SchemaEndpoints,
-  values: PipelineSession
+export async function fetchTableData(
+  session: SessionFormSchema, view: string, runId: string
 ) {
-  const res = await fetch(`${BACKEND_URL}/session/${sessionId}/${endpoint}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(values),
-  })
-
-  if (!res.ok) throw new Error("Failed to patch session")
-}
-
-export async function fetchTableData(sessionId: string, view: string) {
-  const res = await fetch(`${BACKEND_URL}/data/${sessionId}?view=${view}`)
+  const res = await fetch(
+    `${BACKEND_URL}/data?view=${view}&runId=${runId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(session),
+    }
+  )
 
   if (!res.ok) {
     throw new Error("Failed to fetch table data")
