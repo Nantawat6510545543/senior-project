@@ -43,11 +43,15 @@ export default function PurpleTable({ data }: Props) {
 
                 return (
                   <td key={col} className="px-4 py-2 whitespace-nowrap">
-                    {value === null || value === undefined
-                      ? "NaN"
-                      : typeof value === "number"
-                      ? value.toFixed?.(3) ?? value
-                      : value.toString()}
+                  {value === null || value === undefined
+                    ? "—"
+                    : typeof value === "number"
+                    ? Number.isInteger(value)
+                      ? value.toLocaleString()
+                      : value.toFixed(3)
+                    : Array.isArray(value)
+                    ? `[${value.join(", ")}]`
+                    : value.toString()}
                   </td>
                 )
               })}

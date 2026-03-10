@@ -7,9 +7,7 @@ import TopomapTab from "@/components/tabs/TopomapTab"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import TablesTab from "./tabs/TablesTab"
-import ModelsTab from "./tabs/ModelsTab"
 import TrainingTab from "./tabs/TrainingTab"
-import PredictionTab from "./tabs/PredictionTab"
 import { useEffect, useState, type ReactNode } from "react"
 import { useSchema, type SchemaEndpoints } from "@/hooks/useSchema"
 
@@ -35,10 +33,9 @@ const tabDependencies: Record<string, string[]> = {
   "Epochs Table": ["Filtering and Cleaning", "Epochs"],
   "Metadata": [],
 
-  "Models": [],
-  "Build Dataset": ["Filtering and Cleaning", "Epochs", "Models", "Training"],
-  "Train": ["Filtering and Cleaning", "Epochs", "Models", "Training"],
-  "Predict": ["Filtering and Cleaning", "Epochs", "Models", "Prediction"]
+  "Build Dataset": ["Filtering and Cleaning", "Epochs", "PSD", "Training"],
+  "Train EEGNetMultiRegression": ["Filtering and Cleaning", "Epochs", "PSD", "Training"],
+  "Model Summary": ["Filtering and Cleaning", "Epochs", "PSD", "Training"]
 }
 
 
@@ -53,9 +50,7 @@ const tabToSchemaEndpoint: Record<string, SchemaEndpoints> = {
   "Evoked Display": "evoked",
   "Topomap": "topomap",
   "Tables": "tables",
-  "Models": "models",
   "Training": "training",
-  "Prediction": "prediction",
 }
 
 
@@ -70,9 +65,7 @@ const tabComponents: Record<string, (schema: any) => ReactNode> = {
   "Evoked Display": (schema) => <EvokedDisplayTab schema={schema} />,
   "Topomap": (schema) => <TopomapTab schema={schema} />,
   "Tables": (schema) => <TablesTab schema={schema} />,
-  "Models": (schema) => <ModelsTab schema={schema} />,
   "Training": (schema) => <TrainingTab schema={schema} />,
-  "Prediction": (schema) => <PredictionTab schema={schema} />,
 }
 
 export default function SettingsTab({ action }: { action: string }) {

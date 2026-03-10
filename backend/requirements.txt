@@ -1,7 +1,9 @@
+asrpy
 fastapi[standard]
-python-multipart
 matplotlib
-python-dotenv
 mne
 pandas
-asrpy
+python-dotenv
+python-multipart
+torch
+torchinfo

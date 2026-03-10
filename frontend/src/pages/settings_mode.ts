@@ -1,5 +1,5 @@
 export const SETTINGS_MODE = {
-  Plot: {
+  "Plot": {
     description: "Produces one concise figure for the current EEG selection.",
     actions: {
       "Sensor Layout": "sensor_layout",
@@ -24,7 +24,7 @@ export const SETTINGS_MODE = {
     },
   },
 
-  Data: {
+  "Data": {
     description: "Provides structured tables from the current selection.",
     actions: {
       "EEG Table": "eeg_table",
@@ -33,13 +33,21 @@ export const SETTINGS_MODE = {
     },
   },
 
-  AI: {
+  "AI": {
     description: "AI training and inference on epochs.",
     actions: {
-      Models: null,
-      "Build Dataset": null,
-      Train: null,
-      Predict: null,
+      "Build Dataset": "build_dataset",
+      "Train EEGNetMultiRegression": "train_eeg",
+      "Model Summary": "model_summary",
     },
   },
 } as const
+
+export const TABLE_VIEW = [
+  "eeg_table",
+  "epochs_table",
+  "metadata",
+  "build_dataset",
+  "train_eeg",
+  "model_summary"
+]

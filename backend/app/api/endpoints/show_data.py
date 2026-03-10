@@ -4,16 +4,18 @@ import pandas as pd
 from fastapi import APIRouter, Query, Request
 from fastapi.concurrency import run_in_threadpool
 
+from app.core.participants_loader import ParticipantManager
 from app.core.progress_logger import ProgressEmitter
 from app.core.ws_manager import ws_manager
 
 from app.pipeline.task_resolver import get_single_subject_executor, get_cohort_subject_executor
 from app.plots.data import *
+from app.plots.ai import *
 from app.schemas.session_schema import PipelineSession
 from app.schemas.ui.view_schema import ViewName
 
 
-def build_table_data(view, task_executor, session):
+def build_table_data(view, task_executor, session: PipelineSession, pm: ParticipantManager):
 
     if view == "eeg_table":
         return prepare_eeg_table_data(task_executor, session)
@@ -23,6 +25,15 @@ def build_table_data(view, task_executor, session):
 
     elif view == "metadata":
         return prepare_metadata_data(task_executor, session)
+    
+    elif view == "build_dataset":
+        return prepare_build_dataset_data(task_executor, session, pm.get_subjects_metadata)
+
+    elif view == "train_eeg":
+        return prepare_train_eeg_data(task_executor, session, pm.get_subjects_metadata)
+    
+    elif view == "model_summary":
+        return prepare_model_summary_data(task_executor, session, pm.get_subjects_metadata)
 
     else:
         raise ValueError("Unsupported table view")
@@ -57,7 +68,8 @@ async def show_data(
             build_table_data,
             view,
             task_executor,
-            session
+            session,
+            pm
         )
 
         await progress.log("Serializing table data")

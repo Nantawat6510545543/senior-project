@@ -16,4 +16,7 @@ ViewName = Literal[
     "eeg_table",
     "epochs_table",
     "metadata",
+    "build_dataset",
+    "train_eeg",
+    "model_summary"
 ]

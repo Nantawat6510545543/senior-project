@@ -9,6 +9,7 @@ from .params.psd_filter_schema import PSDParams
 from .params.table_filter_schema import TableParams
 from .params.subject_filter_schema import SubjectFilterParams
 from .params.time_domain_filter_schema import TimeDomainParams
+from .params.training_schema import TrainingParams
 
 
 class PipelineSession(BaseModel):
@@ -23,3 +24,4 @@ class PipelineSession(BaseModel):
     evoked: EvokedParams = Field(default_factory=EvokedParams)
     topomap: EvokedTopoParams = Field(default_factory=EvokedTopoParams)
     table: TableParams = Field(default_factory=TableParams)
+    training: TrainingParams = Field(default_factory=TrainingParams)

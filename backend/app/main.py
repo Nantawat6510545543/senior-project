@@ -4,7 +4,6 @@ import logging
 # MUST be first — before any plot modules import pyplot
 from app.core import matplotlib_config
 
-from app.api.endpoints import show_data
 from dotenv import load_dotenv
 load_dotenv() # Load .env before program runs
 
@@ -12,7 +11,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.endpoints import (
-    train, predict, evaluate, compare, plot, participants, params_schema, progress_ws
+    plot, participants, params_schema, progress_ws, show_data
 )
 
 from app.core.config import DATA_ROOT
@@ -59,10 +58,6 @@ def startup():
 # Register the API routers
 app.include_router(plot.router)
 app.include_router(show_data.router)
-app.include_router(train.router)
-app.include_router(predict.router)
-app.include_router(evaluate.router)
-app.include_router(compare.router)
 app.include_router(params_schema.router)
 app.include_router(participants.router)
 app.include_router(progress_ws.router)

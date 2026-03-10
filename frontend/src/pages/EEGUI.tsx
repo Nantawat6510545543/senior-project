@@ -10,7 +10,7 @@ import PurpleCheckbox from "@/components/PurpleCheckbox"
 import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
 import { fetchTableData, getPlotUrl } from "@/api/api"
-import { SETTINGS_MODE } from "./settings_mode"
+import { SETTINGS_MODE, TABLE_VIEW } from "./settings_mode"
 import LogPanel from "@/components/LogPanel"
 import TaskForm from "@/components/forms/TaskForm"
 import CohortTaskForm from "@/components/forms/CohortTaskForm"
@@ -27,8 +27,6 @@ export default function EEGUI() {
   const modeData = SETTINGS_MODE[mode]
   const actions = Object.keys(modeData.actions)
 
-  // TODO resolve
-  const TABLE_VIEWS = ["eeg_table", "epochs_table", "metadata"]
   const [tableData, setTableData] = useState<any>(null)
   const [plotUrl, setPlotUrl] = useState<string | null>(null)
   const [runId] = useState(() =>
@@ -50,7 +48,7 @@ export default function EEGUI() {
 
     const view = modeData.actions[safeAction]
 
-    if (TABLE_VIEWS.includes(view)) {
+    if (TABLE_VIEW.includes(view)) {
       const json = await fetchTableData(session, view, runId)
       setTableData(json)
       setPlotUrl(null)

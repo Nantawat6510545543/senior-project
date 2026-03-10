@@ -7,6 +7,7 @@ from app.schemas.params.psd_filter_schema import PSDParams
 from app.schemas.params.subject_filter_schema import SubjectFilterParams
 from app.schemas.params.table_filter_schema import TableParams
 from app.schemas.params.time_domain_filter_schema import TimeDomainParams
+from app.schemas.params.training_schema import TrainingParams
 
 
 router = APIRouter(prefix="/schemas", tags=["schemas"])
@@ -42,3 +43,7 @@ def time_domain_schema():
 @router.get("/tables")
 def tables_schema():
     return TableParams.model_json_schema()
+
+@router.get("/training")
+def training_schema():
+    return TrainingParams.model_json_schema()

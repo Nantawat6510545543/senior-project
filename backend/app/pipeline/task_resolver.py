@@ -1,8 +1,8 @@
 """Subject-level access layer resolving single tasks or building cohorts."""
 from app.core.participants_loader import ParticipantManager
 from app.schemas.task_schema import SingleSubjectTask, CohortTask
-from app.pipeline.task_executor import EEGTaskExecutor
 from app.pipeline.cohort_executor import EEGCohortExecutor
+from app.pipeline.task_executor import EEGTaskExecutor
 
 
 def get_single_subject_executor(
