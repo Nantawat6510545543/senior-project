@@ -2,15 +2,15 @@
 
 import Combobox from "@/components/ComboBox"
 import { SubHeader } from "@/components/Fonts"
-import { useFormContext } from "react-hook-form"
+import { useFormContext, useWatch } from "react-hook-form"
 import useSubjectOption from "@/hooks/useSubjectOption"
 import useTaskOption from "@/hooks/useTaskOption"
 import type { SessionFormSchema } from "@/api/types"
 
 export default function TaskForm() {
-  const { watch } = useFormContext<SessionFormSchema>()
+  const { control } = useFormContext<SessionFormSchema>()
 
-  const subject = watch("task.subject")
+  const subject = useWatch({ control, name: "task.subject" })
   const subjectOptions = useSubjectOption()
   const taskOptions = useTaskOption(subject)
 
@@ -18,9 +18,7 @@ export default function TaskForm() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div>
         <SubHeader>Subject</SubHeader>
-        <Combobox name="task.subject"
-          options={subjectOptions}
-        />
+        <Combobox name="task.subject" options={subjectOptions}/>
       </div>
 
       <div>

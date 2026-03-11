@@ -52,7 +52,7 @@ export default function Combobox({
               </Button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="w-[200px] p-0 max-h-[50vh] overflow-y-auto overscroll-contain">
               <ul className="py-1 text-purple-800">
                 {options.map(({ value: val, label }) => (
                   <li

@@ -12,7 +12,7 @@ class EvokedParams(EpochParams):
     )
     # TODO bruh why is it not rendering as "False"
     gfp: Optional[bool | Literal["only"]] = Field(
-        False,
+        "False",
         validate_default=True,
         json_schema_extra={
             "ui": "list",

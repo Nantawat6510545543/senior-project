@@ -52,7 +52,7 @@ export default function SchemaFieldGrid({
                 defaultValue={schemaField.default}
               />
             )}
-            {/* TODO fix NaN when non-number inputted */}
+
             {schemaField.ui === "number" && (
               <DecimalInput
                 name={fieldName}

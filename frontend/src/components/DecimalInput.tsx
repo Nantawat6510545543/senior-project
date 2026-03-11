@@ -7,6 +7,12 @@ interface DecimalInputProps {
   defaultValue?: number | null
 }
 
+const parseDecimal = (v: string) => {
+  if (v === "") return null
+  const n = Number(v)
+  return Number.isNaN(n) ? null : n
+}
+
 export default function DecimalInput({
   name,
   placeholder,
@@ -26,10 +32,7 @@ export default function DecimalInput({
           className="bg-purple-200 border-purple-300 text-purple-900 !text-base"
           value={field.value ?? ""}
           placeholder={placeholder}
-          onChange={(e) => {
-            const v = e.target.value
-            field.onChange(v === "" ? null : Number(v))
-          }}
+          onChange={(e) => field.onChange(parseDecimal(e.target.value))}
         />
       )}
     />

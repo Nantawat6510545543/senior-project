@@ -7,6 +7,12 @@ interface IntegerInputProps {
   defaultValue?: number | null
 }
 
+const parseInteger = (v: string): number | null => {
+  if (v === "") return null
+  if (/^-?\d+$/.test(v)) return Number(v)
+  return null
+}
+
 export default function IntegerInput({
   name,
   placeholder,
@@ -26,10 +32,7 @@ export default function IntegerInput({
           className="bg-purple-200 border-purple-300 text-purple-900 !text-base"
           value={field.value ?? ""}
           placeholder={placeholder}
-          onChange={(e) => {
-            const v = e.target.value
-            field.onChange(v === "" ? null : parseInt(v))
-          }}
+          onChange={(e) => field.onChange(parseInteger(e.target.value))}
         />
       )}
     />
