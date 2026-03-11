@@ -15,7 +15,13 @@ from app.schemas.session_schema import PipelineSession
 from app.schemas.ui.view_schema import ViewName
 
 
-def build_table_data(view, task_executor, session: PipelineSession, pm: ParticipantManager):
+def build_table_data(
+        view,
+        task_executor,
+        session: PipelineSession,
+        pm: ParticipantManager,
+        progress: ProgressEmitter
+    ):
 
     if view == "eeg_table":
         return prepare_eeg_table_data(task_executor, session)
@@ -30,7 +36,7 @@ def build_table_data(view, task_executor, session: PipelineSession, pm: Particip
         return prepare_build_dataset_data(task_executor, session, pm.get_subjects_metadata)
 
     elif view == "train_eeg":
-        return prepare_train_eeg_data(task_executor, session, pm.get_subjects_metadata)
+        return prepare_train_eeg_data(task_executor, session, pm.get_subjects_metadata, progress)
     
     elif view == "model_summary":
         return prepare_model_summary_data(task_executor, session, pm.get_subjects_metadata)
@@ -69,7 +75,8 @@ async def show_data(
             view,
             task_executor,
             session,
-            pm
+            pm,
+            progress
         )
 
         await progress.log("Serializing table data")

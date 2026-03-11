@@ -62,6 +62,14 @@ app.include_router(params_schema.router)
 app.include_router(participants.router)
 app.include_router(progress_ws.router)
 
+# TODO split plot into 4 sub-router, disable AI button if torch not installed
+# TODO optional AI mode
+# try:
+#     import torch
+#     from app.routers import ai_router
+#     app.include_router(ai_router.router)
+# except ImportError:
+#     pass
 
 # To run use -> "uvicorn app.main:app --reload" OR "fastapi dev"
 @app.get("/")

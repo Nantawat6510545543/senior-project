@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import time
-from dataclasses import asdict
 from typing import Any
 import sys
 
@@ -12,12 +11,19 @@ import numpy as np
 from typing import Any, Callable
 
 from app.ai_models.EEGNetMultiReg import EEGNetMultiReg
+from app.core.progress_logger import ProgressEmitter
 from app.pipeline.task_executor import EEGTaskExecutor
 from app.pipeline.trainer_data_builder import build_epoch_dataset
 from app.schemas.session_schema import PipelineSession
 
 logger = logging.getLogger(__name__)
 
+
+def safe_sanitize(v):
+    # Parse infinity and NaN value
+    if isinstance(v, (float, np.floating)) and not np.isfinite(v):
+        return None
+    return v
 
 def to_json(data: dict[str, Any]) -> str:
     """Consistent formatted JSON output."""
@@ -27,7 +33,8 @@ def to_json(data: dict[str, Any]) -> str:
 def prepare_train_eeg_data(
     executor: EEGTaskExecutor,
     session: PipelineSession,
-    get_subjects_metadata: Callable
+    get_subjects_metadata: Callable,
+    ws_progress: ProgressEmitter
 ) -> dict[str, Any]:
     """Train EEGNetMultiReg on selected regression targets and return metrics."""
     t0 = time.perf_counter()
@@ -117,11 +124,6 @@ def prepare_train_eeg_data(
     X_train, y_train = X[train_idx], y[train_idx]
     X_val, y_val = (X[val_idx], y[val_idx]) if val_idx.size > 0 else (None, None)
     X_test, y_test = (X[test_idx], y[test_idx]) if test_idx.size > 0 else (None, None)
-
-    try:
-        import torch
-    except Exception:
-        return to_json({"status": "error", "reason": "torch not available"})
 
     device = torch.device(
         "cuda" if torch.cuda.is_available() and (params.device and params.device[0] != "cpu") else "cpu"
@@ -309,12 +311,29 @@ def prepare_train_eeg_data(
         except Exception:
             pass
 
+        # Progress Logging
+        if ws_progress:
+            meter = tqdm.format_meter(
+                n=epoch_iter.n,
+                total=epoch_iter.total,
+                elapsed=epoch_iter.format_dict["elapsed"],
+                rate=epoch_iter.format_dict["rate"],
+                unit="epoch"
+            )
+
+            ws_progress.sync_log(
+                f"Epoch {epoch + 1} | "
+                f"Training loss={train_loss:.3f} | "
+                f"Validation (MAE)={val_mae:.3f} | "
+                f"{meter}"
+            )
+
         history.append({
             "epoch": epoch + 1,
-            "train_loss": train_loss,
-            "val_loss": val_loss,
-            "val_mae": val_mae,
-            "val_r2": val_r2
+            "train_loss": safe_sanitize(train_loss),
+            "val_loss": safe_sanitize(val_loss),
+            "val_mae": safe_sanitize(val_mae),
+            "val_r2": safe_sanitize(val_r2)
         })
         epochs_run = epoch + 1
 
@@ -345,7 +364,7 @@ def prepare_train_eeg_data(
             "digest": digest,
             "history": history,
             "best_val_loss": best_loss if val_split > 0 else None,
-            "params": asdict(params),
+            "params": params.model_dump(),
             "dataset_shape": X.shape,
             "targets": int(y.shape[1]),
             "target_cols": meta.get("target_cols"),
@@ -375,8 +394,9 @@ def prepare_train_eeg_data(
         "last_val_mae": last.get("val_mae"),
         "last_val_r2": last.get("val_r2"),
         "checkpoint": checkpoint,
-        "dataset_shape": X.shape,
+        "dataset_shape": list(X.shape),
         "duration_sec": round(time.perf_counter() - t0, 4),
     }
 
-    return to_json(result)
+    # TODO show all reuslts
+    return result["history"]
