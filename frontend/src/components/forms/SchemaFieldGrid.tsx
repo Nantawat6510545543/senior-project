@@ -2,12 +2,13 @@
 
 import IntegerInput from "@/components/IntegerInput"
 import DecimalInput from "@/components/DecimalInput"
+import TextInput from "@/components/TextInput"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import Combobox from "@/components/ComboBox"
-import { Input } from "@/components/ui/input"
-import { SubHeader } from "@/components/Fonts"
 
+import { SubHeader } from "@/components/Fonts"
 import type { SchemaEndpoints } from "@/hooks/useSchema"
+
 
 function getSchemaFieldsByGroup(schema: any, groups: string[]) {
   if (!schema?.properties) return []
@@ -62,7 +63,7 @@ export default function SchemaFieldGrid({
             )}
 
             {schemaField.ui === "text" && (
-              <Input
+              <TextInput
                 name={fieldName}
                 placeholder={schemaField.placeholder}
                 defaultValue={schemaField.default}

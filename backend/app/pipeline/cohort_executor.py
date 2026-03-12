@@ -9,15 +9,16 @@ from tqdm.auto import tqdm
 
 from app.schemas.params.base_filter_schema import FilterParams
 from app.schemas.params.epoch_filter_schema import EpochParams
-from app.schemas.task_schema import SingleSubjectTask, CohortTask
+from app.pipeline.task_executor import EEGTaskExecutor
+from app.schemas.task_schema import CohortTask
 
 class EEGCohortExecutor:
     """Aggregate operations (filter, epochs, evoked) across a set of task models."""
     # TODO CohortTask -> SubjectFilter
-    def __init__(self, task_dto: CohortTask, task_model_list: list[SingleSubjectTask], subject_length: int):
+    def __init__(self, task_dto: CohortTask, task_executor_list: list[EEGTaskExecutor], subject_length: int):
         """Initialize cohort with filter DTO, task models and subject count."""
         self.task_dto = task_dto
-        self.task_model_list = task_model_list
+        self.task_executor_list = task_executor_list
         self.subject_length = subject_length
         self.filtered_raw = None
         self.epochs = None
@@ -35,7 +36,7 @@ class EEGCohortExecutor:
         if self._events_concat is None:
             t0 = time.perf_counter()
             events_list = []
-            for tm in tqdm(self.task_model_list, total=len(self.task_model_list), desc="Collect events", leave=False):
+            for tm in tqdm(self.task_executor_list, total=len(self.task_executor_list), desc="Collect events", leave=False):
                 ev = tm.get_event()
                 if ev is not None:
                     events_list.append(ev)
@@ -46,22 +47,22 @@ class EEGCohortExecutor:
     @property
     def electrodes(self):
         """Return electrodes table from the first task (cached)."""
-        if not self._electrodes and self.task_model_list:
-            self._electrodes = getattr(self.task_model_list[0], "electrodes", None)
+        if not self._electrodes and self.task_executor_list:
+            self._electrodes = getattr(self.task_executor_list[0], "electrodes", None)
         return self._electrodes
 
     @property
     def metadata(self):
         """Return metadata JSON from the first task (cached)."""
-        if not self._metadata and self.task_model_list:
-            self._metadata = getattr(self.task_model_list[0], "metadata", None)
+        if not self._metadata and self.task_executor_list:
+            self._metadata = getattr(self.task_executor_list[0], "metadata", None)
         return self._metadata
 
     @property
     def channels(self):
         """Return channels table from the first task (cached)."""
-        if not self._channels and self.task_model_list:
-            self._channels = self.task_model_list[0].channels
+        if not self._channels and self.task_executor_list:
+            self._channels = self.task_executor_list[0].channels
         return self._channels
 
     def get_filtered_raw(self, filter_params: FilterParams):
@@ -71,11 +72,11 @@ class EEGCohortExecutor:
 
         filtered_list = []
         t0 = time.perf_counter()
-        for task_model in tqdm(self.task_model_list,
-                               total=len(self.task_model_list),
+        for task_executor in tqdm(self.task_executor_list,
+                               total=len(self.task_executor_list),
                                desc="Filtering raws",
                                leave=False):
-            raw = task_model.get_filtered_raw(filter_params)
+            raw = task_executor.get_filtered_raw(filter_params)
             if raw is not None:
                 filtered_list.append(raw)
         t_loop = time.perf_counter() - t0
@@ -108,11 +109,11 @@ class EEGCohortExecutor:
         labels_union = set()
 
         t0 = time.perf_counter()
-        for task_model in tqdm(self.task_model_list,
-                               total=len(self.task_model_list),
+        for task_executor in tqdm(self.task_executor_list,
+                               total=len(self.task_executor_list),
                                desc="Building epochs",
                                leave=False):
-            epochs, labels = task_model.get_epochs(epoch_params)
+            epochs, labels = task_executor.get_epochs(epoch_params)
             if epochs is None:
                 continue
             epochs_list.append(epochs)
@@ -140,14 +141,14 @@ class EEGCohortExecutor:
         if self.evoked is not None:
             return self.evoked
 
-        # 1) Get evoked for each task_model
+        # 1) Get evoked for each task_executor
         evokeds_by_subject: dict[str, list] = {}
         t0 = time.perf_counter()
-        for task_model in self.task_model_list:
-            evk = task_model.get_evoked(epoch_params)
+        for task_executor in self.task_executor_list:
+            evk = task_executor.get_evoked(epoch_params)
             if evk is None:
                 continue
-            subj = getattr(task_model.task_dto, 'subject', None)
+            subj = task_executor.task.subject
             if subj is None:
                 continue
             evokeds_by_subject.setdefault(subj, []).append(evk)
