@@ -10,7 +10,7 @@ class EvokedParams(EpochParams):
     spatial_colors: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "evoked"}
     )
-    # TODO bruh why is it not rendering as "False"
+
     gfp: Optional[bool | Literal["only"]] = Field(
         "False",
         validate_default=True,

@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+from typing import Literal
 import mne
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,7 +45,7 @@ class CacheKey:
     subject: str
     task: str
     run: str | None
-    stage: str  # "rawfilt" or "epochs"
+    stage: Literal["rawfilt", "epochs"]
     params: dict  # DTO -> dict
     pipeline_ver: str  # bump when processing logic changes
 

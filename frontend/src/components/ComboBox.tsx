@@ -10,14 +10,14 @@ interface ComboboxProps {
   name: string
   options: { value: string; label: string }[]
   placeholder?: string
-  defaultValue?: string
+  defaultValue?: string | null
 }
 
 export default function Combobox({
   name,
   options,
   placeholder = "Select option...",
-  defaultValue = "",
+  defaultValue = null,
 }: ComboboxProps) {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -29,8 +29,7 @@ export default function Combobox({
       defaultValue={defaultValue}
       render={({ field }) => {
         const selectedLabel =
-          options.find((opt) => opt.value === field.value)?.label ||
-          placeholder
+          options.find((opt) => opt.value === field.value)?.label ?? placeholder
 
         return (
           <Popover open={open} onOpenChange={setOpen}>
@@ -63,7 +62,7 @@ export default function Combobox({
                         : "hover:bg-purple-50"
                     }`}
                     onClick={() => {
-                      field.onChange(field.value === val ? "" : val)
+                      field.onChange(field.value === val ? null : val)
                       setOpen(false)
                     }}
                   >

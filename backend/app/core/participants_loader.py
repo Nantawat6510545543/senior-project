@@ -68,6 +68,16 @@ class ParticipantManager:
                     yield p
 
     # ---------- discovery ----------
+    def _available_subjects(self) -> set[str]:
+        """Check for available subject on the actual path"""
+        subjects = set()
+
+        for rdir in self.release_dirs:
+            for p in rdir.glob("sub-*"):
+                subjects.add(p.name)
+
+        return subjects
+
     def _discover_release_dirs(self) -> List[Path]:
         """Discover release directories matching cmi_bids_R* pattern."""
         t0 = time.perf_counter()
@@ -375,6 +385,11 @@ class ParticipantManager:
             raise FileNotFoundError('No participants.tsv found in cmi_bids_R* directories')
         combined = pd.concat(frames, ignore_index=True)
         combined['participant_id'] = combined['participant_id'].astype(str)
+
+        # keep only subjects that actually exist locally
+        combined = combined[
+            combined["participant_id"].isin(self._available_subjects())
+        ]
 
         t_aug0 = time.perf_counter()
         combined = self._augment_ccd_metrics(combined)
