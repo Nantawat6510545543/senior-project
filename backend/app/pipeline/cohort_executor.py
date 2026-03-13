@@ -37,7 +37,7 @@ class EEGCohortExecutor:
             t0 = time.perf_counter()
             events_list = []
             for tm in tqdm(self.task_executor_list, total=len(self.task_executor_list), desc="Collect events", leave=False):
-                ev = tm.get_event()
+                ev = tm.events
                 if ev is not None:
                     events_list.append(ev)
             self._events_concat = pd.concat(events_list, ignore_index=True) if events_list else pd.DataFrame()

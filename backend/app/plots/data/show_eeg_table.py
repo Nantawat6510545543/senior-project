@@ -5,7 +5,7 @@ def prepare_eeg_table_data(executor: EEGTaskExecutor, session: PipelineSession):
     """Return a small preview table for the requested component type."""
     table_info = session.table
     df_map = {
-        'events': executor.get_event(),
+        'events': executor.events,
         'channels': executor.channels,
         'electrodes': executor.electrodes
     }

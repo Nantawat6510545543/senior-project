@@ -4,10 +4,12 @@ import FilteringCleaningTab from "@/components/tabs/FilteringCleaningTab"
 import PSDTab from "@/components/tabs/PSDTab"
 import TimeDomainTab from "@/components/tabs/TimeDomainTab"
 import TopomapTab from "@/components/tabs/TopomapTab"
+import TableTab from "@/components/tabs/TableTab"
+import TrainingTab from "@/components/tabs/TrainingTab"
+
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import TablesTab from "./tabs/TablesTab"
-import TrainingTab from "./tabs/TrainingTab"
+
 import { useEffect, useState, type ReactNode } from "react"
 import { useSchema, type SchemaEndpoints } from "@/hooks/useSchema"
 
@@ -29,7 +31,7 @@ const tabDependencies: Record<string, string[]> = {
   "SNR Grid": ["Filtering and Cleaning", "Epochs", "PSD"],
   "Evoked Grid": ["Filtering and Cleaning", "Epochs", "Evoked Display"],
 
-  "EEG Table": ["Filtering and Cleaning", "Tables"],
+  "EEG Table": ["Filtering and Cleaning", "Table"],
   "Epochs Table": ["Filtering and Cleaning", "Epochs"],
   "Metadata": [],
 
@@ -49,7 +51,7 @@ const tabToSchemaEndpoint: Record<string, SchemaEndpoints> = {
   "PSD": "psd",
   "Evoked Display": "evoked",
   "Topomap": "topomap",
-  "Tables": "tables",
+  "Table": "table",
   "Training": "training",
 }
 
@@ -64,7 +66,7 @@ const tabComponents: Record<string, (schema: any) => ReactNode> = {
   "PSD": (schema) => <PSDTab schema={schema} />,
   "Evoked Display": (schema) => <EvokedDisplayTab schema={schema} />,
   "Topomap": (schema) => <TopomapTab schema={schema} />,
-  "Tables": (schema) => <TablesTab schema={schema} />,
+  "Table": (schema) => <TableTab schema={schema} />,
   "Training": (schema) => <TrainingTab schema={schema} />,
 }
 

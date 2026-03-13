@@ -49,7 +49,7 @@ class EEGTaskExecutor:
         if self.processor is None:
             self.processor = self._processor_cls(
                 self.get_raw,
-                self.get_event,
+                self.loader.load_events,
                 self.task,
                 self.cache,
             )
@@ -61,7 +61,8 @@ class EEGTaskExecutor:
             self._raw = self.loader.load_raw()
         return self._raw
 
-    def get_event(self):
+    @property
+    def events(self):
         """Return (and cache) events DataFrame for this task."""
         self._ensure()
         if self._events is None:

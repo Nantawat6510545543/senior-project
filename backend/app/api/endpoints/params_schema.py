@@ -40,8 +40,8 @@ def topomap_schema():
 def time_domain_schema():
     return TimeDomainParams.model_json_schema()
 
-@router.get("/tables")
-def tables_schema():
+@router.get("/table")
+def table_schema():
     return TableParams.model_json_schema()
 
 @router.get("/training")

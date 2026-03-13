@@ -5,14 +5,14 @@ from .base_filter_schema import FilterParams
 
 class TableParams(FilterParams):
     rows: int = Field(
-        10, json_schema_extra={"ui": "integer", "group": "tables"}
+        10, json_schema_extra={"ui": "integer", "group": "table"}
     )
 
     table_type: Optional[Literal["events", "channels", "electrodes"]] = Field(
         "events",
         json_schema_extra={
             "ui": "list",
-            "group": "tables",
+            "group": "table",
             "options": ["events", "channels", "electrodes"],
         },
     )

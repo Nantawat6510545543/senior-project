@@ -8,7 +8,7 @@ export const schemaEndpoints = [
   "evoked",
   "topomap",
   "time",
-  "tables",
+  "table",
   "training",
   "subject_type",
 ] as const
