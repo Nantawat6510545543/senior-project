@@ -4,13 +4,14 @@ import { useState } from "react"
 import { ChevronsUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Controller, useFormContext } from "react-hook-form"
+import { Controller, useFormContext, type RegisterOptions } from "react-hook-form"
 
 interface ComboboxProps {
   name: string
   options: { value: string; label: string }[]
   placeholder?: string
   defaultValue?: string | null
+  rules?: RegisterOptions
 }
 
 export default function Combobox({
@@ -18,6 +19,7 @@ export default function Combobox({
   options,
   placeholder = "Select option...",
   defaultValue = null,
+  rules
 }: ComboboxProps) {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -27,6 +29,7 @@ export default function Combobox({
       name={name}
       control={control}
       defaultValue={defaultValue}
+      rules={rules}
       render={({ field }) => {
         const selectedLabel =
           options.find((opt) => opt.value === field.value)?.label ?? placeholder

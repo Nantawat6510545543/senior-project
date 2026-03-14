@@ -4,6 +4,8 @@ import Combobox from "@/components/ComboBox"
 import IntegerInput from "@/components/IntegerInput"
 import PurpleCheckbox from "@/components/PurpleCheckbox"
 import { SubHeader } from "@/components/Fonts"
+import { useFormContext } from "react-hook-form"
+import type { SessionFormSchema } from "@/api/types"
 
 export default function CohortTaskForm() {
   // TODO remove hardcode
@@ -33,6 +35,8 @@ export default function CohortTaskForm() {
     "ccd_response_time",
   ] as const
 
+  const { formState: { errors } } = useFormContext<SessionFormSchema>()
+
   return (
     <div className="space-y-4 mt-4">
 
@@ -40,9 +44,16 @@ export default function CohortTaskForm() {
       <div>
         <SubHeader>Task</SubHeader>
         <Combobox
-          name="subject_filter.task"
+          name="task.task"
           options={taskOptions}
+          rules={{ required: "Task is required" }}
         />
+
+        {errors?.task?.task && (
+          <p className="text-red-700 text-sm mt-1">
+            {errors.task.task.message}
+          </p>
+        )}
       </div>
 
       {/* Subject Limit */}

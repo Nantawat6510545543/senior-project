@@ -8,7 +8,7 @@ import useTaskOption from "@/hooks/useTaskOption"
 import type { SessionFormSchema } from "@/api/types"
 
 export default function TaskForm() {
-  const { control } = useFormContext<SessionFormSchema>()
+  const { control, formState: { errors } } = useFormContext<SessionFormSchema>()
 
   const subject = useWatch({ control, name: "task.subject" })
   const subjectOptions = useSubjectOption()
@@ -18,12 +18,32 @@ export default function TaskForm() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div>
         <SubHeader>Subject</SubHeader>
-        <Combobox name="task.subject" options={subjectOptions}/>
+        <Combobox
+          name="task.subject"
+          options={subjectOptions}
+          rules={{ required: "Subject is required" }}
+        />
+
+        {errors?.task?.subject && (
+          <p className="text-red-700 text-sm mt-1">
+            {errors.task.subject.message}
+          </p>
+        )}
       </div>
 
       <div>
         <SubHeader>Task</SubHeader>
-        <Combobox name="task.task" options={taskOptions}/>
+        <Combobox
+          name="task.task"
+          options={taskOptions}
+          rules={{ required: "Task is required" }}
+        />
+
+        {errors?.task?.task && (
+          <p className="text-red-700 text-sm mt-1">
+            {errors.task.task.message}
+          </p>
+        )}
       </div>
     </div>
   )

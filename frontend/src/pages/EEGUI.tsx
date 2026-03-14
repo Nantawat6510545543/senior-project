@@ -33,7 +33,7 @@ export default function EEGUI() {
     crypto.randomUUID().replace(/-/g, "").slice(0, 8)
   )
 
-  const { watch, setValue, getValues } = useFormContext<SessionFormSchema>()
+  const { watch, setValue, handleSubmit } = useFormContext<SessionFormSchema>()
   const subjectType = watch("subject_type")
 
   let safeAction = action
@@ -42,8 +42,7 @@ export default function EEGUI() {
   }
 
   // TODO resolve
-  async function handleRunInline() {
-    const session = getValues()
+  async function handleRunInline(session: SessionFormSchema) {
     console.log("Session", session)
 
     const view = modeData.actions[safeAction]
@@ -111,7 +110,7 @@ export default function EEGUI() {
       <SettingsTab action={safeAction}/>
 
       {/* Run */}
-      <PrimaryButton onClick={handleRunInline}>
+      <PrimaryButton onClick={handleSubmit(handleRunInline)}>
         Run Inline
       </PrimaryButton>
 
