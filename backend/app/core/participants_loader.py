@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-from app.schemas.task_schema import CohortTask
+from app.schemas.params.subject_filter_schema import SubjectFilterParams
 
 
 class ParticipantManager:
@@ -469,11 +469,11 @@ class ParticipantManager:
         disk_pairs = self._subject_task_pairs(subject, rdir)
         return sorted([(t, r) for (t, r) in disk_pairs if self._norm(t) in avail_bases])
 
-    def filter_subjects_by_dto(self, dto: CohortTask) -> List[str]:
+    def filter_subjects_by_dto(self, subject_filter_dto: SubjectFilterParams) -> List[str]:
         """Filter subjects by availability and DTO constraints; return subject IDs."""
         t0 = time.perf_counter()
         df = self._participants().copy()
-        task = dto.task
+        task = subject_filter_dto.task
         if task in df.columns:
             df = df[df[task].str.lower() == 'available']
         else:
@@ -488,7 +488,7 @@ class ParticipantManager:
                 )
                 df = df[mask]
 
-        filters = dto.model_dump(exclude_none=True)
+        filters = subject_filter_dto.model_dump(exclude_none=True)
 
         for name, val in filters.items():
             if name in ('task', 'subject', 'run', 'subject_limit', 'per_subject'):
@@ -517,7 +517,7 @@ class ParticipantManager:
                     df = df[df[name] == val]
 
         subjects = df['participant_id'].dropna().tolist()
-        limit = dto.subject_limit
+        limit = subject_filter_dto.subject_limit
         if limit and int(limit) > 0:
             limit = int(limit)
             subjects = subjects[:limit]

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 
-from app.schemas.task_schema import SingleSubjectTask, CohortTask
+from app.schemas.task_schema import SingleSubjectTask
 from .params.base_filter_schema import FilterParams
 from .params.epoch_filter_schema import EpochParams
 from .params.evoked_filter_schema import EvokedParams, EvokedTopoParams
@@ -13,7 +13,7 @@ from .params.training_schema import TrainingParams
 
 
 class PipelineSession(BaseModel):
-    task: SingleSubjectTask | CohortTask = None
+    task: SingleSubjectTask = None
     subject_type: Literal["single", "cohort"] = "single"
     subject_filter: SubjectFilterParams = Field(default_factory=SubjectFilterParams)
 

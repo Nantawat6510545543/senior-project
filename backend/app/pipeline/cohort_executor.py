@@ -10,14 +10,11 @@ from tqdm.auto import tqdm
 from app.schemas.params.base_filter_schema import FilterParams
 from app.schemas.params.epoch_filter_schema import EpochParams
 from app.pipeline.task_executor import EEGTaskExecutor
-from app.schemas.task_schema import CohortTask
 
 class EEGCohortExecutor:
     """Aggregate operations (filter, epochs, evoked) across a set of task models."""
-    # TODO CohortTask -> SubjectFilter
-    def __init__(self, task_dto: CohortTask, task_executor_list: list[EEGTaskExecutor], subject_length: int):
+    def __init__(self, task_executor_list: list[EEGTaskExecutor], subject_length: int):
         """Initialize cohort with filter DTO, task models and subject count."""
-        self.task_dto = task_dto
         self.task_executor_list = task_executor_list
         self.subject_length = subject_length
         self.filtered_raw = None

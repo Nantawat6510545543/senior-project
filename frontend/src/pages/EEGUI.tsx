@@ -10,16 +10,16 @@ import PurpleCheckbox from "@/components/PurpleCheckbox"
 import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
 import { fetchTableData, getPlotUrl } from "@/api/api"
-import { SETTINGS_MODE, TABLE_VIEW } from "./settings_mode"
+import { SETTINGS_MODE, TABLE_VIEW, type PlotMode } from "./settings_mode"
 import LogPanel from "@/components/LogPanel"
 import TaskForm from "@/components/forms/TaskForm"
-import CohortTaskForm from "@/components/forms/CohortTaskForm"
+import SubjectFilterForm from "@/components/forms/SubjectFilterForm"
 import PurpleTable from "@/components/PurpleTable"
 import type { SessionFormSchema } from "@/api/types"
 
 
 export default function EEGUI() {
-  const [mode, setMode] = useState<keyof typeof SETTINGS_MODE>("Plot")
+  const [mode, setMode] = useState<PlotMode>("Plot")
   const [action, setAction] = useState(
     Object.keys(SETTINGS_MODE.Plot.actions)[0]
   )
@@ -75,7 +75,7 @@ export default function EEGUI() {
         />
 
         {subjectType === "single" && <TaskForm />}
-        {subjectType === "cohort" && <CohortTaskForm />}
+        {subjectType === "cohort" && <SubjectFilterForm />}
       </Card>
 
       {/* Mode */}
@@ -84,7 +84,7 @@ export default function EEGUI() {
         <OptionButtons
           options={Object.keys(SETTINGS_MODE)}
           value={mode}
-          onChange={setMode}
+          onChange={(value) => setMode(value as PlotMode)}
         />
         <p className="text-sm text-muted-foreground max-w-3xl">
           {modeData.description}

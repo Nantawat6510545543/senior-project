@@ -21,7 +21,6 @@ export default function SessionForm({ children }: { children: React.ReactNode })
     }
   })
 
-  // TODO bring back placeholder
   return (
     <FormProvider {...methods}>
       {children}

@@ -51,3 +51,5 @@ export const TABLE_VIEW = [
   "train_eeg",
   "model_summary"
 ]
+
+export type PlotMode = keyof typeof SETTINGS_MODE

@@ -7,20 +7,17 @@ import { SubHeader } from "@/components/Fonts"
 import { useFormContext } from "react-hook-form"
 import type { SessionFormSchema } from "@/api/types"
 
-export default function CohortTaskForm() {
-  // TODO remove hardcode
+export default function SubjectFilterForm() {
   const taskOptions = [
     { value: "DespicableMe", label: "DespicableMe" },
     { value: "DiaryOfAWimpyKid", label: "DiaryOfAWimpyKid" },
     { value: "FunwithFractals", label: "FunwithFractals" },
     { value: "RestingState", label: "RestingState" },
     { value: "ThePresent", label: "ThePresent" },
-    { value: "contrastChangeDetection_run-1", label: "contrastChangeDetection (run 1)" },
-    { value: "contrastChangeDetection_run-2", label: "contrastChangeDetection (run 2)" },
-    { value: "contrastChangeDetection_run-3", label: "contrastChangeDetection (run 3)" },
+    { value: "contrastChangeDetection", label: "contrastChangeDetection" },
+    { value: "seqlearning6target", label: "seqlearning6target" },
     { value: "seqlearning8target", label: "seqlearning8target" },
-    { value: "surroundSupp_run-1", label: "surroundSupp (run 1)" },
-    { value: "surroundSupp_run-2", label: "surroundSupp (run 2)" },
+    { value: "surroundSupp", label: "surroundSupp" },
     { value: "symbolSearch", label: "symbolSearch" },
   ]
 
@@ -44,7 +41,7 @@ export default function CohortTaskForm() {
       <div>
         <SubHeader>Task</SubHeader>
         <Combobox
-          name="task.task"
+          name="subject_filter.task"
           options={taskOptions}
           rules={{ required: "Task is required" }}
         />
