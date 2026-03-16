@@ -1,71 +1,72 @@
 import matplotlib.pyplot as plt
+from mne import Evoked
 
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
 from app.plots.grid_plot_helpers import draw_evoked_response
 from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
 from app.plots.plot_merger import merge_figures_vertical
+from app.schemas.params.evoked_filter_schema import EvokedParams
 from app.schemas.session_schema import PipelineSession
 
-
-def prepare_evoked_per_condition_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
-    epochs_dto = session.epochs
-    evoked_dto = session.evoked
-
-    epochs, _ = executor.get_epochs(epochs_dto)
+# TODO fix
+def prepare_evoked_per_condition_plot_data(
+    executor: EEGTaskExecutor,
+    session: PipelineSession
+) -> list[tuple[Evoked, EvokedParams]]:
+    epochs, _ = executor.get_epochs(session)
     if epochs is None:
         return None
 
     prepared = []
 
     for condition in epochs.event_id:
-        conditioned_evoked_dto = evoked_dto.model_copy(update={"stimulus": condition})
-        evoked = executor.get_evoked(conditioned_evoked_dto)
+        evoked_params = session.evoked.model_copy(update={"stimulus": condition})
+
+        evoked = executor.get_evoked(session, evoked_params)
         if evoked is None:
             continue
 
-        prepared_evoked = prepare_channels(evoked, conditioned_evoked_dto)
-        prepared.append((prepared_evoked, conditioned_evoked_dto))
+        prepared_evoked = prepare_channels(evoked, session.filter)
+        prepared.append((prepared_evoked, evoked_params))
 
     return prepared
 
 
-def plot_evoked_per_condition(prepared_data, session: PipelineSession):
+def plot_evoked_per_condition(
+        prepared_data: list[tuple[Evoked, EvokedParams]],
+        session: PipelineSession
+    ):
     if not prepared_data:
         return None
 
     figs = []
 
-    for prepared_evoked, conditioned_evoked_dto in prepared_data:
-        fig, ax = plt.subplots(1, 1)
+    for prepared_evoked, evoked_params in prepared_data:
+        fig, ax = plt.subplots()
 
-        draw_evoked_response(ax, prepared_evoked, conditioned_evoked_dto)
-        
-        if getattr(conditioned_evoked_dto, "display_tmin", None):
-            x_lo = conditioned_evoked_dto.display_tmin
-        else:
-            x_lo = conditioned_evoked_dto.tmin
+        draw_evoked_response(ax, prepared_evoked, evoked_params)
 
-        if getattr(conditioned_evoked_dto, "display_tmax", None):    
-            x_hi = conditioned_evoked_dto.display_tmax
-        else:
-            x_hi = conditioned_evoked_dto.tmax
+        x_lo = evoked_params.display_tmin or evoked_params.tmin
+        x_hi = evoked_params.display_tmax or evoked_params.tmax
 
         ax.set_xlim(x_lo, x_hi)
-        ax.set_xlabel("Time [s]")
-        ax.set_ylabel("µV")
+        ax.set(xlabel="Time [s]", ylabel="µV")
 
-        nave = getattr(prepared_evoked, "nave", None)
-        if nave is not None:
+        if prepared_evoked.nave:
             ax.text(
-                1, 1, f"n={int(nave)}", transform=ax.transAxes, 
-                ha="right", va="bottom", fontsize=8, color="0.4",
+                1, 1, f"n={int(prepared_evoked.nave)}",
+                transform=ax.transAxes,
+                ha="right",
+                va="bottom",
+                fontsize=8,
+                color="0.4",
             )
 
         header = FigureHeader(
             plot_name="Evoked per Condition",
-            subject_line=format_subject_label(session.task, conditioned_evoked_dto.stimulus),
-            caption_line=str(conditioned_evoked_dto),
+            subject_line=format_subject_label(session.task, session.epochs.stimulus),
+            caption_line=str(evoked_params),
         )
 
         figs.append(finalize_figure(fig, header))

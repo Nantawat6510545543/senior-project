@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from .base_filter_schema import FilterParams
 
-class TableParams(FilterParams):
+class TableParams(BaseModel):
     rows: int = Field(
         10, json_schema_extra={"ui": "integer", "group": "table"}
     )

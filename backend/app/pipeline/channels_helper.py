@@ -8,6 +8,8 @@ This module provides ChannelsHelper used by visualization utilities to:
 import mne
 import numpy as np
 
+from app.schemas.params.base_filter_schema import FilterParams
+
 
 class ChannelsHelper:
     """Utilities for channel selection and optional µV range filtering.
@@ -16,7 +18,7 @@ class ChannelsHelper:
     and maintains internal state (self.picks, self.pick_names).
     """
 
-    def __init__(self, params, inst):
+    def __init__(self, params: FilterParams, inst):
         """Initialize helper with parameter object and MNE instance."""
         self.params = params
         self.inst = inst
@@ -107,7 +109,7 @@ class ChannelsHelper:
         self.pick_names = [self.inst.ch_names[i] for i in final_picks]
 
 
-def prepare_channels(inst, params):
+def prepare_channels(inst, params: FilterParams):
     """End-to-end channel preparation as a simple module function.
 
     - For Epochs-like objects, ensure data is loaded (copy.load_data()).

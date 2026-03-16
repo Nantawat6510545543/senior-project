@@ -26,7 +26,7 @@ def get_epoch_psd_params(session: PipelineSession) -> EpochPSDParams:
 
 def prepare_snr_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
     epochs_psd_dto = get_epoch_psd_params(session)
-    epochs, available_labels = executor.get_epochs(epochs_psd_dto)
+    epochs, available_labels = executor.get_epochs(session)
     if epochs is None:
         return None
 
@@ -43,7 +43,7 @@ def prepare_snr_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
 
     for label in available_labels:
         try:
-            ce = prepare_channels(epochs[label], epochs_psd_dto)
+            ce = prepare_channels(epochs[label], session.filter)
             if len(ce) == 0:
                 continue
 

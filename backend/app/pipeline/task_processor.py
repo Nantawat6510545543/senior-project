@@ -4,14 +4,16 @@ Signal processing pipeline: filtering, epoching and evoked computation with cach
 
 import logging
 import numpy as np
-from mne import Epochs, set_log_level, events_from_annotations
-from mne.io import read_raw_fif
+from mne import Epochs, Evoked, set_log_level, events_from_annotations
+from mne.io import Raw, read_raw_fif
 
 from .constants import EVENT_ID, RESTING_STATE_EVENT_ID, CCD_EVENT_ID
 
+from app.core.cache_key_helper import get_filter_key, get_cleaning_key, get_epochs_key, get_evoked_key
 from app.core.cache_manager import CacheKey
 from app.pipeline.signal_cleaner import EEGCleaner
 from app.schemas.task_schema import SingleSubjectTask
+from app.schemas.session_schema import PipelineSession
 from app.schemas.params.base_filter_schema import FilterParams
 from app.schemas.params.epoch_filter_schema import EpochParams
 from app.schemas.params.evoked_filter_schema import EvokedParams
@@ -20,8 +22,8 @@ from app.schemas.params.evoked_filter_schema import EvokedParams
 set_log_level("WARNING")
 log = logging.getLogger(__name__)
 
-def preprocess_surround_supp(processor, params: EpochParams):
-    filtered = processor.get_filtered(params)
+def preprocess_surround_supp(processor: "EEGTaskProcessor", session: PipelineSession):
+    filtered = processor.get_filtered(session)
     events = processor.get_events()
     if events is None:
         return None, None
@@ -40,8 +42,8 @@ def preprocess_surround_supp(processor, params: EpochParams):
     stim = stim[stim["onset"].notna()].copy()
     stim["sample"] = np.round(stim["onset"] * sfreq).astype(int)
 
-    tmin_samp = int(np.floor(params.tmin * sfreq))
-    tmax_samp = int(np.ceil(params.tmax * sfreq))
+    tmin_samp = int(np.floor(session.epochs.tmin * sfreq))
+    tmax_samp = int(np.ceil(session.epochs.tmax * sfreq))
     n_times = int(filtered.n_times)
 
     ok = (
@@ -65,8 +67,8 @@ def preprocess_surround_supp(processor, params: EpochParams):
         filtered,
         events_arr,
         event_id=event_id,
-        tmin=params.tmin,
-        tmax=params.tmax,
+        tmin=session.epochs.tmin,
+        tmax=session.epochs.tmax,
         proj=True,
         preload=False,
     )
@@ -75,8 +77,8 @@ def preprocess_surround_supp(processor, params: EpochParams):
     return epochs, labels
 
 
-def preprocess_resting_state(processor, params: EpochParams):
-    filtered = processor.get_filtered(params)
+def preprocess_resting_state(processor: "EEGTaskProcessor", session: PipelineSession):
+    filtered = processor.get_filtered(session)
     df = processor.get_events()
     if df is None:
         return None, None
@@ -109,16 +111,16 @@ def preprocess_resting_state(processor, params: EpochParams):
         filtered,
         np.array(sorted(new_events)),
         event_id={k: RESTING_STATE_EVENT_ID[k] for k in present},
-        tmin=params.tmin,
-        tmax=params.tmax,
+        tmin=session.epochs.tmin,
+        tmax=session.epochs.tmax,
         proj=True,
         preload=False,
     )
     return epochs, present
 
 
-def preprocess_ccd(processor, params: EpochParams):
-    filtered = processor.get_filtered(params)
+def preprocess_ccd(processor: "EEGTaskProcessor", session: PipelineSession):
+    filtered = processor.get_filtered(session)
     events, ann_id = events_from_annotations(processor.get_raw())
 
     if "contrastTrial_start" not in ann_id:
@@ -140,8 +142,8 @@ def preprocess_ccd(processor, params: EpochParams):
         filtered,
         new_events,
         event_id=CCD_EVENT_ID,
-        tmin=params.tmin,
-        tmax=params.tmax,
+        tmin=session.epochs.tmin,
+        tmax=session.epochs.tmax,
         proj=True,
         preload=False,
     )
@@ -180,15 +182,13 @@ class EEGTaskProcessor:
             return None
         return epochs.apply_baseline(baseline=(None, 0.0))
 
-    def get_filtered(self, params: FilterParams):
+    def get_filtered(self, session: PipelineSession) -> Raw:
         """Return cleaned Raw using cached prefilter/clean stages when available."""
         # 1) Find cleaned cache
         clean_ck = CacheKey(
-            subject=self.task_dto.subject,
-            task=self.task_dto.task,
-            run=self.task_dto.run,
+            single_subject_task=self.task_dto,
             stage="cleaned",
-            params=params.cleaning_key,
+            params=get_cleaning_key(session),
             pipeline_ver=self.cache.pipeline_ver,
         )
         cleaned_cached = self.cache.load_raw_filtered(clean_ck)
@@ -197,16 +197,14 @@ class EEGTaskProcessor:
 
         # 2) If cleaned cache not found, Build prefilter cache (Bandpass/resample/notch)
         pre_ck = CacheKey(
-            subject=self.task_dto.subject,
-            task=self.task_dto.task,
-            run=self.task_dto.run,
+            single_subject_task=self.task_dto,
             stage="prefilter",
-            params=params.filter_key,
+            params=get_filter_key(session),
             pipeline_ver=self.cache.pipeline_ver,
         )
         cached = self.cache.load_raw_filtered(pre_ck)
         if cached is None:
-            raw_pref = EEGCleaner.pre_filter(self.get_raw(), params)
+            raw_pref = EEGCleaner.pre_filter(self.get_raw(), session.filter)
             p = self.cache.save_raw_filtered(raw_pref, pre_ck)
             del raw_pref
             raw_pref = read_raw_fif(p.as_posix(), preload=False, verbose="ERROR")
@@ -214,11 +212,11 @@ class EEGTaskProcessor:
             raw_pref = cached
 
         # 3) Mark bad channels/time windows and save cleaned cache
-        raw_clean = EEGCleaner.clean_mark(raw_pref, params)
+        raw_clean = EEGCleaner.clean_mark(raw_pref, session.filter)
         self.cache.save_raw_filtered(raw_clean, clean_ck)
         return raw_clean
 
-    def get_epochs(self, params: EpochParams) -> Epochs:
+    def get_epochs(self, session: PipelineSession) -> Epochs:
         """Return (epochs, labels) via registered task preprocessor with stimulus filter."""
         # preprocess_fn = self.preprocessors.get(self.task_dto.task)
         task_key = self._canonical_task(self.task_dto.task)
@@ -229,22 +227,20 @@ class EEGTaskProcessor:
             return None, "unavailable"
 
         ck = CacheKey(
-            subject=self.task_dto.subject,
-            task=self.task_dto.task,
-            run=self.task_dto.run,
+            single_subject_task=self.task_dto,
             stage="epochs",
-            params=params.epochs_key,
+            params=get_epochs_key(session),
             pipeline_ver=self.cache.pipeline_ver,
         )
 
         epochs, labels = self.cache.load_epochs(ck)
         if epochs is not None:
-            epochs_sel = self._apply_stimulus_filter(epochs, params)
+            epochs_sel = self._apply_stimulus_filter(epochs, session.epochs)
             if epochs_sel is None:
                 return None, "unavailable"
             return epochs_sel, labels
 
-        epochs, labels = fn(self, params)
+        epochs, labels = fn(self, session)
         if epochs is None:
             return None, "unavailable"
 
@@ -254,20 +250,18 @@ class EEGTaskProcessor:
         if self.cache and ck:
             self.cache.save_epochs(epochs, ck, labels=labels)
 
-        epochs_sel = self._apply_stimulus_filter(epochs, params)
+        epochs_sel = self._apply_stimulus_filter(epochs, session.epochs)
         if epochs_sel is None:
             return None, "unavailable"
 
         return epochs_sel, labels
 
-    def get_evoked(self, params: EvokedParams):
+    def get_evoked(self, session: PipelineSession) -> Evoked:
         """Return evoked average from epochs, caching on disk when possible."""
         ck = CacheKey(
-            subject=self.task_dto.subject,
-            task=self.task_dto.task,
-            run=self.task_dto.run,
+            single_subject_task=self.task_dto,
             stage="evoked",
-            params=params.evoked_key,
+            params=get_evoked_key(session),
             pipeline_ver=self.cache.pipeline_ver,
         )
 
@@ -275,7 +269,7 @@ class EEGTaskProcessor:
         if evk is not None:
             return evk
 
-        epochs, _ = self.get_epochs(params)
+        epochs, _ = self.get_epochs(session)
         if epochs is None:
             return None
 

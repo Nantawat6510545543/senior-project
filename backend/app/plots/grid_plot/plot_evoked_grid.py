@@ -11,8 +11,9 @@ from ..grid_plot_helpers import draw_evoked_response, render_label_grid
 
 def prepare_evoked_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
     evoked_dto = session.evoked
-    epochs, available_labels = executor.get_epochs(evoked_dto)
-    if epochs is None:
+    epochs, available_labels = executor.get_epochs(session)
+    evoked = executor.get_evoked(session)
+    if (epochs or evoked) is None:
         return None
 
     evoked_cache = {}
@@ -20,12 +21,7 @@ def prepare_evoked_grid_data(executor: EEGTaskExecutor, session: PipelineSession
     for label in available_labels:
         try:
             p = evoked_dto.model_copy(update={"stimulus": label})
-
-            evoked = executor.get_evoked(p)
-            if evoked is None:
-                continue
-
-            evoked = prepare_channels(evoked, p)
+            evoked = prepare_channels(evoked, session.filter)
 
             data_uv = evoked.data * 1e6
             dmin = float(np.nanmin(data_uv)) if data_uv.size else None
@@ -73,7 +69,7 @@ def plot_evoked_grid(epochs, available_labels, evoked_cache, session: PipelineSe
         available_labels=available_labels,
         params=evoked_dto,
         plot_name="Evoked Grid",
-        xlim=(evoked_dto.tmin, evoked_dto.tmax),
+        xlim=(session.epochs.tmin, session.epochs.tmax),
         xlabel="Time [s]",
         unit_tag="µV",
         scale_mode=evoked_dto.scale_mode,

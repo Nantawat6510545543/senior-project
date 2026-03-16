@@ -2,10 +2,11 @@ from mne import Epochs, Evoked
 from mne.io import Raw
 from typing import Optional, Type
 
-from .task_loader import EEGTaskLoader
-from .task_processor import EEGTaskProcessor
-from app.schemas.task_schema import SingleSubjectTask
 from app.core.cache_manager import LocalCache, PIPELINE_VERSION
+from app.pipeline.task_loader import EEGTaskLoader
+from app.pipeline.task_processor import EEGTaskProcessor
+from app.schemas.task_schema import SingleSubjectTask
+from app.schemas.session_schema import PipelineSession
 
 
 class EEGTaskExecutor:
@@ -90,19 +91,19 @@ class EEGTaskExecutor:
             self._channels = self.loader.load_channels()
         return self._channels
 
-    def get_filtered_raw(self, filter_params):
+    def get_filtered_raw(self, session: PipelineSession):
         """Return filtered Raw from processor and clear base raw cache."""
         self._ensure()
-        raw = self.processor.get_filtered(filter_params)
+        raw = self.processor.get_filtered(session)
         self._raw = None
         return raw
 
-    def get_epochs(self, epoch_params) -> Epochs:
+    def get_epochs(self, session: PipelineSession) -> Epochs:
         """Return (epochs, labels) from processor for given params."""
         self._ensure()
-        return self.processor.get_epochs(epoch_params)
+        return self.processor.get_epochs(session)
 
-    def get_evoked(self, evoked_params) -> Evoked:
+    def get_evoked(self, session: PipelineSession) -> Evoked:
         """Return evoked response from processor for given params."""
         self._ensure()
-        return self.processor.get_evoked(evoked_params)
+        return self.processor.get_evoked(session)

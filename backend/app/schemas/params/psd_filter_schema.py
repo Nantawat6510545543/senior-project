@@ -1,11 +1,10 @@
-from pydantic import Field
+from pydantic import BaseModel, Field
 from typing import Optional
 
 from .epoch_filter_schema import EpochParams
-from .base_filter_schema import FilterParams
 
 
-class PSDParams(FilterParams):
+class PSDParams(BaseModel):
     fmin: Optional[float] = Field(
         4, json_schema_extra={"ui": "number", "group": "psd", "placeholder": "4.0"}
     )

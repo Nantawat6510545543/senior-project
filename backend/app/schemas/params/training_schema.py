@@ -4,7 +4,7 @@ from typing import Literal
 from .epoch_filter_schema import EpochParams
 
 # TODO fix inherit to EpochsPSDSchema
-class TrainingParams(EpochParams):
+class TrainingParams(BaseModel):
     batch_size: int = Field(
         32,
         title="batch_size",
@@ -68,7 +68,7 @@ class TrainingParams(EpochParams):
         },
     )
 
-    train: Literal["epoch"] = Field(
+    train: Literal["epoch", "evoked", "psd"] = Field(
         "epoch",
         title="train",
         json_schema_extra={
@@ -78,7 +78,12 @@ class TrainingParams(EpochParams):
         },
     )
 
-    target: Literal["ccd_accuracy"] = Field(
+    target: Literal[
+                "ccd_accuracy",
+                "ccd_response_time",
+                "stimulus",
+                "ccd_accuracy + ccd_response_time"
+            ] = Field(
         "ccd_accuracy",
         title="target",
         json_schema_extra={

@@ -3,10 +3,8 @@ import re
 from pydantic import BaseModel, Field, field_validator
 from typing import Literal, Optional
 
-from .epoch_filter_schema import EpochParams
 
-
-class EvokedParams(EpochParams):
+class EvokedParams(BaseModel):
     spatial_colors: bool = Field(
         True, json_schema_extra={"ui": "checkbox", "group": "evoked"}
     )
@@ -42,7 +40,7 @@ class EvokedParams(EpochParams):
         return v
 
 
-class EvokedTopoParams(EpochParams):
+class EvokedTopoParams(BaseModel):
     times: str = Field(
         "auto", json_schema_extra={"ui": "text", "group": "topomap"}
     )
@@ -60,19 +58,23 @@ class EvokedTopoParams(EpochParams):
         return values or "auto"
 
 
-class EvokedJointParams(EvokedParams):
-    times: str = Field(
-        "auto", json_schema_extra={"ui": "text", "group": "topomap"}
-    )
+# EvokedParams and TopoParams Composition
+class EvokedJointParams(BaseModel):
+    evoked: EvokedParams
+    topomap: EvokedTopoParams
 
     @property
     def resolved_times(self):
-        s = self.times.lower().strip()
-        if s in {"auto", "peak"}:
-            return s
+        return self.topomap.resolved_times
 
-        values = [
-            float(x) for x in re.findall(r"[-+]?\d*\.?\d+", self.times)
-        ]
-        values = [t for t in values if self.tmin <= t <= self.tmax]
-        return values or "auto"
+    @property
+    def gfp(self):
+        return self.evoked.gfp
+
+    @property
+    def spatial_colors(self):
+        return self.evoked.spatial_colors
+
+    @property
+    def stimulus(self):
+        return self.evoked.stimulus

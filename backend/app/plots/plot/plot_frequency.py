@@ -9,12 +9,12 @@ def prepare_frequency_plot_data(executor: EEGTaskExecutor, session: PipelineSess
     epochs_dto = session.epochs
     psd_dto = session.psd
 
-    epochs, _ = executor.get_epochs(epochs_dto)
+    epochs, _ = executor.get_epochs(session)
 
     if epochs is None:
         return None
 
-    epochs = prepare_channels(epochs, epochs_dto)
+    epochs = prepare_channels(epochs, session.filter)
 
     sfreq = epochs.info["sfreq"]
     nfft = int(max(8, sfreq * max(0.5, (epochs_dto.tmax - epochs_dto.tmin))))

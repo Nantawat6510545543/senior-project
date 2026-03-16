@@ -13,12 +13,12 @@ def prepare_snr_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
     epochs_dto = session.epochs
     psd_dto = session.psd
 
-    epochs, _ = executor.get_epochs(epochs_dto)
+    epochs, _ = executor.get_epochs(session)
 
     if epochs is None:
         return None
 
-    epochs = prepare_channels(epochs, epochs_dto)
+    epochs = prepare_channels(epochs, session.filter)
     sfreq = epochs.info["sfreq"]
 
     spectrum = epochs.compute_psd(

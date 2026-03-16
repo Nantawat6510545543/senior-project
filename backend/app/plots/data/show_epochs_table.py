@@ -7,7 +7,7 @@ def prepare_epochs_table_data(executor: EEGTaskExecutor, session: PipelineSessio
     Columns include label, number of epochs/channels, sampling rate and durations.
     """
     epochs_dto = session.epochs
-    epochs, labels = executor.get_epochs(epochs_dto)
+    epochs, labels = executor.get_epochs(session)
 
     if epochs is None:
         return None

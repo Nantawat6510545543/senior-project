@@ -14,9 +14,12 @@ import hashlib
 import json
 import logging
 from typing import Literal
-import mne
 from dataclasses import dataclass
 from pathlib import Path
+import mne
+from mne.io import Raw
+
+from app.schemas.task_schema import SingleSubjectTask
 
 
 PIPELINE_VERSION = "v3"
@@ -42,17 +45,16 @@ class CacheKey:
     plus pipeline version form the filename stem.
     """
 
-    subject: str
-    task: str
-    run: str | None
-    stage: Literal["rawfilt", "epochs"]
+    single_subject_task: SingleSubjectTask
+    stage: Literal["rawfilt", "epochs", "evoked"]
     params: dict  # DTO -> dict
     pipeline_ver: str  # bump when processing logic changes
 
     def subdir(self):
         """Return relative subdirectory path for this key."""
-        r = f"run-{self.run}" if self.run else "run-none"
-        return f"{self.subject}/{self.task}/{r}/{self.stage}"
+        sst = self.single_subject_task
+        r = f"run-{sst.run}" if sst.run else "run-none"
+        return f"{sst.subject}/{sst.task}/{r}/{self.stage}"
 
     def filename_stem(self):
         """Return deterministic stem (params hash + pipeline version)."""
@@ -78,8 +80,9 @@ class LocalCache:
     def _key_summary(self, key: CacheKey) -> str:
         """Return brief string identifying a cache key for logging."""
         try:
+            sst = key.single_subject_task
             return (
-                f"subject={key.subject}, task={key.task}, run={key.run}, "
+                f"subject={sst.subject}, task={sst.task}, run={sst.run}, "
                 f"stage={key.stage}, ver={key.pipeline_ver}, params_hash={_hash_of_dict(key.params)}"
             )
         except Exception:
@@ -111,7 +114,7 @@ class LocalCache:
         p = d / f"{key.filename_stem()}_{type}.{ext}"
         return p
 
-    def load_raw_filtered(self, key: CacheKey):
+    def load_raw_filtered(self, key: CacheKey) -> Raw:
         """Load filtered Raw if present else return None (quarantine corrupt)."""
         p = self._path_for(key, "eeg", "fif")
         self._log_get("rawfilt", p, key)

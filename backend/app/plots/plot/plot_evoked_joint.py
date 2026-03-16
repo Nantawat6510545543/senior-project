@@ -5,47 +5,39 @@ from app.schemas.params.evoked_filter_schema import EvokedJointParams
 from app.schemas.session_schema import PipelineSession
 
 
-# TODO fix inheritance hell
-def get_evoked_joint_params(session: PipelineSession):
-    evoked_dict = session.evoked.model_dump()
-
-    topo_dict = session.topomap.model_copy(
-        update={"combine_channels": False}
-    ).model_dump()
-
-    # remove overlapping keys from topo
-    for k in evoked_dict.keys():
-        topo_dict.pop(k, None)
-
-    evoked_joint_dto = EvokedJointParams(**evoked_dict, **topo_dict)
-    return evoked_joint_dto
-
-
 def prepare_evoked_joint_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
-    evoked_joint_dto = get_evoked_joint_params(session)
-    evoked = executor.get_evoked(evoked_joint_dto)
+    session_updated = session.model_copy(
+        update={
+            "filter": session.filter.model_copy(update={"combine_channels": False})
+        }
+    )
+
+    evoked = executor.get_evoked(session_updated)
 
     if evoked is None:
         return None
 
-    evoked_joint = prepare_channels(evoked, evoked_joint_dto)
+    evoked_joint = prepare_channels(evoked, session_updated.filter)
     return evoked_joint
 
-
+# TODO fix caption plot
 def plot_evoked_joint(evoked_joint, session: PipelineSession):
     """Plot joint time course + topomap panels; return finalized figure."""
-    evoked_joint_dto = get_evoked_joint_params(session)
+    evoked_joint_dto = EvokedJointParams(
+        evoked=session.evoked,
+        topomap=session.topomap
+    )
 
     fig = evoked_joint.plot_joint(
         times=evoked_joint_dto.resolved_times,
         topomap_args={},
         ts_args={"gfp": evoked_joint_dto.gfp, "spatial_colors": evoked_joint_dto.spatial_colors},
-        show=False,
+        show=False
     )
 
     header = FigureHeader(
         plot_name="Evoked Joint",
-        subject_line=format_subject_label(session.task, evoked_joint_dto.stimulus),
+        subject_line=format_subject_label(session.task, session.epochs.stimulus),
         caption_line=str(evoked_joint_dto)
     )
 

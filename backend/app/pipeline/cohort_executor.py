@@ -7,9 +7,11 @@ import time
 from mne import concatenate_raws, concatenate_epochs, grand_average
 from tqdm.auto import tqdm
 
+from app.pipeline.task_executor import EEGTaskExecutor
 from app.schemas.params.base_filter_schema import FilterParams
 from app.schemas.params.epoch_filter_schema import EpochParams
-from app.pipeline.task_executor import EEGTaskExecutor
+from app.schemas.session_schema import PipelineSession
+
 
 class EEGCohortExecutor:
     """Aggregate operations (filter, epochs, evoked) across a set of task models."""
@@ -62,7 +64,7 @@ class EEGCohortExecutor:
             self._channels = self.task_executor_list[0].channels
         return self._channels
 
-    def get_filtered_raw(self, filter_params: FilterParams):
+    def get_filtered_raw(self, session: PipelineSession):
         """Filter and concatenate Raw objects across all tasks (with cache)."""
         if self.filtered_raw is not None:
             return self.filtered_raw
@@ -73,7 +75,7 @@ class EEGCohortExecutor:
                                total=len(self.task_executor_list),
                                desc="Filtering raws",
                                leave=False):
-            raw = task_executor.get_filtered_raw(filter_params)
+            raw = task_executor.get_filtered_raw(session)
             if raw is not None:
                 filtered_list.append(raw)
         t_loop = time.perf_counter() - t0
@@ -97,7 +99,7 @@ class EEGCohortExecutor:
             filtered_list.clear()
         return self.filtered_raw
 
-    def get_epochs(self, epoch_params: EpochParams):
+    def get_epochs(self, session: PipelineSession):
         """Build and concatenate Epochs across tasks; return (epochs, labels)."""
         if self.epochs is not None:
             return self.epochs, self.labels
@@ -110,7 +112,7 @@ class EEGCohortExecutor:
                                total=len(self.task_executor_list),
                                desc="Building epochs",
                                leave=False):
-            epochs, labels = task_executor.get_epochs(epoch_params)
+            epochs, labels = task_executor.get_epochs(session)
             if epochs is None:
                 continue
             epochs_list.append(epochs)
@@ -133,7 +135,7 @@ class EEGCohortExecutor:
         self.labels = sorted(labels_union)
         return self.epochs, self.labels
 
-    def get_evoked(self, epoch_params: EpochParams):
+    def get_evoked(self, session: PipelineSession):
         """Compute per-subject averages then grand-average across subjects."""
         if self.evoked is not None:
             return self.evoked
@@ -142,7 +144,7 @@ class EEGCohortExecutor:
         evokeds_by_subject: dict[str, list] = {}
         t0 = time.perf_counter()
         for task_executor in self.task_executor_list:
-            evk = task_executor.get_evoked(epoch_params)
+            evk = task_executor.get_evoked(session)
             if evk is None:
                 continue
             subj = task_executor.task.subject

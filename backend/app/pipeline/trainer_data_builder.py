@@ -10,12 +10,11 @@ from app.schemas.session_schema import PipelineSession
 
 def dataset_from_events(executor: EEGTaskExecutor, session: PipelineSession):
     """Build dataset using event labels."""
-    params = session.epochs
-    epochs, labels = executor.get_epochs(params)
+    epochs, labels = executor.get_epochs(session)
     if epochs is None:
         return None, None, {"reason": "epochs_unavailable"}
     epochs.load_data()
-    epochs = prepare_channels(epochs, params)
+    epochs = prepare_channels(epochs, session.filter)
     X = epochs.get_data()
     if labels is None:
         inv_map = {v: k for k, v in (epochs.event_id or {}).items()}
@@ -32,9 +31,9 @@ def dataset_from_events(executor: EEGTaskExecutor, session: PipelineSession):
 
 
 def dataset_from_participants(
-        executor: EEGTaskExecutor, 
-        session: PipelineSession, 
-        cols: List[str], 
+        executor: EEGTaskExecutor,
+        session: PipelineSession,
+        cols: List[str],
         get_subjects_metadata: Callable
     ):
     """Build dataset using participants metadata columns (cohort preferred).
@@ -67,11 +66,11 @@ def dataset_from_participants(
         y_parts: List[Any] = []
         subj_ids: List[str] = []
         for tm in task_models:
-            epochs, _labels = tm.get_epochs(params)
+            epochs, _labels = tm.get_epochs(session)
             if epochs is None:
                 continue
             epochs.load_data()
-            epochs = prepare_channels(epochs, params)
+            epochs = prepare_channels(epochs, session.filter)
             subj = getattr(tm.task_dto, "subject", None)
             if subj is None:
                 continue
@@ -118,10 +117,10 @@ def dataset_from_participants(
             y = np.array(y_parts, dtype=object)
         ref_epochs = None
         for tm in task_models:
-            e, _ = tm.get_epochs(params)
+            e, _ = tm.get_epochs(session)
             if e is not None:
                 ref_epochs = e
-                ref_epochs = prepare_channels(ref_epochs, params)
+                ref_epochs = prepare_channels(ref_epochs, session.filter)
                 break
         sfreq = float(ref_epochs.info.get("sfreq", 0.0)) if ref_epochs is not None else 0.0
         ch_names = list(ref_epochs.ch_names) if ref_epochs is not None else []
@@ -129,11 +128,11 @@ def dataset_from_participants(
         return X.astype(np.float32), y, meta
 
     # Single-subject fallback
-    epochs, _labels = executor.get_epochs(params)
+    epochs, _ = executor.get_epochs(session)
     if epochs is None:
         return None, None, {"reason": "epochs_unavailable"}
     epochs.load_data()
-    epochs = prepare_channels(epochs, params)
+    epochs = prepare_channels(epochs, session.filter)
     X = epochs.get_data()
     subj = session.task.subject
     values = []

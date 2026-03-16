@@ -6,7 +6,7 @@ from app.schemas.session_schema import PipelineSession
 
 def prepare_epochs_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
     epochs_dto = session.epochs
-    epochs, _ = executor.get_epochs(epochs_dto)
+    epochs, _ = executor.get_epochs(session)
 
     if epochs is None:
         return None
@@ -14,7 +14,7 @@ def prepare_epochs_plot_data(executor: EEGTaskExecutor, session: PipelineSession
     if epochs_dto.stimulus and epochs_dto.stimulus in epochs.event_id:
         epochs = epochs[epochs_dto.stimulus]
 
-    epochs = prepare_channels(epochs, epochs_dto)
+    epochs = prepare_channels(epochs, session.filter)
     return epochs
 
 

@@ -5,8 +5,8 @@ from app.pipeline.task_executor import EEGTaskExecutor
 from app.schemas.session_schema import PipelineSession
 
 
-def prepare_plot_sensors_data(executor, session: PipelineSession) -> Raw:
-    raw = executor.get_filtered_raw(session.filter)
+def prepare_plot_sensors_data(executor: EEGTaskExecutor, session: PipelineSession) -> Raw:
+    raw = executor.get_filtered_raw(session)
 
     if session.filter:
         raw.pick(session.filter.channels_list)

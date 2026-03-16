@@ -5,7 +5,7 @@ from .base_filter_schema import FilterParams
 
 
 # TODO change architecture from OOP inheritance to pipeline (filter -> cleaning -> epoch -> evoked)
-class EpochParams(FilterParams):
+class EpochParams(BaseModel):
     tmin: float = Field(
         -2.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epochs"}
     )
@@ -29,10 +29,3 @@ class EpochParams(FilterParams):
     def normalize_none(cls, v):
         return None if v == "None" else v
 
-    @property
-    def epochs_key(self) -> dict[str, float]:
-        return {**self.cleaning_key, "tmin": self.tmin, "tmax": self.tmax}
-
-    @property
-    def evoked_key(self) -> dict[str, object]:
-        return {**self.epochs_key, "stimulus": self.stimulus}

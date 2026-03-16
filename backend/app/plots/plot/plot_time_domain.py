@@ -5,12 +5,13 @@ from app.schemas.session_schema import PipelineSession
 
 
 def prepare_time_domain_plot_data(executor: EEGTaskExecutor, session: PipelineSession):
-    raw = executor.get_filtered_raw(session.filter)
+    raw = executor.get_filtered_raw(session)
     if session.filter:
         raw.pick(session.filter.channels_list)
 
-    channels_prepared_raw = prepare_channels(raw, session.time)
+    channels_prepared_raw = prepare_channels(raw, session.filter)
     return channels_prepared_raw
+
 
 def plot_time_domain(channels_prepared_raw, session: PipelineSession):
     """Plot scrolling raw view with duration/start/channels; return figure list."""
