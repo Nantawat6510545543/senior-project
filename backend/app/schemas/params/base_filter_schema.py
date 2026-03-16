@@ -65,38 +65,9 @@ class FilterParams(BaseModel):
         False, json_schema_extra={"ui": "checkbox", "group": "cleaning"}
     )
 
-    # show_bad: bool = False
-
-    # @property
-    # def filter_key(self) -> dict[str, float | None]:
-    #     return {
-    #         "l_freq": self.l_freq,
-    #         "h_freq": self.h_freq,
-    #         "notch": self.notch,
-    #         "resample_fs": self.resample_fs,
-    #     }
-
-    # @property
-    # def cleaning_key(self) -> dict[str, float | bool]:
-    #     key = dict(self.filter_key)
-    #     for name in (
-    #         "clean_flatline_sec",
-    #         "clean_hf_noise_sd_max",
-    #         "clean_corr_min",
-    #         "clean_asr_max_std",
-    #         "clean_power_min_sd",
-    #         "clean_power_max_sd",
-    #         "clean_max_outbound_pct",
-    #         "clean_window_sec",
-    #     ):
-    #         val = getattr(self, name)
-    #         if val is not None:
-    #             key[name] = val
-
-    #     if self.clean_asr_remove_only:
-    #         key["clean_asr_remove_only"] = True
-
-    #     return key
+    show_bad: Optional[bool] = Field(
+        False, json_schema_extra={"ui": "checkbox", "group": "cleaning"}
+    )
 
     @property
     def channels_list(self) -> list[str]:

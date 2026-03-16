@@ -45,8 +45,8 @@ def build_plot_figure(view, task_executor, session):
         return plot_evoked_joint(evoked_joint, session)
 
     elif view == "evoked_per_condition":
-        data_list = prepare_evoked_per_condition_plot_data(task_executor, session)
-        return plot_evoked_per_condition(data_list, session)
+        prepared_evoked = prepare_evoked_per_condition_plot_data(task_executor, session)
+        return plot_evoked_per_condition(prepared_evoked, session)
 
     elif view == "snr_spectrum":
         psds, freqs, snrs = prepare_snr_plot_data(task_executor, session)

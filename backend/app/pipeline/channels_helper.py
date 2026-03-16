@@ -29,7 +29,7 @@ class ChannelsHelper:
         """Select channel indices honoring params.channels_list and showbad flag."""
         ch = getattr(self.params, 'channels_list', []) or []
         # Respect showbad: exclude marked bads from candidates unless requested
-        if getattr(self.params, 'showbad', False):
+        if getattr(self.params, 'show_bad', False):
             exclude = []
         else:
             exclude = list(getattr(self.inst.info, 'bads', []) or [])

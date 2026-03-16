@@ -9,32 +9,33 @@ from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.params.evoked_filter_schema import EvokedParams
 from app.schemas.session_schema import PipelineSession
 
-# TODO fix
+
 def prepare_evoked_per_condition_plot_data(
     executor: EEGTaskExecutor,
     session: PipelineSession
-) -> list[tuple[Evoked, EvokedParams]]:
+) -> list[tuple[Evoked, str]] | None:
     epochs, _ = executor.get_epochs(session)
     if epochs is None:
         return None
 
     prepared = []
 
-    for condition in epochs.event_id:
-        evoked_params = session.evoked.model_copy(update={"stimulus": condition})
+    for condition in epochs.event_id.keys():
+        epochs_params = session.epochs.model_copy(update={"stimulus": [condition]})
+        session_updated = session.model_copy(update={"epochs": epochs_params})
 
-        evoked = executor.get_evoked(session, evoked_params)
+        evoked = executor.get_evoked(session_updated)
         if evoked is None:
             continue
 
         prepared_evoked = prepare_channels(evoked, session.filter)
-        prepared.append((prepared_evoked, evoked_params))
+        prepared.append((prepared_evoked, condition))
 
     return prepared
 
 
 def plot_evoked_per_condition(
-        prepared_data: list[tuple[Evoked, EvokedParams]],
+        prepared_data: list[tuple[Evoked, str]],
         session: PipelineSession
     ):
     if not prepared_data:
@@ -42,13 +43,14 @@ def plot_evoked_per_condition(
 
     figs = []
 
-    for prepared_evoked, evoked_params in prepared_data:
+    for prepared_evoked, condition in prepared_data:
         fig, ax = plt.subplots()
 
-        draw_evoked_response(ax, prepared_evoked, evoked_params)
+        draw_evoked_response(ax, prepared_evoked, session.evoked)
 
-        x_lo = evoked_params.display_tmin or evoked_params.tmin
-        x_hi = evoked_params.display_tmax or evoked_params.tmax
+        params = session.evoked
+        x_lo = params.display_tmin if getattr(params, 'display_tmin', None) is not None else session.epochs.tmin
+        x_hi = params.display_tmax if getattr(params, 'display_tmax', None) is not None else session.epochs.tmax
 
         ax.set_xlim(x_lo, x_hi)
         ax.set(xlabel="Time [s]", ylabel="µV")
@@ -65,8 +67,8 @@ def plot_evoked_per_condition(
 
         header = FigureHeader(
             plot_name="Evoked per Condition",
-            subject_line=format_subject_label(session.task, session.epochs.stimulus),
-            caption_line=str(evoked_params),
+            subject_line=format_subject_label(session.task, condition),
+            caption_line=str(params),
         )
 
         figs.append(finalize_figure(fig, header))

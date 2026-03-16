@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 
-from .epoch_filter_schema import EpochParams
 
 # TODO fix inherit to EpochsPSDSchema
 class TrainingParams(BaseModel):

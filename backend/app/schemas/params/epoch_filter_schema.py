@@ -1,10 +1,7 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 
-from .base_filter_schema import FilterParams
 
-
-# TODO change architecture from OOP inheritance to pipeline (filter -> cleaning -> epoch -> evoked)
 class EpochParams(BaseModel):
     tmin: float = Field(
         -2.0, json_schema_extra={"ui": "number", "unit": "sec", "group": "epochs"}
