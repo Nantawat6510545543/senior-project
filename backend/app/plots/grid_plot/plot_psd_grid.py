@@ -7,11 +7,10 @@ from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
 
 from ..grid_plot_helpers import render_label_grid
-from .plot_snr_grid import get_epoch_psd_params
 
 
 def prepare_psd_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
-    epochs_psd_dto = get_epoch_psd_params(session)
+    epochs_psd_dto = session.epochs_psd
     epochs, available_labels = executor.get_epochs(session)
     if epochs is None:
         return None
@@ -63,7 +62,7 @@ def prepare_psd_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
 
 def plot_psd_grid(epochs, available_labels, psd_cache, session: PipelineSession):
     """Render PSD spectrum per label in a grid; return figure or None."""
-    epochs_psd_dto = get_epoch_psd_params(session)
+    epochs_psd_dto = session.epochs_psd
 
     scale_mode = getattr(epochs_psd_dto, "scale_mode", "per-plot")
     if isinstance(scale_mode, (list, tuple)) and scale_mode:

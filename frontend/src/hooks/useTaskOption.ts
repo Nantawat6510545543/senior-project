@@ -16,9 +16,14 @@ export default function useTaskOption(subject: string) {
     .then((tasks) => {
       setTaskOptions(
         tasks.map(([task, run]) => {
-          const value = run ? `${task}_run-${run}` : task
-          const label = run ? `${task} (run ${run})` : task
-          return { value, label }
+          if (!run) {
+            return { value: task, label: task }
+          }
+
+          return {
+            value: `${task}|run=${run}`,
+            label: `${task} (run ${run})`,
+          }
         })
       )
     })

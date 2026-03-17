@@ -23,10 +23,7 @@ def prepare_evoked_joint_plot_data(executor: EEGTaskExecutor, session: PipelineS
 # TODO fix caption plot
 def plot_evoked_joint(evoked_joint, session: PipelineSession):
     """Plot joint time course + topomap panels; return finalized figure."""
-    evoked_joint_dto = EvokedJointParams(
-        evoked=session.evoked,
-        topomap=session.topomap
-    )
+    evoked_joint_dto = session.evoked_joint
 
     fig = evoked_joint.plot_joint(
         times=evoked_joint_dto.resolved_times,

@@ -6,14 +6,13 @@ def prepare_epochs_table_data(executor: EEGTaskExecutor, session: PipelineSessio
 
     Columns include label, number of epochs/channels, sampling rate and durations.
     """
-    epochs_dto = session.epochs
-    epochs, labels = executor.get_epochs(session)
+    epochs, _ = executor.get_epochs(session)
 
     if epochs is None:
         return None
 
     rows = []
-    for label, _code in epochs.event_id.items():
+    for label in epochs.event_id.keys():
         try:
             cond_epochs = epochs[label]
         except Exception:
@@ -33,4 +32,3 @@ def prepare_epochs_table_data(executor: EEGTaskExecutor, session: PipelineSessio
         rows.append(row)
 
     return rows
-

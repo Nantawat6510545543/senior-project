@@ -6,7 +6,6 @@ from app.pipeline.task_executor import EEGTaskExecutor
 from app.plots.grid_plot_helpers import draw_evoked_response
 from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
 from app.plots.plot_merger import merge_figures_vertical
-from app.schemas.params.evoked_filter_schema import EvokedParams
 from app.schemas.session_schema import PipelineSession
 
 
@@ -49,8 +48,15 @@ def plot_evoked_per_condition(
         draw_evoked_response(ax, prepared_evoked, session.evoked)
 
         params = session.evoked
-        x_lo = params.display_tmin if getattr(params, 'display_tmin', None) is not None else session.epochs.tmin
-        x_hi = params.display_tmax if getattr(params, 'display_tmax', None) is not None else session.epochs.tmax
+        if getattr(params, 'display_tmin', None) is not None:
+            x_lo = params.display_tmin
+        else:
+            x_lo = session.epochs.tmin
+
+        if getattr(params, 'display_tmax', None) is not None:
+            x_hi = params.display_tmax
+        else:
+            x_hi = session.epochs.tmax
 
         ax.set_xlim(x_lo, x_hi)
         ax.set(xlabel="Time [s]", ylabel="µV")

@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 
+
 from app.schemas.task_schema import SingleSubjectTask
 from .params.base_filter_schema import FilterParams
 from .params.epoch_filter_schema import EpochParams
-from .params.evoked_filter_schema import EvokedParams, EvokedTopoParams
-from .params.psd_filter_schema import PSDParams
+from .params.evoked_filter_schema import EvokedJointParams, EvokedParams, EvokedTopoParams
+from .params.psd_filter_schema import EpochPSDParams, PSDParams
 from .params.table_filter_schema import TableParams
 from .params.subject_filter_schema import SubjectFilterParams
 from .params.time_domain_filter_schema import TimeDomainParams
@@ -25,3 +26,17 @@ class PipelineSession(BaseModel):
     topomap: EvokedTopoParams = Field(default_factory=EvokedTopoParams)
     table: TableParams = Field(default_factory=TableParams)
     training: TrainingParams = Field(default_factory=TrainingParams)
+
+    @property
+    def evoked_joint(self) -> EvokedJointParams:
+        return EvokedJointParams(
+            **self.evoked.model_dump(),
+            **self.topomap.model_dump()
+        )
+
+    @property
+    def epochs_psd(self) -> EpochPSDParams:
+        return EpochPSDParams(
+            **self.epochs.model_dump(),
+            **self.psd.model_dump(),
+        )

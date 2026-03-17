@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
 
-from .base_filter_schema import FilterParams
 
 class TableParams(BaseModel):
     rows: int = Field(

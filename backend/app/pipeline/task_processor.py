@@ -14,9 +14,7 @@ from app.core.cache_manager import CacheKey
 from app.pipeline.signal_cleaner import EEGCleaner
 from app.schemas.task_schema import SingleSubjectTask
 from app.schemas.session_schema import PipelineSession
-from app.schemas.params.base_filter_schema import FilterParams
 from app.schemas.params.epoch_filter_schema import EpochParams
-from app.schemas.params.evoked_filter_schema import EvokedParams
 
 
 set_log_level("WARNING")
@@ -167,10 +165,6 @@ class EEGTaskProcessor:
 
         self._log = logging.getLogger(__name__)
 
-    def _canonical_task(self, task_name: str) -> str:
-        # BIDS: task_run-1, task_acq-xyz_run-2, etc
-        return task_name.split("_")[0]
-
     def _apply_stimulus_filter(self, epochs: Epochs, params: EpochParams):
         stim = params.stimulus
         if isinstance(stim, (list, tuple)):
@@ -218,11 +212,9 @@ class EEGTaskProcessor:
 
     def get_epochs(self, session: PipelineSession) -> Epochs:
         """Return (epochs, labels) via registered task preprocessor with stimulus filter."""
-        # preprocess_fn = self.preprocessors.get(self.task_dto.task)
-        task_key = self._canonical_task(self.task_dto.task)
-        fn = TASK_PREPROCESSORS.get(task_key)
+        preprocess_fn = TASK_PREPROCESSORS.get(self.task_dto.task)
 
-        if fn is None:
+        if preprocess_fn is None:
             log.warning("Unsupported task: %s", self.task_dto.task)
             return None, "unavailable"
 
@@ -240,7 +232,7 @@ class EEGTaskProcessor:
                 return None, "unavailable"
             return epochs_sel, labels
 
-        epochs, labels = fn(self, session)
+        epochs, labels = preprocess_fn(self, session)
         if epochs is None:
             return None, "unavailable"
 

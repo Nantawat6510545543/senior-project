@@ -59,22 +59,5 @@ class EvokedTopoParams(BaseModel):
 
 
 # EvokedParams and TopoParams Composition
-class EvokedJointParams(BaseModel):
-    evoked: EvokedParams
-    topomap: EvokedTopoParams
-
-    @property
-    def resolved_times(self):
-        return self.topomap.resolved_times
-
-    @property
-    def gfp(self):
-        return self.evoked.gfp
-
-    @property
-    def spatial_colors(self):
-        return self.evoked.spatial_colors
-
-    @property
-    def stimulus(self):
-        return self.evoked.stimulus
+class EvokedJointParams(EvokedParams, EvokedTopoParams):
+    pass

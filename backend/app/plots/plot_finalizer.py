@@ -24,9 +24,9 @@ def format_subject_label(task: SingleSubjectTask, stimulus: str = None) -> str:
         return f"{task} - {stimulus}"
     return str(task)
 
-def finalize_figure(fig: plt.Figure, fig_header: FigureHeader, x=15, y=10, 
+def finalize_figure(fig: plt.Figure, fig_header: FigureHeader, x=15, y=10,
                     max_line_chars: int = 110, title_y: float = 0.995,
-                    gap_under_title: float = 0.030, subject_line_spacing: float = 0.022, 
+                    gap_under_title: float = 0.030, subject_line_spacing: float = 0.022,
                     caption_line_spacing: float = 0.016, extra_header_pad: float = 0.05) -> plt.Figure:
     """Finalize figure with wrapped header text using fixed positioning.
 

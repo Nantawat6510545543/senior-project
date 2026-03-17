@@ -1,7 +1,5 @@
 from pydantic import BaseModel, Field
 
-from .base_filter_schema import FilterParams
-
 
 class TimeDomainParams(BaseModel):
     duration: float = Field(

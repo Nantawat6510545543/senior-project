@@ -25,4 +25,3 @@ class EpochParams(BaseModel):
     @classmethod
     def normalize_none(cls, v):
         return None if v == "None" else v
-

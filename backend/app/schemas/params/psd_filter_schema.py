@@ -21,6 +21,5 @@ class PSDParams(BaseModel):
         True, json_schema_extra={"ui": "checkbox", "group": "psd"}
     )
 
-
 class EpochPSDParams(EpochParams, PSDParams):
     pass
