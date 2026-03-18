@@ -1,9 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Literal
 
+from app.schemas.params.psd_filter_schema import EpochPSDParams
 
-# TODO fix inherit to EpochsPSDSchema
+
 class TrainingParams(BaseModel):
+    epochs_psd: EpochPSDParams = Field(default_factory=EpochPSDParams)
+
     batch_size: int = Field(
         32,
         title="batch_size",

@@ -1,4 +1,5 @@
-from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
+from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.plot_finalizer import finalize_figure
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
 from app.schemas.session_schema import PipelineSession
@@ -28,7 +29,7 @@ def plot_time_domain(channels_prepared_raw, session: PipelineSession):
     header = FigureHeader(
         plot_name="Time Domain",
         subject_line=format_subject_label(session.task),
-        caption_line=str(time_domain_dto)
+        caption_line=format_caption_label(session.filter, session.time)
     )
 
     final_fig = finalize_figure(fig, header)

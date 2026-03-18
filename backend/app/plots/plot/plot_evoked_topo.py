@@ -2,7 +2,8 @@ from mne import Evoked
 
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
-from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
+from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.plot_finalizer import finalize_figure
 from app.schemas.session_schema import PipelineSession
 
 
@@ -29,7 +30,7 @@ def plot_evoked_topo(evoked_topo: Evoked, session: PipelineSession):
     header = FigureHeader(
         plot_name="Evoked Topo",
         subject_line=format_subject_label(session.task, session.epochs.stimulus),
-        caption_line=str(session.topomap)
+        caption_line=format_caption_label(session.filter, session.evoked, session.topomap)
     )
 
     return finalize_figure(fig, header)

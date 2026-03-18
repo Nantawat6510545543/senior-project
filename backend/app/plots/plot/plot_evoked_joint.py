@@ -1,7 +1,7 @@
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
-from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
-from app.schemas.params.evoked_filter_schema import EvokedJointParams
+from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.plot_finalizer import finalize_figure
 from app.schemas.session_schema import PipelineSession
 
 
@@ -20,7 +20,7 @@ def prepare_evoked_joint_plot_data(executor: EEGTaskExecutor, session: PipelineS
     evoked_joint = prepare_channels(evoked, session_updated.filter)
     return evoked_joint
 
-# TODO fix caption plot
+
 def plot_evoked_joint(evoked_joint, session: PipelineSession):
     """Plot joint time course + topomap panels; return finalized figure."""
     evoked_joint_dto = session.evoked_joint
@@ -35,7 +35,7 @@ def plot_evoked_joint(evoked_joint, session: PipelineSession):
     header = FigureHeader(
         plot_name="Evoked Joint",
         subject_line=format_subject_label(session.task, session.epochs.stimulus),
-        caption_line=str(evoked_joint_dto)
+        caption_line=format_caption_label(session.filter, session.epochs, evoked_joint_dto)
     )
 
     return finalize_figure(fig, header)

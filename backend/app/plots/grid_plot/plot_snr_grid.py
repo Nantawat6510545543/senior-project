@@ -4,10 +4,10 @@ import numpy as np
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.signal_spatial import compute_snr_spectrum
 from app.pipeline.task_executor import EEGTaskExecutor
+from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.grid_plot_helpers import render_label_grid
 from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
-
-from app.plots.grid_plot_helpers import render_label_grid
 
 
 def prepare_snr_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
@@ -60,7 +60,6 @@ def prepare_snr_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
     return epochs, available_labels, snr_cache
 
 
-# TODO fix dto type (EpochPSD)
 def plot_snr_grid(epochs, available_labels, snr_cache, session: PipelineSession):
     """Render SNR spectrum per label in a grid; return figure or None."""
     epochs_psd_dto = session.epochs_psd
@@ -86,12 +85,17 @@ def plot_snr_grid(epochs, available_labels, snr_cache, session: PipelineSession)
 
         return float(np.nanmin(mean)), float(np.nanmax(mean))
 
+    header = FigureHeader(
+        plot_name="SNR Grid",
+        subject_line=None, # will be formatted it render_label_grid
+        caption_line=format_caption_label(session.filter, session.epochs_psd)
+    )
+
     rendered_fig = render_label_grid(
+        header=header,
         task_dto=session.task,
         epochs=epochs,
         available_labels=available_labels,
-        params=epochs_psd_dto,
-        plot_name="SNR Grid",
         xlim=(epochs_psd_dto.fmin, epochs_psd_dto.fmax),
         xlabel="Frequency [Hz]",
         unit_tag="SNR",

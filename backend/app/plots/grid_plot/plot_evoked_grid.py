@@ -3,10 +3,11 @@ import numpy as np
 
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
+from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.grid_plot_helpers import draw_evoked_response, render_label_grid
 from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
 
-from ..grid_plot_helpers import draw_evoked_response, render_label_grid
 
 
 def prepare_evoked_grid_data(executor: EEGTaskExecutor, session: PipelineSession):
@@ -63,16 +64,21 @@ def plot_evoked_grid(epochs, available_labels, evoked_cache, session: PipelineSe
 
         return None
 
+    header = FigureHeader(
+        plot_name="Evoked Grid",
+        subject_line=None, # will be formatted it render_label_grid
+        caption_line=format_caption_label(session.filter, session.epochs, session.evoked)
+    )
+
     rendered_fig = render_label_grid(
+        header=header,
         task_dto=session.task,
         epochs=epochs,
         available_labels=available_labels,
-        params=evoked_dto,
-        plot_name="Evoked Grid",
         xlim=(session.epochs.tmin, session.epochs.tmax),
         xlabel="Time [s]",
         unit_tag="µV",
-        scale_mode=evoked_dto.scale_mode,
+        scale_mode=session.evoked.scale_mode,
         per_cell_draw=_draw,
     )
 

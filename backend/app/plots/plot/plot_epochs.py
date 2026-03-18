@@ -1,6 +1,7 @@
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
-from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
+from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.plot_finalizer import finalize_figure
 from app.schemas.session_schema import PipelineSession
 
 
@@ -25,7 +26,7 @@ def plot_epochs(epochs, session: PipelineSession):
     header = FigureHeader(
         plot_name="Epoch Plot",
         subject_line=format_subject_label(session.task, session.epochs.stimulus),
-        caption_line=str(session.epochs)
+        caption_line=format_caption_label(session.filter, session.epochs)
     )
 
     final_fig = finalize_figure(fig, header)

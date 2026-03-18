@@ -2,27 +2,11 @@
 
 Contains helpers to finalize Matplotlib figures with wrapped titles and captions.
 """
-from dataclasses import dataclass
-from typing import Optional
-
-
 import textwrap
 import matplotlib.pyplot as plt
 
-from app.schemas.task_schema import SingleSubjectTask
+from app.plots.figure_header import FigureHeader
 
-
-@dataclass(slots=True)
-class FigureHeader:
-    plot_name: str
-    subject_line: Optional[str] = None
-    caption_line: Optional[str] = None
-
-def format_subject_label(task: SingleSubjectTask, stimulus: str = None) -> str:
-    """Human readable subject line for figure headers."""
-    if stimulus:
-        return f"{task} - {stimulus}"
-    return str(task)
 
 def finalize_figure(fig: plt.Figure, fig_header: FigureHeader, x=15, y=10,
                     max_line_chars: int = 110, title_y: float = 0.995,

@@ -14,9 +14,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from matplotlib.axes import Axes
+from mne import Evoked
 from tqdm.auto import tqdm
 
-from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
+from app.plots.figure_header import FigureHeader, format_subject_label
+from app.plots.plot_finalizer import finalize_figure
+from app.schemas.task_schema import SingleSubjectTask
+from app.schemas.params.evoked_filter_schema import EvokedParams
 
 
 # ---- token & axis helpers ----
@@ -65,7 +69,7 @@ def reshape_axes_array(axes, num_rows: int, num_cols: int):
 
 # ---- drawing helpers ----
 
-def draw_evoked_response(axis, evoked, params):
+def draw_evoked_response(axis, evoked: Evoked, params: EvokedParams):
     """Draw evoked time series onto a Matplotlib axis."""
     times = evoked.times
     data_microvolts = evoked.data * 1e6
@@ -92,11 +96,10 @@ def draw_evoked_response(axis, evoked, params):
 
 def render_label_grid(
         *,
-        task_dto,
+        task_dto: SingleSubjectTask,
+        header: FigureHeader,
         epochs,
         available_labels,
-        params,
-        plot_name: str,
         xlim: tuple[float, float],
         xlabel: str,
         unit_tag: str,
@@ -114,7 +117,7 @@ def render_label_grid(
     num_rows, num_cols = len(row_values), len(column_values)
     total_cells = len(page_values) * max(1, num_rows) * max(1, num_cols)
 
-    with tqdm(total=total_cells, desc=f"{plot_name} cells", leave=False) as pbar:
+    with tqdm(total=total_cells, desc=f"{header.plot_name} cells", leave=False) as pbar:
         for page_token in page_values:
             fig, axes = plt.subplots(max(1, num_rows), max(1, num_cols), sharex=False, sharey=False)
             axes_2d = reshape_axes_array(axes, max(1, num_rows), max(1, num_cols))
@@ -171,11 +174,7 @@ def render_label_grid(
 
             page_stimulus = page_token if (grid_mode == 3 and page_token is not None) else None
 
-            header = FigureHeader(
-                plot_name=plot_name,
-                subject_line=format_subject_label(task_dto, page_stimulus),
-                caption_line=str(params)
-            )
+            header.subject_line=format_subject_label(task_dto, page_stimulus)
 
             final_fig = finalize_figure(fig, header)
             figures.append(final_fig)

@@ -100,10 +100,10 @@ export default function EEGUI() {
           onChange={setAction}
         />
 
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <PurpleCheckbox name="ui.show_all_groups" />
           <SubHeader>Show all groups</SubHeader>
-        </div>
+        </div> */}
       </Card>
 
       {/* Schema Parameters Tabs */}

@@ -4,7 +4,8 @@ from mne import Evoked
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
 from app.plots.grid_plot_helpers import draw_evoked_response
-from app.plots.plot_finalizer import FigureHeader, finalize_figure, format_subject_label
+from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.plot_finalizer import finalize_figure
 from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
 
@@ -74,7 +75,7 @@ def plot_evoked_per_condition(
         header = FigureHeader(
             plot_name="Evoked per Condition",
             subject_line=format_subject_label(session.task, condition),
-            caption_line=str(params),
+            caption_line=format_caption_label(session.filter, session.epochs, session.evoked),
         )
 
         figs.append(finalize_figure(fig, header))
