@@ -15,4 +15,8 @@ class ProgressEmitter:
 
     def sync_log(self, message, level="info", progress=None):
         """Allow logging from threadpool / sync code."""
-        asyncio.run(self.log(message, level, progress))
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self.log(message, level, progress))
+        except RuntimeError:
+            asyncio.run(self.log(message, level, progress))

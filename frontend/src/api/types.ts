@@ -38,3 +38,17 @@ export type SessionFormSchema = {
   topomap: Record<string, any>
   table: Record<string, any>
 }
+
+export const schemaEndpoints = [
+  "filter",
+  "epochs",
+  "psd",
+  "evoked",
+  "topomap",
+  "time",
+  "table",
+  "training",
+  "subject_type",
+] as const
+
+export type SchemaEndpoints = typeof schemaEndpoints[number]

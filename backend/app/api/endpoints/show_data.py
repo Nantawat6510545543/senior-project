@@ -20,7 +20,6 @@ def build_table_data(
         task_executor,
         session: PipelineSession,
         pm: ParticipantManager,
-        progress: ProgressEmitter
     ):
 
     if view == "eeg_table":
@@ -36,7 +35,7 @@ def build_table_data(
         return prepare_build_dataset_data(task_executor, session, pm.get_subjects_metadata)
 
     elif view == "train_eeg":
-        return prepare_train_eeg_data(task_executor, session, pm.get_subjects_metadata, progress)
+        return prepare_train_eeg_data(task_executor, session, pm.get_subjects_metadata)
     
     elif view == "model_summary":
         return prepare_model_summary_data(task_executor, session, pm.get_subjects_metadata)
@@ -54,32 +53,31 @@ async def show_data(
     view: ViewName = Query(...),
     runId: str = Query(...)
 ):
-    progress = ProgressEmitter(lambda msg: ws_manager.send(runId, msg))
+    progress_emitter = ProgressEmitter(lambda msg: ws_manager.send(runId, msg))
 
-    await progress.log("Session loaded")
+    await progress_emitter.log("Session loaded")
 
     try:
-        await progress.log("Resolving EEG task")
+        await progress_emitter.log("Resolving EEG task")
 
         pm = request.app.state.participant_manager
 
         if session.subject_type == "single":
-            task_executor = get_single_subject_executor(pm, session.task)
+            task_executor = get_single_subject_executor(pm, session.task, progress_emitter)
         else:
-            task_executor = get_cohort_subject_executor(pm, session.subject_filter)
+            task_executor = get_cohort_subject_executor(pm, session.subject_filter, progress_emitter)
 
-        await progress.log(f"Building table data for: {view}")
+        await progress_emitter.log(f"Building table data for: {view}")
 
         result = await run_in_threadpool(
             build_table_data,
             view,
             task_executor,
             session,
-            pm,
-            progress
+            pm
         )
 
-        await progress.log("Serializing table data")
+        await progress_emitter.log("Serializing table data")
 
         # Convert DataFrame → JSON-safe structure
         if isinstance(result, pd.DataFrame):
@@ -90,10 +88,10 @@ async def show_data(
                 .to_dict(orient="records")
             )
 
-        await progress.log("Table ready")
+        await progress_emitter.log("Table ready")
 
         return result
 
     except Exception as e:
-        await progress.log(str(e), level="error")
+        await progress_emitter.log(str(e), level="error")
         raise

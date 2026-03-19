@@ -12,10 +12,16 @@ interface LogPanelProps {
 
 export default function LogPanel({ runId }: LogPanelProps) {
   const logs = useWebSocketLogs(runId)
-  const bottomRef = useRef<HTMLDivElement | null>(null)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    const viewport = scrollRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLDivElement | null
+
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight
+    }
   }, [logs])
 
   return (
@@ -27,7 +33,10 @@ export default function LogPanel({ runId }: LogPanelProps) {
       </CardHeader>
 
       <CardContent className="p-0">
-        <ScrollArea className="h-[230px] px-4 py-2 font-mono text-sm bg-white text-purple-900">
+        <ScrollArea
+          ref={scrollRef}
+          className="h-[230px] px-4 py-2 font-mono text-sm bg-white text-purple-900"
+        >
           {logs.map((log, index) => (
             <div key={index} className="flex gap-2 items-start mb-1">
               <span className="text-purple-400">
@@ -43,7 +52,6 @@ export default function LogPanel({ runId }: LogPanelProps) {
               <span>{log.message}</span>
             </div>
           ))}
-          <div ref={bottomRef} />
         </ScrollArea>
       </CardContent>
     </Card>

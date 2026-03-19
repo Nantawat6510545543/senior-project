@@ -1,6 +1,5 @@
 import type { SessionFormSchema } from "./types";
-
-const BACKEND_URL = "http://localhost:8000";
+import { BACKEND_URL } from "@/config";
 
 export const apiFetch = async (path: string, options: RequestInit) => {
   const res = await fetch(`${BACKEND_URL}${path}`, options);

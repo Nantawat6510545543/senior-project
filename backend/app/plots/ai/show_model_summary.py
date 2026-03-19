@@ -9,7 +9,7 @@ from app.ai_models.EEGNetMultiReg import EEGNetMultiReg
 def prepare_model_summary_data(
         executor: EEGTaskExecutor,
         session: PipelineSession,
-        get_subjects_metadata: Callable    
+        get_subjects_metadata: Callable
     ):
     """Return a torchinfo-style textual summary for EEGNetMultiReg."""
     X, y_raw, meta = build_epoch_dataset(executor, session, get_subjects_metadata)

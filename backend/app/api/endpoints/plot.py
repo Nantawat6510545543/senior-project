@@ -77,19 +77,19 @@ async def plot(
     view: ViewName = Query(...),
     runId: str = Query(...)
 ):
-    progress = ProgressEmitter(lambda msg: ws_manager.send(runId, msg))
+    progress_emitter = ProgressEmitter(lambda msg: ws_manager.send(runId, msg))
 
     try:
-        await progress.log("Resolving EEG task")
+        await progress_emitter.log("Resolving EEG task")
 
         pm = request.app.state.participant_manager
 
         if session.subject_type == "single":
-            task_executor = get_single_subject_executor(pm, session.task)
+            task_executor = get_single_subject_executor(pm, session.task, progress_emitter)
         elif session.subject_type == "cohort":
-            task_executor = get_cohort_subject_executor(pm, session.subject_filter)
+            task_executor = get_cohort_subject_executor(pm, session.subject_filter, progress_emitter)
 
-        await progress.log(f"Building plot figure for: {view}")
+        await progress_emitter.log(f"Building plot figure for: {view}")
 
         # All heavy work runs here in one thread
         fig = await run_in_threadpool(
@@ -99,7 +99,7 @@ async def plot(
             session
         )
 
-        await progress.log("Encoding PNG")
+        await progress_emitter.log("Encoding PNG")
 
         buf = io.BytesIO()
 
@@ -113,10 +113,10 @@ async def plot(
         plt.close(fig)
         buf.seek(0)
 
-        await progress.log("Plot complete")
+        await progress_emitter.log("Plot complete")
 
         return StreamingResponse(buf, media_type="image/png")
 
     except Exception as e:
-        await progress.log(str(e), level="error")
+        await progress_emitter.log(str(e), level="error")
         raise  # For dev debugging

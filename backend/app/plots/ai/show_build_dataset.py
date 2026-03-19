@@ -8,7 +8,7 @@ from app.pipeline.trainer_data_builder import build_epoch_dataset
 from app.schemas.session_schema import PipelineSession
 
 def prepare_build_dataset_data(
-        executor: EEGTaskExecutor, 
+        executor: EEGTaskExecutor,
         session: PipelineSession,
         get_subjects_metadata: Callable
     ):

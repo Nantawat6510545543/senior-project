@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { BACKEND_URL } from "@/config";
 
 type LogMessage = {
   time: string
@@ -14,7 +15,22 @@ export function useWebSocketLogs(runId: string | null) {
 
     setLogs([])
 
-    const ws = new WebSocket(`ws://localhost:8000/progress/${runId}`)
+
+    // WS URL: `ws://localhost:8000/progress/${runId}`
+    const wsUrl = BACKEND_URL.replace(/^http/, "ws") + `/progress/${runId}`
+    const ws = new WebSocket(wsUrl)
+
+
+    ws.onopen = () => {
+      setLogs((prev) => [
+        ...prev,
+        {
+          time: new Date().toTimeString().split(" ")[0],
+          level: "INFO",
+          message: "Session initialized"
+        }
+      ])
+    }
 
     ws.onmessage = (event) => {
       try {

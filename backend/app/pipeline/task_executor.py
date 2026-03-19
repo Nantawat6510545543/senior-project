@@ -3,6 +3,7 @@ from mne.io import Raw
 from typing import Optional, Type
 
 from app.core.cache_manager import LocalCache, PIPELINE_VERSION
+from app.core.progress_logger import ProgressEmitter
 from app.pipeline.task_loader import EEGTaskLoader
 from app.pipeline.task_processor import EEGTaskProcessor
 from app.schemas.task_schema import SingleSubjectTask
@@ -18,6 +19,7 @@ class EEGTaskExecutor:
         self,
         task: SingleSubjectTask,
         data_dir,
+        progress_emitter: ProgressEmitter | None = None,
         *,
         cache: Optional[LocalCache] = None,
         loader_cls: Type[EEGTaskLoader] = EEGTaskLoader,
@@ -38,6 +40,7 @@ class EEGTaskExecutor:
         self.loader = None
         self.processor = None
         self.cache = cache
+        self.progress_emitter = progress_emitter
 
     def _ensure(self):
         """Ensure loader, cache and processor are initialized."""

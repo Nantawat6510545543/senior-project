@@ -11,7 +11,6 @@ import numpy as np
 from typing import Any, Callable
 
 from app.ai_models.EEGNetMultiReg import EEGNetMultiReg
-from app.core.progress_logger import ProgressEmitter
 from app.pipeline.task_executor import EEGTaskExecutor
 from app.pipeline.trainer_data_builder import build_epoch_dataset
 from app.schemas.session_schema import PipelineSession
@@ -34,7 +33,6 @@ def prepare_train_eeg_data(
     executor: EEGTaskExecutor,
     session: PipelineSession,
     get_subjects_metadata: Callable,
-    ws_progress: ProgressEmitter
 ) -> dict[str, Any]:
     """Train EEGNetMultiReg on selected regression targets and return metrics."""
     t0 = time.perf_counter()
@@ -312,7 +310,7 @@ def prepare_train_eeg_data(
             pass
 
         # Progress Logging
-        if ws_progress:
+        if executor.progress_emitter:
             meter = tqdm.format_meter(
                 n=epoch_iter.n,
                 total=epoch_iter.total,
@@ -321,7 +319,7 @@ def prepare_train_eeg_data(
                 unit="epoch"
             )
 
-            ws_progress.sync_log(
+            executor.progress_emitter.sync_log(
                 f"Epoch {epoch + 1} | "
                 f"Training loss={train_loss:.3f} | "
                 f"Validation (MAE)={val_mae:.3f} | "
