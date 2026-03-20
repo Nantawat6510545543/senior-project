@@ -11,7 +11,8 @@ import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { useEffect, useState, type ReactNode } from "react"
-import { useSchema, type SchemaEndpoints } from "@/hooks/useSchema"
+import type { SchemaEndpoints } from "@/api/types"
+import { useSchema } from "@/hooks/useSchema"
 
 // -----------------------------
 // Which action needs which tabs

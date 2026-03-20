@@ -7,7 +7,7 @@ import PurpleCheckbox from "@/components/PurpleCheckbox"
 import Combobox from "@/components/ComboBox"
 
 import { SubHeader } from "@/components/Fonts"
-import type { SchemaEndpoints } from "@/hooks/useSchema"
+import type { SchemaEndpoints } from "@/api/types"
 
 
 function getSchemaFieldsByGroup(schema: any, groups: string[]) {

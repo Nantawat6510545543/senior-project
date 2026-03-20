@@ -5,8 +5,7 @@ import { useFormContext } from "react-hook-form"
 
 import { Card } from "@/components/ui/card"
 import OptionButtons from "@/components/OptionsButton"
-import { Header, SubHeader } from "@/components/Fonts"
-import PurpleCheckbox from "@/components/PurpleCheckbox"
+import { Header } from "@/components/Fonts"
 import SettingsTab from "@/components/TabRenderer"
 import PrimaryButton from "@/components/PrimaryButton"
 import { fetchTableData, getPlotUrl } from "@/api/api"
@@ -45,7 +44,12 @@ export default function EEGUI() {
   async function handleRunInline(session: SessionFormSchema) {
     console.log("Session", session)
 
-    const view = modeData.actions[safeAction]
+    const actionsMap = modeData.actions
+    if (!(safeAction in actionsMap)) {
+      throw new Error("Invalid view action")
+    }
+
+    const view = actionsMap[safeAction as keyof typeof actionsMap]
 
     if (TABLE_VIEW.includes(view)) {
       const json = await fetchTableData(session, view, runId)
