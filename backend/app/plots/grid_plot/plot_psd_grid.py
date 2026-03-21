@@ -3,7 +3,7 @@ import numpy as np
 
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.task_executor import EEGTaskExecutor
-from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.figure_header import FigureHeader, format_caption_label
 from app.plots.grid_plot_helpers import render_label_grid
 from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
@@ -88,14 +88,14 @@ def plot_psd_grid(epochs, available_labels, psd_cache, session: PipelineSession)
         return float(np.nanmin(mean)), float(np.nanmax(mean))
 
     header = FigureHeader(
-        plot_name="SNR Grid",
+        plot_name="PSD Grid",
         subject_line=None, # will be formatted it render_label_grid
         caption_line=format_caption_label(session.filter, session.epochs_psd)
     )
 
     rendered_fig = render_label_grid(
         header=header,
-        task_dto=session.task,
+        session=session,
         epochs=epochs,
         available_labels=available_labels,
         xlim=(epochs_psd_dto.fmin, epochs_psd_dto.fmax),

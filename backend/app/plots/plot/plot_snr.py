@@ -78,7 +78,7 @@ def plot_snr(psds, freqs, snrs, session: PipelineSession):
 
     header = FigureHeader(
         plot_name="SNR Spectrum",
-        subject_line=format_subject_label(session.task, session.epochs.stimulus),
+        subject_line=format_subject_label(session),
         caption_line=format_caption_label(session.filter, session.epochs)
     )
 

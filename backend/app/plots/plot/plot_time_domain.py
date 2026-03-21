@@ -28,7 +28,7 @@ def plot_time_domain(channels_prepared_raw, session: PipelineSession):
 
     header = FigureHeader(
         plot_name="Time Domain",
-        subject_line=format_subject_label(session.task),
+        subject_line=format_subject_label(session),
         caption_line=format_caption_label(session.filter, session.time)
     )
 

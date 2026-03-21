@@ -13,8 +13,13 @@ export function useWebSocketLogs(runId: string | null) {
   useEffect(() => {
     if (!runId) return
 
-    setLogs([])
-
+  setLogs([
+    {
+      time: new Date().toTimeString().split(" ")[0],
+      level: "INFO",
+      message: "Please wait until the server is connected before running the experiment..."
+    }
+  ])
 
     // WS URL: `ws://localhost:8000/progress/${runId}`
     const wsUrl = BACKEND_URL.replace(/^http/, "ws") + `/progress/${runId}`
@@ -27,7 +32,7 @@ export function useWebSocketLogs(runId: string | null) {
         {
           time: new Date().toTimeString().split(" ")[0],
           level: "INFO",
-          message: "Session initialized"
+          message: "Server is connected"
         }
       ])
     }

@@ -19,8 +19,8 @@ from tqdm.auto import tqdm
 
 from app.plots.figure_header import FigureHeader, format_subject_label
 from app.plots.plot_finalizer import finalize_figure
-from app.schemas.task_schema import SingleSubjectTask
 from app.schemas.params.evoked_filter_schema import EvokedParams
+from app.schemas.session_schema import PipelineSession
 
 
 # ---- token & axis helpers ----
@@ -96,7 +96,7 @@ def draw_evoked_response(axis, evoked: Evoked, params: EvokedParams):
 
 def render_label_grid(
         *,
-        task_dto: SingleSubjectTask,
+        session: PipelineSession,
         header: FigureHeader,
         epochs,
         available_labels,
@@ -174,7 +174,7 @@ def render_label_grid(
 
             page_stimulus = page_token if (grid_mode == 3 and page_token is not None) else None
 
-            header.subject_line=format_subject_label(task_dto, page_stimulus)
+            header.subject_line=format_subject_label(session.task, page_stimulus)
 
             final_fig = finalize_figure(fig, header)
             figures.append(final_fig)

@@ -35,7 +35,7 @@ def plot_evoked(evoked: Evoked, session: PipelineSession):
 
     header = FigureHeader(
         plot_name="Evoked Plot",
-        subject_line=format_subject_label(session.task, session.epochs.stimulus),
+        subject_line=format_subject_label(session),
         caption_line=format_caption_label(session.filter, session.epochs, session.evoked)
     )
 

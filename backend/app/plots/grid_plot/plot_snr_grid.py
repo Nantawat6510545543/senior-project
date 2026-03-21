@@ -4,7 +4,7 @@ import numpy as np
 from app.pipeline.channels_helper import prepare_channels
 from app.pipeline.signal_spatial import compute_snr_spectrum
 from app.pipeline.task_executor import EEGTaskExecutor
-from app.plots.figure_header import FigureHeader, format_caption_label, format_subject_label
+from app.plots.figure_header import FigureHeader, format_caption_label
 from app.plots.grid_plot_helpers import render_label_grid
 from app.plots.plot_merger import merge_figures_vertical
 from app.schemas.session_schema import PipelineSession
@@ -93,7 +93,7 @@ def plot_snr_grid(epochs, available_labels, snr_cache, session: PipelineSession)
 
     rendered_fig = render_label_grid(
         header=header,
-        task_dto=session.task,
+        session=session,
         epochs=epochs,
         available_labels=available_labels,
         xlim=(epochs_psd_dto.fmin, epochs_psd_dto.fmax),

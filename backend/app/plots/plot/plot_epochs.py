@@ -25,7 +25,7 @@ def plot_epochs(epochs, session: PipelineSession):
 
     header = FigureHeader(
         plot_name="Epoch Plot",
-        subject_line=format_subject_label(session.task, session.epochs.stimulus),
+        subject_line=format_subject_label(session),
         caption_line=format_caption_label(session.filter, session.epochs)
     )
 

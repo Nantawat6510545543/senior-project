@@ -16,7 +16,9 @@ import SubjectFilterForm from "@/components/forms/SubjectFilterForm"
 import PurpleTable from "@/components/PurpleTable"
 import type { SessionFormSchema } from "@/api/types"
 
-
+// TODO fix updating RangeFilter returning Nnone
+// TODO update README.md
+// TODO add sample.env
 export default function EEGUI() {
   const [mode, setMode] = useState<PlotMode>("Plot")
   const [action, setAction] = useState(
@@ -40,10 +42,13 @@ export default function EEGUI() {
     safeAction = actions[0]
   }
 
-  // TODO resolve
   async function handleRunInline(session: SessionFormSchema) {
     console.log("Session", session)
 
+    // Clear previous results immediately (for better UX)
+    setPlotUrl(null)
+    setTableData(null)
+    
     const actionsMap = modeData.actions
     if (!(safeAction in actionsMap)) {
       throw new Error("Invalid view action")

@@ -29,7 +29,7 @@ def plot_evoked_topo(evoked_topo: Evoked, session: PipelineSession):
 
     header = FigureHeader(
         plot_name="Evoked Topo",
-        subject_line=format_subject_label(session.task, session.epochs.stimulus),
+        subject_line=format_subject_label(session),
         caption_line=format_caption_label(session.filter, session.evoked, session.topomap)
     )
 

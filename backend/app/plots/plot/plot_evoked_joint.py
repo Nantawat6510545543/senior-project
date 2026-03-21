@@ -34,7 +34,7 @@ def plot_evoked_joint(evoked_joint, session: PipelineSession):
 
     header = FigureHeader(
         plot_name="Evoked Joint",
-        subject_line=format_subject_label(session.task, session.epochs.stimulus),
+        subject_line=format_subject_label(session),
         caption_line=format_caption_label(session.filter, session.epochs, evoked_joint_dto)
     )
 

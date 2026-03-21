@@ -74,7 +74,7 @@ def plot_evoked_per_condition(
 
         header = FigureHeader(
             plot_name="Evoked per Condition",
-            subject_line=format_subject_label(session.task, condition),
+            subject_line=format_subject_label(session, condition),
             caption_line=format_caption_label(session.filter, session.epochs, session.evoked),
         )
 
