@@ -12,6 +12,7 @@ class RangeFilter(BaseModel):
         json_schema_extra={"ui": "number", "placeholder": "max"},
     )
 
+
 class SubjectFilterParams(BaseModel):
     task: Optional[str] = Field(
         None,

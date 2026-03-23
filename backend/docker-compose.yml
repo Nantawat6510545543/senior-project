@@ -1,0 +1,47 @@
+services:
+  ml-app:
+    build: .
+    container_name: ml-app
+
+    # ==========================================
+    # LOCAL DEVELOPMENT OVERRIDE
+    # This ignores the Dockerfile's CMD and adds --reload 
+    # so you don't have to rebuild when you edit code.
+    # ==========================================
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+    ports:
+      - "8000:8000"
+
+    # ==========================================
+    # 1. THE PORTALS (Volumes)
+    # This reads your .env file to find your physical Windows folders
+    # and plugs them into the container's internal slots.
+    # ==========================================
+    volumes:
+      # Syncs your live Python code into the container
+      - .:/code
+      
+      # Plugs your HBN-EEG folder into the /dataset slot
+      - ${DATA_ROOT}:/dataset
+      
+      # Plugs your local jobs folder into the /code/jobs slot
+      - ${JOBS_ROOT}:/code/jobs
+
+    # ==========================================
+    # 2. THE PATH OVERRIDE (Environment)
+    # This intercepts Python and forces it to use the container's 
+    # internal paths instead of your local Windows paths.
+    # ==========================================
+    environment:
+      - DATA_ROOT=/dataset
+      - JOBS_ROOT=/code/jobs
+
+    # ==========================================
+    # 3. LOAD THE REST (Env File)
+    # This automatically pulls in BACKEND_URL, FRONTEND_URL, etc.
+    # ==========================================
+    env_file:
+      - .env
+
+    restart: always
