@@ -20,7 +20,7 @@ export const apiFetch = async (path: string, options: RequestInit = {}) => {
 };
 
 export async function getPlotUrl(session: SessionFormSchema, view: string, runId: string) {
-  const res = await fetch(`${BACKEND_URL}/plot?view=${view}&runId=${runId}`, {
+  const res = await fetch(`${BACKEND_URL}/plot/?view=${view}&runId=${runId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export async function getTasks(subject: string) {
 export async function fetchTableData(
   session: SessionFormSchema, view: string, runId: string
 ) {
-  return apiFetch(`/data?view=${view}&runId=${runId}`, {
+  return apiFetch(`/data/?view=${view}&runId=${runId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
