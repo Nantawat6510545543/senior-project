@@ -489,7 +489,7 @@ class ParticipantManager:
                 df = df[mask]
 
         filters = subject_filter_dto.model_dump(exclude_none=True)
-
+        print("Filter", filters)
         for name, val in filters.items():
             if name in ('task', 'subject', 'run', 'subject_limit', 'per_subject'):
                 continue
@@ -498,11 +498,15 @@ class ParticipantManager:
             if val in ({}, None):
                 continue
 
-            if name.endswith('_range'):
-                col = name[:-6]
-                if col in df.columns and isinstance(val, (tuple, list)):
-                    lo, hi = val
+            # Filter from RangeFilter
+            if isinstance(val, dict):
+                col = name
+                if col in df.columns:
+                    lo = val.get('min')
+                    hi = val.get('max')
+
                     s = pd.to_numeric(df[col], errors='coerce')
+
                     if lo is not None:
                         df = df[s >= lo]
                     if hi is not None:
