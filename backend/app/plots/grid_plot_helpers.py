@@ -174,7 +174,7 @@ def render_label_grid(
 
             page_stimulus = page_token if (grid_mode == 3 and page_token is not None) else None
 
-            header.subject_line=format_subject_label(session.task, page_stimulus)
+            header.subject_line=format_subject_label(session, page_stimulus)
 
             final_fig = finalize_figure(fig, header)
             figures.append(final_fig)
