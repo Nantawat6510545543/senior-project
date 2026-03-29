@@ -1,9 +1,9 @@
 services:
   ml-app:
     build: .
-    container_name: ml-app
+    container_name: eeg-platform
 
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
     ports:
       - "8000:8000"
@@ -18,5 +18,18 @@ services:
 
     env_file:
       - .env
+
+    restart: always
+
+  ngrok:
+    image: ngrok/ngrok:latest
+
+    depends_on:
+      - ml-app
+
+    command: http ml-app:8000 --domain=${NGROK_DOMAIN}
+
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
 
     restart: always
